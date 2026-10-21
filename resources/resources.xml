@@ -1,0 +1,9 @@
+<resources>
+    <strings>
+        <string id="AppName">Tibber Energy</string>
+    </strings>
+
+    <bitmaps>
+        <bitmap id="LauncherIcon" filename="launcher_icon.png" />
+    </bitmaps>
+</resources>

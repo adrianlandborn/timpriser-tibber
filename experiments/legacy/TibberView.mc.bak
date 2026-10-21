@@ -1,0 +1,121 @@
+import Toybox.Graphics;
+import Toybox.WatchUi;
+import Toybox.Lang;
+import Toybox.System;
+
+class TibberView extends WatchUi.View {
+    private var _priceData as Dictionary?;
+    private var _isLoading as Boolean = false;
+    private var _errorMessage as String?;
+
+    function initialize() {
+        View.initialize();
+    }
+
+    // Load your resources here
+    function onLayout(dc as Dc) as Void {
+        // Simple layout - no need for complex resources
+    }
+
+    // Called when this View is brought to the foreground. Restore
+    // the state of this View and prepare it to be shown. This includes
+    // loading resources into memory.
+    function onShow() as Void {
+        System.println("TibberView onShow called");
+        // Disable API call for testing
+        // loadPriceData();
+    }
+
+    // Update the view
+    function onUpdate(dc as Dc) as Void {
+        try {
+            System.println("TibberView onUpdate called");
+            // Clear the screen with white background
+            dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_WHITE);
+            dc.clear();
+
+            // Set black text
+            dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_TRANSPARENT);
+
+            // Simple, safe text drawing
+            dc.drawText(100, 50, Graphics.FONT_MEDIUM, "TIBBER", Graphics.TEXT_JUSTIFY_LEFT);
+            dc.drawText(100, 80, Graphics.FONT_SMALL, "ENERGY", Graphics.TEXT_JUSTIFY_LEFT);
+            dc.drawText(100, 110, Graphics.FONT_TINY, "WORKING", Graphics.TEXT_JUSTIFY_LEFT);
+
+        } catch (ex) {
+            // If anything fails, just draw a simple message
+            dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_WHITE);
+            dc.clear();
+            dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_TRANSPARENT);
+            dc.drawText(50, 50, Graphics.FONT_SMALL, "APP", Graphics.TEXT_JUSTIFY_LEFT);
+        }
+    }
+
+    private function drawPriceData(dc as Dc, width as Number, height as Number) as Void {
+        if (_priceData == null) {
+            return;
+        }
+
+        var y = height / 2 - 40;
+
+        // Draw current price
+        var currentPrice = _priceData.get("currentPrice");
+        var currency = _priceData.get("currency");
+        if (currentPrice != null) {
+            dc.setColor(Graphics.COLOR_GREEN, Graphics.COLOR_TRANSPARENT);
+            var priceUnit = "öre/kWh"; // Swedish öre
+            if (currency != null && !currency.equals("SEK")) {
+                priceUnit = " " + currency + "/kWh"; // Other currencies (not converted)
+            }
+            var priceText = currentPrice.format("%.2f") + " " + priceUnit;
+            dc.drawText(width / 2, y, Graphics.FONT_LARGE, priceText, Graphics.TEXT_JUSTIFY_CENTER);
+            y += 40;
+        }
+
+        // Draw currency and timestamp
+        dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
+        if (currency != null) {
+            dc.drawText(width / 2, y, Graphics.FONT_SMALL, "Currency: " + currency, Graphics.TEXT_JUSTIFY_CENTER);
+            y += 25;
+        }
+
+        var timestamp = _priceData.get("timestamp");
+        if (timestamp != null) {
+            dc.drawText(width / 2, y, Graphics.FONT_TINY, "Updated: " + timestamp, Graphics.TEXT_JUSTIFY_CENTER);
+        }
+    }
+
+    function loadPriceData() as Void {
+        System.println("Loading price data from Tibber API");
+        _isLoading = true;
+        _errorMessage = null;
+        WatchUi.requestUpdate();
+
+        var tibberClient = new TibberApiClient();
+        tibberClient.getCurrentPrice(method(:onPriceDataReceived));
+    }
+
+    function onPriceDataReceived(responseData) as Void {
+        _isLoading = false;
+
+        if (responseData instanceof Dictionary) {
+            _priceData = responseData;
+            _errorMessage = null;
+        } else if (responseData instanceof String) {
+            _errorMessage = responseData as String;
+            _priceData = null;
+        } else {
+            _errorMessage = "Unknown error occurred";
+            _priceData = null;
+        }
+
+        WatchUi.requestUpdate();
+    }
+
+    // Called when this View is removed from the screen. Save the
+    // state of this View here. This includes freeing resources from
+    // memory.
+    function onHide() as Void {
+    }
+
+}

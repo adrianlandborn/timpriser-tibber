@@ -1,0 +1,25 @@
+.DS_Store
+
+# Local credentials and signing material
+.env
+.env.*
+!.env.example
+developer_key.pem
+developer_key.der
+*.pem
+*.key
+*.p12
+*.pfx
+source/TibberSecrets.mc
+
+# Connect IQ generated build output
+/TibberWidget.prg
+/TibberWidget_backup.prg
+/TibberWidget.prg.debug.xml
+/bin/
+/gen/
+/mir/
+/internal-mir/
+/external-mir/
+*.prg
+*.prg.debug.xml

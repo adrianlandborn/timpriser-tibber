@@ -1,0 +1,24 @@
+import Toybox.WatchUi;
+import Toybox.System;
+
+class TibberDelegate extends WatchUi.BehaviorDelegate {
+
+    function initialize() {
+        BehaviorDelegate.initialize();
+    }
+
+    function onMenu() as Boolean {
+        WatchUi.pushView(new Rez.Menus.MainMenu(), new TibberMenuDelegate(), WatchUi.SLIDE_UP);
+        return true;
+    }
+
+    function onSelect() as Boolean {
+        // Refresh data when select button is pressed
+        var view = WatchUi.getViewFromContext() as TibberView;
+        if (view != null) {
+            view.loadPriceData();
+        }
+        return true;
+    }
+
+}

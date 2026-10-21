@@ -1,0 +1,23 @@
+import Toybox.WatchUi;
+
+class TibberMenuDelegate extends WatchUi.MenuInputDelegate {
+
+    function initialize() {
+        MenuInputDelegate.initialize();
+    }
+
+    function onMenuItem(item as Symbol) as Void {
+        if (item == :item_1) {
+            // Refresh data
+            var view = WatchUi.getViewFromContext() as TibberView;
+            if (view != null) {
+                view.loadPriceData();
+            }
+            WatchUi.popView(WatchUi.SLIDE_DOWN);
+        } else if (item == :item_2) {
+            // Settings (placeholder for future implementation)
+            WatchUi.popView(WatchUi.SLIDE_DOWN);
+        }
+    }
+
+}
