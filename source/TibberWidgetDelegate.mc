@@ -12,15 +12,11 @@ class TibberWidgetDelegate extends WatchUi.BehaviorDelegate {
     }
 
     function onSelect() {
-        // Handle SELECT button press - refresh price data
-        System.println("onSelect called");
-        if (_view != null && _view has :refreshPriceData) {
-            System.println("Calling refreshPriceData");
-            _view.refreshPriceData();
-        } else {
-            System.println("View is null or doesn't have refreshPriceData");
+        if (_view != null && _view has :showPriceGraph) {
+            _view.showPriceGraph();
+            return true;
         }
-        return true;
+        return false;
     }
 
     function onTap(clickEvent) {
@@ -38,9 +34,8 @@ class TibberWidgetDelegate extends WatchUi.BehaviorDelegate {
         System.println("onKey called");
         var key = keyEvent.getKey();
         if (key == WatchUi.KEY_ENTER) {
-            if (_view != null && _view has :refreshPriceData) {
-                System.println("Calling refreshPriceData from key");
-                _view.refreshPriceData();
+            if (_view != null && _view has :showPriceGraph) {
+                _view.showPriceGraph();
             }
             return true;
         }
@@ -48,10 +43,9 @@ class TibberWidgetDelegate extends WatchUi.BehaviorDelegate {
     }
 
     function onMenu() {
-        // Handle menu button - refresh data
-        System.println("onMenu called");
-        if (_view != null && _view has :refreshPriceData) {
-            System.println("Calling refreshPriceData from menu");
+        if (_view != null && _view has :togglePriceResolution) {
+            _view.togglePriceResolution();
+        } else if (_view != null && _view has :refreshPriceData) {
             _view.refreshPriceData();
         }
         return true;

@@ -1,0 +1,63 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Launch TibberWidget in Connect IQ Simulator",
+			"type": "shell",
+			"command": "monkeydo",
+			"args": [
+				"bin/TibberWidget-fenix7xpro.prg",
+				"fenix7xpro"
+			],
+			"isBackground": true,
+			"problemMatcher": []
+		},
+		{
+			"label": "Locate Connect IQ Simulator Launcher",
+			"type": "shell",
+			"command": "find",
+			"args": [
+				"/Users/adrian.landborn/Library/Application Support/Garmin",
+				"/Applications",
+				"-type",
+				"f",
+				"-name",
+				"monkeydo",
+				"-print"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Run TibberWidget Fenix 7X Pro Simulator",
+			"type": "shell",
+			"command": "/Users/adrian.landborn/Library/Application Support/Garmin/ConnectIQ/Sdks/connectiq-sdk-mac-9.3.0-2026-10-20-95888f262/bin/monkeydo",
+			"args": [
+				"bin/TibberWidget-fenix7xpro.prg",
+				"fenix7xpro"
+			],
+			"isBackground": true,
+			"problemMatcher": []
+		},
+		{
+			"label": "Check Java Runtime for Connect IQ",
+			"type": "shell",
+			"command": "/usr/libexec/java_home",
+			"args": [
+				"-V"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Check Java Installation Options",
+			"type": "shell",
+			"command": "which",
+			"args": [
+				"brew"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		}
+	]
+}

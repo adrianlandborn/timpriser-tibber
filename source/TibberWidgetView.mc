@@ -8,6 +8,7 @@ class TibberWidgetView extends WatchUi.View {
     var _isLoading;
     var _errorMessage;
     var _tibberClient;
+    var _priceResolution;
 
     function initialize() {
         View.initialize();
@@ -15,6 +16,7 @@ class TibberWidgetView extends WatchUi.View {
         _isLoading = false;
         _errorMessage = null;
         _tibberClient = new TibberApiClient();
+        _priceResolution = "QUARTER_HOURLY";
     }
 
     // Load your resources here
@@ -35,12 +37,11 @@ class TibberWidgetView extends WatchUi.View {
 
     // Update the view
     function onUpdate(dc) {
-        // Clear the screen with white background
-        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_WHITE);
+        // Clear the screen with black background
+        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
         dc.clear();
 
-        // Set black text
-        dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_TRANSPARENT);
+        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
 
         var width = dc.getWidth();
         var height = dc.getHeight();
@@ -55,14 +56,18 @@ class TibberWidgetView extends WatchUi.View {
     }
 
     function drawLoadingScreen(dc, width, height) {
-        dc.drawText(width / 2, height / 2 - 10, Graphics.FONT_SMALL, "Loading...", Graphics.TEXT_JUSTIFY_CENTER);
-        dc.drawText(width / 2, height / 2 + 15, Graphics.FONT_TINY, "Tibber Energy", Graphics.TEXT_JUSTIFY_CENTER);
+        drawTextStack(dc, width, height, [
+            ["Loading...", Graphics.FONT_SMALL],
+            ["Tibber Energy", Graphics.FONT_TINY]
+        ]);
     }
 
     function drawErrorScreen(dc, width, height) {
-        dc.drawText(width / 2, height / 2 - 20, Graphics.FONT_TINY, "Error:", Graphics.TEXT_JUSTIFY_CENTER);
-        dc.drawText(width / 2, height / 2, Graphics.FONT_TINY, _errorMessage, Graphics.TEXT_JUSTIFY_CENTER);
-        dc.drawText(width / 2, height / 2 + 20, Graphics.FONT_TINY, "Tibber Energy", Graphics.TEXT_JUSTIFY_CENTER);
+        drawTextStack(dc, width, height, [
+            ["Error", Graphics.FONT_SMALL],
+            [_errorMessage, Graphics.FONT_TINY],
+            ["Tibber Energy", Graphics.FONT_TINY]
+        ]);
     }
 
     function drawCurrentPriceScreen(dc, width, height) {
@@ -71,31 +76,132 @@ class TibberWidgetView extends WatchUi.View {
             var currentTime = _priceData.get("current_time");
 
             if (currentPrice != null) {
-                // Current price - large and centered
-                dc.drawText(width / 2, height / 2 - 25, Graphics.FONT_LARGE, currentPrice, Graphics.TEXT_JUSTIFY_CENTER);
-                dc.drawText(width / 2, height / 2 + 5, Graphics.FONT_SMALL, "öre/kWh", Graphics.TEXT_JUSTIFY_CENTER);
-
-                // Current time
-                if (currentTime != null) {
-                    dc.drawText(width / 2, height / 2 + 25, Graphics.FONT_TINY, currentTime, Graphics.TEXT_JUSTIFY_CENTER);
+                var currency = _priceData.get("currency");
+                var priceUnit = "öre/kWh";
+                if (currency != null && !currency.equals("SEK")) {
+                    priceUnit = currency + "/kWh";
                 }
 
-                // Show current view info - positioned for round screen
-                dc.drawText(width / 2, height / 2 + 40, Graphics.FONT_TINY, "Current Price", Graphics.TEXT_JUSTIFY_CENTER);
+                var priceFont = Graphics.FONT_LARGE;
+                if (width < 220 || height < 220) {
+                    priceFont = Graphics.FONT_MEDIUM;
+                }
+
+                var rows = [
+                    [currentPrice, priceFont],
+                    [priceUnit, Graphics.FONT_SMALL]
+                ];
+                if (currentTime != null) {
+                    rows.add([currentTime, Graphics.FONT_TINY]);
+                }
+                var resolutionLabel = _priceResolution.equals("HOURLY") ? "Hourly price" : "15-minute price";
+                rows.add([resolutionLabel, Graphics.FONT_TINY]);
+                drawTextStack(dc, width, height, rows);
             } else {
-                dc.drawText(width / 2, height / 2, Graphics.FONT_SMALL, "No price data", Graphics.TEXT_JUSTIFY_CENTER);
+                drawTextStack(dc, width, height, [
+                    ["No price data", Graphics.FONT_SMALL]
+                ]);
             }
         } else {
-            dc.drawText(width / 2, height / 2 - 10, Graphics.FONT_SMALL, "TIBBER", Graphics.TEXT_JUSTIFY_CENTER);
-            dc.drawText(width / 2, height / 2 + 10, Graphics.FONT_TINY, "Loading...", Graphics.TEXT_JUSTIFY_CENTER);
+            drawTextStack(dc, width, height, [
+                ["TIBBER", Graphics.FONT_SMALL],
+                ["Loading...", Graphics.FONT_TINY]
+            ]);
         }
+    }
+
+    function drawTextStack(dc, width, height, rows) {
+        var maxWidth = width - 16;
+        var spacing = 3;
+        var heights = [];
+        var totalHeight = 0;
+
+        for (var i = 0; i < rows.size(); i++) {
+            var text = rows[i][0] as String;
+            var font = fitFont(dc, text, rows[i][1], maxWidth);
+            text = fitText(dc, text, font, maxWidth);
+            rows[i][0] = text;
+            rows[i][1] = font;
+
+            var dimensions = dc.getTextDimensions(text, font);
+            var lineHeight = dimensions[1];
+            heights.add(lineHeight);
+            totalHeight += lineHeight;
+            if (i > 0) {
+                totalHeight += spacing;
+            }
+        }
+
+        var y = (height - totalHeight) / 2;
+        for (var i = 0; i < rows.size(); i++) {
+            var lineHeight = heights[i];
+            var centerY = y + lineHeight / 2;
+            dc.drawText(
+                width / 2,
+                centerY,
+                rows[i][1],
+                rows[i][0],
+                Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER
+            );
+            y += lineHeight + spacing;
+        }
+    }
+
+    function fitFont(dc, text, font, maxWidth) {
+        while (dc.getTextWidthInPixels(text, font) > maxWidth && font != Graphics.FONT_TINY) {
+            if (font == Graphics.FONT_LARGE) {
+                font = Graphics.FONT_MEDIUM;
+            } else if (font == Graphics.FONT_MEDIUM) {
+                font = Graphics.FONT_SMALL;
+            } else {
+                font = Graphics.FONT_TINY;
+            }
+        }
+        return font;
+    }
+
+    function fitText(dc, text, font, maxWidth) {
+        if (dc.getTextWidthInPixels(text, font) <= maxWidth) {
+            return text;
+        }
+
+        var shortened = text;
+        while (shortened.length() > 3 && dc.getTextWidthInPixels(shortened + "...", font) > maxWidth) {
+            shortened = shortened.substring(0, shortened.length() - 1);
+        }
+
+        if (shortened.length() > 3) {
+            return shortened + "...";
+        }
+
+        while (shortened.length() > 0 && dc.getTextWidthInPixels(shortened, font) > maxWidth) {
+            shortened = shortened.substring(0, shortened.length() - 1);
+        }
+        return shortened;
     }
 
     function fetchPriceData() {
         _isLoading = true;
         WatchUi.requestUpdate();
 
-        _tibberClient.getCurrentPrice(method(:onPriceDataReceived));
+        _tibberClient.getCurrentPrice(method(:onPriceDataReceived), _priceResolution);
+    }
+
+    function togglePriceResolution() {
+        _priceResolution = _priceResolution.equals("QUARTER_HOURLY") ? "HOURLY" : "QUARTER_HOURLY";
+        _priceData = null;
+        _errorMessage = null;
+        fetchPriceData();
+    }
+
+    function showPriceGraph() {
+        var graphView = new TibberPriceGraphView(_priceResolution, method(:onGraphResolutionChanged));
+        var graphDelegate = new TibberPriceGraphDelegate(graphView);
+        WatchUi.pushView(graphView, graphDelegate, WatchUi.SLIDE_UP);
+    }
+
+    function onGraphResolutionChanged(resolution) {
+        _priceResolution = resolution;
     }
 
     function refreshPriceData() {

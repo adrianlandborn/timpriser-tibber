@@ -1,13 +1,15 @@
 # Tibber Energy Widget for Connect IQ
 
-A Garmin Connect IQ widget prototype for displaying Tibber electricity prices. The current data callbacks return mock values; live GraphQL request code is present but disabled.
+A Garmin Connect IQ widget for displaying current Tibber electricity prices using the Tibber GraphQL API.
+
+Press START/STOP to open the 24-hour price graph. Press BACK to return, tap to refresh the current screen, and MENU to switch between hourly and 15-minute prices.
 
 ## Requirements
 
 - Garmin Connect IQ SDK 9.3.0 or newer, with device packs for the selected target
 - Garmin Monkey C VS Code extension (optional if using the SDK command line)
 - A local Garmin developer signing key (`developer_key.der`) for compilation
-- A Tibber API token only if live API requests are enabled
+- A Tibber API access token with permission to read home data
 
 The application minimum API version is 3.2.0 for compatibility with retained older devices. Fenix 7 products have a higher device API baseline.
 
@@ -15,13 +17,13 @@ The application minimum API version is 3.2.0 for compatibility with retained old
 
 Signing keys and local credentials are not stored in Git. Keep `developer_key.der` in the project root as a local file; `.gitignore` excludes it.
 
-The current app uses mock data, so a Tibber token is not needed to build or run it. If enabling the live request path, create a local secrets source from the template:
+Create a local secrets source from the template if one is not already present:
 
 ```sh
 cp source/TibberSecrets.mc.example source/TibberSecrets.mc
 ```
 
-Then return your token from `TibberSecrets.getApiToken()` in `source/TibberSecrets.mc`. That local file is ignored. Never put a real token in the template or commit it.
+Set your token as the return value of `TibberSecrets.getApiToken()` in `source/TibberSecrets.mc`. That local file is ignored. Never put a real token in the template or commit it. The app sends authenticated HTTPS POST requests to Tibber and requests current price data when opened; refresh is available from the watch controls.
 
 ## Build
 
@@ -32,6 +34,29 @@ monkeyc -f monkey.jungle -o /tmp/TibberWidget.prg -y developer_key.der -d fenix6
 ```
 
 Replace `fenix6` with a supported product ID below. If `monkeyc` is not on `PATH`, invoke it by its full path under the installed SDK's `bin/` directory. The Garmin Monkey C extension can also build the project and launch it in the Connect IQ simulator. Keep build output outside the repository or in ignored generated-output directories.
+
+## Run in the simulator
+
+On macOS, start the Connect IQ simulator from a terminal:
+
+```sh
+connectiq
+```
+
+Once the simulator is open, use a second terminal from the project root to load the existing Fenix 7X Pro build:
+
+```sh
+monkeydo bin/TibberWidget-fenix7xpro.prg fenix7xpro
+```
+
+To run a fresh build instead, compile for the same device and pass the output package to `monkeydo`:
+
+```sh
+monkeyc -f monkey.jungle -o bin/TibberWidget-fenix7xpro.prg -y developer_key.der -d fenix7xpro
+monkeydo bin/TibberWidget-fenix7xpro.prg fenix7xpro
+```
+
+If `connectiq`, `monkeyc`, or `monkeydo` is not on `PATH`, invoke the command from the installed SDK's `bin/` directory. Keep the simulator open while launching the package.
 
 ## Supported products
 
@@ -45,11 +70,17 @@ Replace `fenix6` with a supported product ID below. If `monkeyc` is not on `PATH
 
 The Fenix 7 products are declared in the manifest. A device pack must be installed to compile or simulate its specific target.
 
+## Price intervals
+
+The widget defaults to Tibber's `QUARTER_HOURLY` resolution. Press MENU to toggle between `QUARTER_HOURLY` and `HOURLY`; the displayed label identifies the active resolution. The graph's START/STOP button refreshes its daily data. Both `getCurrentPrice(callback, resolution)` and `getDailyPrices(callback, resolution)` accept either resolution.
+
+The 24-hour graph plots Tibber's `today` price series. `getDailyPrices()` returns a dictionary with `resolution`, `resolution_minutes`, and an `intervals` array; each interval contains its ISO `starts_at`, local `start_time`, `start_minute_of_day`, `duration_minutes`, numeric and formatted price, currency, and level. A typical quarter-hour day contains 96 intervals, though daylight-saving transitions can change the count.
+
 ## Project layout
 
 - `source/TibberApp.mc`: widget application entry point
 - `source/TibberWidgetView.mc` and `source/TibberWidgetDelegate.mc`: active widget view and input handling
-- `source/TibberApiClient.mc`: mock data and disabled live API request implementation
+- `source/TibberApiClient.mc`: Tibber GraphQL requests, response parsing, and error handling
 - `source/TibberSecrets.mc.example`: token-free local configuration template
 - `experiments/`: standalone test apps and archived legacy views/delegates excluded from production builds
 - `experiments/legacy/`: older views/delegates and their backups retained for reference
@@ -57,4 +88,4 @@ The Fenix 7 products are declared in the manifest. A device pack must be install
 
 ## Data and privacy
 
-Mock data is returned by default. The disabled live request implementation sends a Tibber API token to Tibber's GraphQL endpoint. Only enable it for an account and device you control, and follow Tibber's API terms and applicable privacy requirements.
+The access token is sent only to Tibber's GraphQL endpoint over HTTPS. Use a personal access token only for your own account; a distributed app should use Tibber's OAuth flow rather than embedding a personal token. Follow Tibber's API terms and applicable privacy requirements.
