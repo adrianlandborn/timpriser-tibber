@@ -2,7 +2,7 @@
 
 A Garmin Connect IQ widget for displaying current Tibber electricity prices using the Tibber GraphQL API.
 
-Press START/STOP to open the 24-hour price graph. Press BACK to return, tap to refresh the current screen, and MENU to switch between hourly and 15-minute prices.
+Press START/STOP to open the price graph and BACK to return. On the graph, UP shows today's quarter-hour prices and DOWN shows hourly prices for today plus tomorrow when available. START/STOP or MENU refreshes the active graph page. On the main screen, MENU toggles the current-price resolution.
 
 ## Requirements
 
@@ -72,14 +72,16 @@ The Fenix 7 products are declared in the manifest. A device pack must be install
 
 ## Price intervals
 
-The widget defaults to Tibber's `QUARTER_HOURLY` resolution. Press MENU to toggle between `QUARTER_HOURLY` and `HOURLY`; the displayed label identifies the active resolution. The graph's START/STOP button refreshes its daily data. Both `getCurrentPrice(callback, resolution)` and `getDailyPrices(callback, resolution)` accept either resolution.
+The main screen defaults to Tibber's `QUARTER_HOURLY` resolution. Its MENU button toggles between `QUARTER_HOURLY` and `HOURLY`. The graph pages use fixed resolutions: `QUARTER_HOURLY` for today, then `HOURLY` for today and tomorrow. If tomorrow's prices are not published yet, the second page shows today's hourly prices and an availability note. Both `getCurrentPrice(callback, resolution)` and `getDailyPrices(callback, resolution, includeTomorrow)` accept a resolution.
 
-The 24-hour graph plots Tibber's `today` price series. `getDailyPrices()` returns a dictionary with `resolution`, `resolution_minutes`, and an `intervals` array; each interval contains its ISO `starts_at`, local `start_time`, `start_minute_of_day`, `duration_minutes`, numeric and formatted price, currency, and level. A typical quarter-hour day contains 96 intervals, though daylight-saving transitions can change the count.
+The graph plots Tibber's `today` series and appends `tomorrow` for its second page when available. Each interval keeps its ISO `starts_at`, local `start_time`, timestamp-based plot offset, `duration_minutes`, numeric and formatted price, currency, and level. A typical quarter-hour day contains 96 intervals, though daylight-saving transitions can change the count.
 
 ## Project layout
 
 - `source/TibberApp.mc`: widget application entry point
 - `source/TibberWidgetView.mc` and `source/TibberWidgetDelegate.mc`: active widget view and input handling
+- `source/TibberPriceGraphView.mc` and `source/TibberPriceGraphDelegate.mc`: two-page price graph and navigation
+- `source/TibberPriceChart.mc`: reusable, rendering-only step chart
 - `source/TibberApiClient.mc`: Tibber GraphQL requests, response parsing, and error handling
 - `source/TibberSecrets.mc.example`: token-free local configuration template
 - `experiments/`: standalone test apps and archived legacy views/delegates excluded from production builds

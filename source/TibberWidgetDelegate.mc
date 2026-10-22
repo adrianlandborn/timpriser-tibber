@@ -3,54 +3,58 @@ import Toybox.Lang;
 import Toybox.System;
 
 class TibberWidgetDelegate extends WatchUi.BehaviorDelegate {
-    var _view;
+    var _widgetView;
 
-    function initialize(view) {
+    /** Create the main-screen input delegate. */
+    function initialize(widgetView) {
         BehaviorDelegate.initialize();
-        _view = view;
-        System.println("TibberWidgetDelegate initialized with view: " + (_view != null ? "yes" : "no"));
+        _widgetView = widgetView;
+        System.println("TibberWidgetDelegate initialized with view: " + (_widgetView != null ? "yes" : "no"));
     }
 
+    /** Open the graph when START/SELECT is pressed. */
     function onSelect() {
-        if (_view != null && _view has :showPriceGraph) {
-            _view.showPriceGraph();
+        if (_widgetView != null && _widgetView has :showPriceGraph) {
+            _widgetView.showPriceGraph();
             return true;
         }
         return false;
     }
 
-    function onTap(clickEvent) {
-        // Handle touch screen tap - refresh on tap
+    /** Refresh the current price when the screen is tapped. */
+    function onTap(tapEvent) {
         System.println("onTap called");
-        if (_view != null && _view has :refreshPriceData) {
+        if (_widgetView != null && _widgetView has :refreshPriceData) {
             System.println("Calling refreshPriceData from tap");
-            _view.refreshPriceData();
+            _widgetView.refreshPriceData();
         }
         return true;
     }
 
+    /** Route the physical ENTER key to the graph entry action. */
     function onKey(keyEvent) {
-        // Handle any key press
         System.println("onKey called");
-        var key = keyEvent.getKey();
-        if (key == WatchUi.KEY_ENTER) {
-            if (_view != null && _view has :showPriceGraph) {
-                _view.showPriceGraph();
+        var pressedKey = keyEvent.getKey();
+        if (pressedKey == WatchUi.KEY_ENTER) {
+            if (_widgetView != null && _widgetView has :showPriceGraph) {
+                _widgetView.showPriceGraph();
             }
             return true;
         }
         return false;
     }
 
+    /** Toggle current-price resolution from the main screen's MENU button. */
     function onMenu() {
-        if (_view != null && _view has :togglePriceResolution) {
-            _view.togglePriceResolution();
-        } else if (_view != null && _view has :refreshPriceData) {
-            _view.refreshPriceData();
+        if (_widgetView != null && _widgetView has :togglePriceResolution) {
+            _widgetView.togglePriceResolution();
+        } else if (_widgetView != null && _widgetView has :refreshPriceData) {
+            _widgetView.refreshPriceData();
         }
         return true;
     }
 
+    /** Preserve the widget's existing back-button behavior. */
     function onBack() {
         // Handle back button - close widget
         System.println("onBack called");

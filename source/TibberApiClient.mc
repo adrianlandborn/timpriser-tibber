@@ -8,66 +8,81 @@ class TibberApiClient {
     private var _responseCallback;
     private var _requestType; // "current" or "daily"
     private var _requestResolution;
+    private var _requestIncludeTomorrow;
 
+    /** Initialize the HTTP request state for this client instance. */
     function initialize() {
         _responseCallback = null;
         _requestType = null;
         _requestResolution = null;
+        _requestIncludeTomorrow = false;
     }
 
-    function getCurrentPrice(callback, resolution) {
-        if (!isSupportedResolution(resolution)) {
-            callback.invoke("Unsupported Tibber price resolution");
+    /** Fetch the current price for the requested Tibber resolution. */
+    function getCurrentPrice(responseCallback, priceResolution) {
+        if (!isSupportedResolution(priceResolution)) {
+            responseCallback.invoke("Unsupported Tibber price resolution");
             return;
         }
 
         var query = {
-            "query" => "{ viewer { homes { currentSubscription { priceInfo(resolution: " + resolution + ") { current { total level currency startsAt } } } } } }"
+            "query" => "{ viewer { homes { currentSubscription { priceInfo(resolution: " + priceResolution + ") { current { total level currency startsAt } } } } } }"
         };
-        makeRequest(query, "current", resolution, callback);
+        makeRequest(query, "current", priceResolution, false, responseCallback);
     }
 
-    function getDailyPrices(callback, resolution) {
-        if (!isSupportedResolution(resolution)) {
-            callback.invoke("Unsupported Tibber price resolution");
+    /**
+     * Fetch today's prices at the requested resolution, optionally including tomorrow.
+     * The response dictionary contains timestamped intervals and a span_minutes value.
+     */
+    function getDailyPrices(responseCallback, priceResolution, includeTomorrow) {
+        if (!isSupportedResolution(priceResolution)) {
+            responseCallback.invoke("Unsupported Tibber price resolution");
             return;
         }
 
+        var requestedPriceFields = "today { total startsAt level currency }";
+        if (includeTomorrow) {
+            requestedPriceFields += " tomorrow { total startsAt level currency }";
+        }
         var query = {
-            "query" => "{ viewer { homes { currentSubscription { priceInfo(resolution: " + resolution + ") { today { total startsAt level currency } } } } } }"
+            "query" => "{ viewer { homes { currentSubscription { priceInfo(resolution: " + priceResolution + ") { " + requestedPriceFields + " } } } } }"
         };
-        makeRequest(query, "daily", resolution, callback);
+        makeRequest(query, "daily", priceResolution, includeTomorrow, responseCallback);
     }
 
-    private function isSupportedResolution(resolution) {
-        return resolution instanceof String && (
-            (resolution as String).equals("HOURLY") ||
-            (resolution as String).equals("QUARTER_HOURLY")
+    /** Return whether a resolution is supported by Tibber's PriceInfo API. */
+    private function isSupportedResolution(priceResolution) {
+        return priceResolution instanceof String && (
+            (priceResolution as String).equals("HOURLY") ||
+            (priceResolution as String).equals("QUARTER_HOURLY")
         );
     }
 
-    private function getIntervalMinutes(resolution) {
-        return resolution.equals("HOURLY") ? 60 : 15;
+    /** Convert Tibber's resolution enum to its interval length in minutes. */
+    private function getIntervalMinutes(priceResolution) {
+        return priceResolution.equals("HOURLY") ? 60 : 15;
     }
 
-    private function makeRequest(query, requestType, resolution, callback) {
+    /** Send one authenticated GraphQL request and remember its response context. */
+    private function makeRequest(graphQlRequest, requestKind, priceResolution, includeTomorrow, responseCallback) {
         if (_responseCallback != null) {
-            callback.invoke("A Tibber request is already in progress");
+            responseCallback.invoke("A Tibber request is already in progress");
             return;
         }
 
-        var token = TibberSecrets.getApiToken();
-        if (token.length() == 0) {
-            callback.invoke("Tibber API token is missing");
+        var accessToken = TibberSecrets.getApiToken();
+        if (accessToken.length() == 0) {
+            responseCallback.invoke("Tibber API token is missing");
             return;
         }
 
-        System.println("Requesting Tibber " + resolution + " prices");
+        System.println("Requesting Tibber " + priceResolution + " prices");
 
-        var options = {
+        var requestOptions = {
             :method => Communications.HTTP_REQUEST_METHOD_POST,
             :headers => {
-                "Authorization" => "Bearer " + token,
+            "Authorization" => "Bearer " + accessToken,
                 "Content-Type" => Communications.REQUEST_CONTENT_TYPE_JSON,
                 "Accept" => "application/json",
                 "User-Agent" => "Garmin Connect IQ/9.3.0 TibberWidget/1.0.0"
@@ -75,81 +90,87 @@ class TibberApiClient {
             :responseType => Communications.HTTP_RESPONSE_CONTENT_TYPE_JSON
         };
 
-        _responseCallback = callback;
-        _requestType = requestType;
-        _requestResolution = resolution;
+        _responseCallback = responseCallback;
+        _requestType = requestKind;
+        _requestResolution = priceResolution;
+        _requestIncludeTomorrow = includeTomorrow;
 
         try {
             Communications.makeWebRequest(
                 TIBBER_API_URL,
-                query,
-                options,
+                graphQlRequest,
+                requestOptions,
                 method(:onApiResponse)
             );
         } catch (ex) {
             _responseCallback = null;
             _requestType = null;
             _requestResolution = null;
-            callback.invoke("Unable to start Tibber API request");
+            _requestIncludeTomorrow = false;
+            responseCallback.invoke("Unable to start Tibber API request");
         }
     }
 
-    function onApiResponse(responseCode as Number, data as Dictionary or String or Null) as Void {
+    /** Route an HTTP response through the matching parser and invoke its callback. */
+    function onApiResponse(responseCode as Number, responseData as Dictionary or String or Null) as Void {
         if (_responseCallback == null) {
             return;
         }
 
         System.println("Tibber HTTP response: " + responseCode.toString());
 
-        var callback = _responseCallback;
-        var requestType = _requestType;
-        var resolution = _requestResolution;
+        var pendingCallback = _responseCallback;
+        var requestKind = _requestType;
+        var priceResolution = _requestResolution;
+        var includeTomorrow = _requestIncludeTomorrow;
         _responseCallback = null;
         _requestType = null;
         _requestResolution = null;
+        _requestIncludeTomorrow = false;
 
-        var result;
+        var parsedResult;
         if (responseCode == 200) {
-            if (data instanceof Dictionary) {
-                var graphQlError = getGraphQlError(data);
+            if (responseData instanceof Dictionary) {
+                var graphQlError = getGraphQlError(responseData as Dictionary);
                 if (graphQlError != null) {
-                    result = graphQlError;
-                } else if (requestType.equals("current")) {
-                    result = parseCurrentPriceData(data, resolution);
+                    parsedResult = graphQlError;
+                } else if (requestKind.equals("current")) {
+                    parsedResult = parseCurrentPriceData(responseData as Dictionary, priceResolution);
                 } else {
-                    result = parseDailyPricesData(data, resolution);
+                    parsedResult = parseDailyPricesData(responseData as Dictionary, priceResolution, includeTomorrow);
                 }
             } else {
-                result = "Tibber returned an invalid response";
+                parsedResult = "Tibber returned an invalid response";
             }
         } else {
-            result = "Tibber HTTP error " + responseCode.toString();
+            parsedResult = "Tibber HTTP error " + responseCode.toString();
             if (responseCode == 401) {
-                result = "Tibber rejected the API token";
+                parsedResult = "Tibber rejected the API token";
             } else if (responseCode == 403) {
-                result = "Tibber denied access; check the token's home scope";
+                parsedResult = "Tibber denied access; check the token's home scope";
             } else if (responseCode == 429) {
-                result = "Tibber rate limit reached; try again later";
+                parsedResult = "Tibber rate limit reached; try again later";
             } else if (responseCode < 0) {
-                result = "Unable to reach Tibber; check the watch connection";
+                parsedResult = "Unable to reach Tibber; check the watch connection";
             }
         }
 
-        if (result instanceof Dictionary && requestType.equals("current")) {
-            System.println("Tibber " + resolution + " current price parsed successfully");
-        } else if (result instanceof Dictionary && requestType.equals("daily")) {
-            System.println("Tibber " + resolution + " daily prices parsed successfully");
+        if (parsedResult instanceof Dictionary && requestKind.equals("current")) {
+            System.println("Tibber " + priceResolution + " current price parsed successfully");
+        } else if (parsedResult instanceof Dictionary && requestKind.equals("daily")) {
+            System.println("Tibber " + priceResolution + " daily prices parsed successfully");
         } else {
             System.println("Tibber GraphQL response returned an error");
         }
 
-        callback.invoke(result);
+        pendingCallback.invoke(parsedResult);
     }
 
-    private function getGraphQlError(data as Dictionary) {
-        var errors = data.get("errors");
-        if (errors instanceof Array && (errors as Array).size() > 0) {
-            var firstError = (errors as Array)[0];
+    /** Extract a safe user-facing message from a GraphQL errors array. */
+    private function getGraphQlError(responseData as Dictionary) {
+        var graphQlErrors = responseData.get("errors");
+        if (graphQlErrors instanceof Array && (graphQlErrors as Array).size() > 0) {
+            var firstError = (graphQlErrors as Array)[0];
             if (firstError instanceof Dictionary) {
                 var message = (firstError as Dictionary).get("message");
                 if (message instanceof String) {
@@ -161,29 +182,30 @@ class TibberApiClient {
         return null;
     }
 
-    private function parseCurrentPriceData(data, resolution) {
+    /** Parse current-price fields and convert SEK values to the displayed öre unit. */
+    private function parseCurrentPriceData(responseData, priceResolution) {
         try {
-            var viewer = data.get("data");
-            if (viewer == null) {
+            var responseBody = responseData.get("data");
+            if (responseBody == null) {
                 return "No data received";
             }
 
-            viewer = (viewer as Dictionary).get("viewer");
-            if (viewer == null) {
+            var viewerData = (responseBody as Dictionary).get("viewer");
+            if (viewerData == null) {
                 return "Invalid data structure";
             }
 
-            var homes = (viewer as Dictionary).get("homes");
-            if (homes == null || !(homes instanceof Array) || (homes as Array).size() == 0) {
+            var userHomes = (viewerData as Dictionary).get("homes");
+            if (userHomes == null || !(userHomes instanceof Array) || (userHomes as Array).size() == 0) {
                 return "No homes found";
             }
 
-            var home = (homes as Array)[0];
-            if (!(home instanceof Dictionary)) {
+            var selectedHome = (userHomes as Array)[0];
+            if (!(selectedHome instanceof Dictionary)) {
                 return "Invalid home data";
             }
 
-            var subscription = (home as Dictionary).get("currentSubscription");
+            var subscription = (selectedHome as Dictionary).get("currentSubscription");
             if (subscription == null) {
                 return "No subscription found";
             }
@@ -213,16 +235,16 @@ class TibberApiClient {
                 price = price * 100;
             }
 
-            var timeString = getCurrentTimeString(startsAt);
+            var currentPriceTime = getCurrentTimeString(startsAt);
 
             return {
                 "current_price" => price.format("%.0f"),
-                "current_time" => timeString,
+                "current_time" => currentPriceTime,
                 "level" => level,
                 "currency" => currency,
                 "starts_at" => startsAt,
-                "resolution" => resolution,
-                "interval_minutes" => getIntervalMinutes(resolution)
+                "resolution" => priceResolution,
+                "interval_minutes" => getIntervalMinutes(priceResolution)
             };
 
         } catch (ex) {
@@ -231,6 +253,7 @@ class TibberApiClient {
         }
     }
 
+    /** Format a Tibber ISO timestamp as local HH:mm, falling back to watch time. */
     private function getCurrentTimeString(startsAt) {
         if (startsAt instanceof String && (startsAt as String).length() >= 16) {
             return (startsAt as String).substring(11, 16);
@@ -240,29 +263,30 @@ class TibberApiClient {
         return timeInfo.hour.format("%02d") + ":" + timeInfo.min.format("%02d");
     }
 
-    private function parseDailyPricesData(data, resolution) {
+    /** Parse today's prices and append tomorrow with a 24-hour plotting offset when present. */
+    private function parseDailyPricesData(responseData, priceResolution, includeTomorrow) {
         try {
-            var viewer = data.get("data");
-            if (viewer == null) {
+            var responseBody = responseData.get("data");
+            if (responseBody == null) {
                 return "No data received";
             }
 
-            viewer = (viewer as Dictionary).get("viewer");
-            if (viewer == null) {
+            var viewerData = (responseBody as Dictionary).get("viewer");
+            if (viewerData == null) {
                 return "Invalid data structure";
             }
 
-            var homes = (viewer as Dictionary).get("homes");
-            if (homes == null || !(homes instanceof Array) || (homes as Array).size() == 0) {
+            var userHomes = (viewerData as Dictionary).get("homes");
+            if (userHomes == null || !(userHomes instanceof Array) || (userHomes as Array).size() == 0) {
                 return "No homes found";
             }
 
-            var home = (homes as Array)[0];
-            if (!(home instanceof Dictionary)) {
+            var selectedHome = (userHomes as Array)[0];
+            if (!(selectedHome instanceof Dictionary)) {
                 return "Invalid home data";
             }
 
-            var subscription = (home as Dictionary).get("currentSubscription");
+            var subscription = (selectedHome as Dictionary).get("currentSubscription");
             if (subscription == null) {
                 return "No subscription found";
             }
@@ -272,54 +296,29 @@ class TibberApiClient {
                 return "No price info found";
             }
 
-            var today = (priceInfo as Dictionary).get("today");
-            if (today == null || !(today instanceof Array)) {
+            var todayPrices = (priceInfo as Dictionary).get("today");
+            if (todayPrices == null || !(todayPrices instanceof Array)) {
                 return "No daily prices found";
             }
 
-            var intervals = [];
-            var todayArray = today as Array;
+            var priceIntervals = [];
+            appendPriceIntervals(priceIntervals, todayPrices as Array, priceResolution, 0);
 
-            for (var i = 0; i < todayArray.size(); i++) {
-                var hourData = todayArray[i];
-                if (hourData instanceof Dictionary) {
-                    var hourDict = hourData as Dictionary;
-                    var total = hourDict.get("total");
-                    var startsAt = hourDict.get("startsAt");
-                    var currency = hourDict.get("currency");
-                    var level = hourDict.get("level");
-
-                    if (total != null && startsAt != null) {
-                        var timeStr = startsAt as String;
-                        var startMinute = getMinuteOfDay(timeStr);
-                        if (startMinute == null) {
-                            continue;
-                        }
-
-                        var price = total as Float;
-                        if (currency != null && currency.equals("SEK")) {
-                            price = price * 100;
-                        }
-
-                        intervals.add({
-                            "starts_at" => timeStr,
-                            "start_time" => getCurrentTimeString(timeStr),
-                            "price" => price.format("%.0f"),
-                            "price_value" => price,
-                            "start_minute_of_day" => startMinute,
-                            "currency" => currency,
-                            "level" => level,
-                            "resolution" => resolution,
-                            "duration_minutes" => getIntervalMinutes(resolution)
-                        });
-                    }
+            var tomorrowAvailable = false;
+            if (includeTomorrow) {
+                var tomorrowPrices = (priceInfo as Dictionary).get("tomorrow");
+                if (tomorrowPrices instanceof Array && (tomorrowPrices as Array).size() > 0) {
+                    appendPriceIntervals(priceIntervals, tomorrowPrices as Array, priceResolution, 1440);
+                    tomorrowAvailable = true;
                 }
             }
 
             return {
-                "resolution" => resolution,
-                "resolution_minutes" => getIntervalMinutes(resolution),
-                "intervals" => intervals
+                "resolution" => priceResolution,
+                "resolution_minutes" => getIntervalMinutes(priceResolution),
+                "span_minutes" => tomorrowAvailable ? 2880 : 1440,
+                "tomorrow_available" => tomorrowAvailable,
+                "intervals" => priceIntervals
             };
 
         } catch (ex) {
@@ -327,6 +326,46 @@ class TibberApiClient {
         }
     }
 
+    /** Append validated price records using a local-day offset for graph placement. */
+    private function appendPriceIntervals(priceIntervals, sourcePrices, priceResolution, dayOffset) as Void {
+        for (var priceIndex = 0; priceIndex < sourcePrices.size(); priceIndex++) {
+            var priceEntry = sourcePrices[priceIndex];
+            if (priceEntry instanceof Dictionary) {
+                var total = (priceEntry as Dictionary).get("total");
+                var startsAt = (priceEntry as Dictionary).get("startsAt");
+                var currency = (priceEntry as Dictionary).get("currency");
+                var level = (priceEntry as Dictionary).get("level");
+
+                if (total != null && startsAt != null) {
+                    var startTimestamp = startsAt as String;
+                    var startMinuteOfDay = getMinuteOfDay(startTimestamp);
+                    if (startMinuteOfDay == null) {
+                        continue;
+                    }
+
+                    var displayPrice = total as Float;
+                    if (currency != null && currency.equals("SEK")) {
+                        displayPrice = displayPrice * 100;
+                    }
+
+                    priceIntervals.add({
+                        "starts_at" => startTimestamp,
+                        "start_time" => getCurrentTimeString(startTimestamp),
+                        "price" => displayPrice.format("%.0f"),
+                        "price_value" => displayPrice,
+                        "start_minute_of_day" => startMinuteOfDay,
+                        "plot_minute" => dayOffset + startMinuteOfDay,
+                        "currency" => currency,
+                        "level" => level,
+                        "resolution" => priceResolution,
+                        "duration_minutes" => getIntervalMinutes(priceResolution)
+                    });
+                }
+            }
+        }
+    }
+
+    /** Extract local minutes since midnight from an ISO 8601 price timestamp. */
     private function getMinuteOfDay(startsAt) {
         if (!(startsAt instanceof String) || (startsAt as String).length() < 16) {
             return null;

@@ -4,40 +4,37 @@ import Toybox.Lang;
 import Toybox.System;
 
 class TibberWidgetView extends WatchUi.View {
-    var _priceData;
-    var _isLoading;
-    var _errorMessage;
-    var _tibberClient;
-    var _priceResolution;
+    var _currentPriceData;
+    var _isPriceLoading;
+    var _priceErrorMessage;
+    var _priceApiClient;
+    var _currentPriceResolution;
 
+    /** Initialize the price screen and its API client. */
     function initialize() {
         View.initialize();
-        _priceData = null;
-        _isLoading = false;
-        _errorMessage = null;
-        _tibberClient = new TibberApiClient();
-        _priceResolution = "QUARTER_HOURLY";
+        _currentPriceData = null;
+        _isPriceLoading = false;
+        _priceErrorMessage = null;
+        _priceApiClient = new TibberApiClient();
+        _currentPriceResolution = "QUARTER_HOURLY";
     }
 
-    // Load your resources here
+    /** Lay out the price screen; drawing is sized from the device context. */
     function onLayout(dc) {
-        // Simple layout - no complex resources needed
     }
 
-    // Called when this View is brought to the foreground
+    /** Refresh current price data when the main screen becomes visible. */
     function onShow() {
-        // Fetch price data when widget is shown
         fetchPriceData();
     }
 
-    // Called when this View is removed from the screen
+    /** Release or reset view state when the main screen is hidden. */
     function onHide() {
-        // Nothing to clean up
     }
 
-    // Update the view
+    /** Draw the loading, error, or current-price state. */
     function onUpdate(dc) {
-        // Clear the screen with black background
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
         dc.clear();
 
@@ -46,15 +43,16 @@ class TibberWidgetView extends WatchUi.View {
         var width = dc.getWidth();
         var height = dc.getHeight();
 
-        if (_isLoading) {
+        if (_isPriceLoading) {
             drawLoadingScreen(dc, width, height);
-        } else if (_errorMessage != null) {
+        } else if (_priceErrorMessage != null) {
             drawErrorScreen(dc, width, height);
         } else {
             drawCurrentPriceScreen(dc, width, height);
         }
     }
 
+    /** Draw the waiting state while the Tibber request is in flight. */
     function drawLoadingScreen(dc, width, height) {
         drawTextStack(dc, width, height, [
             ["Loading...", Graphics.FONT_SMALL],
@@ -62,21 +60,23 @@ class TibberWidgetView extends WatchUi.View {
         ]);
     }
 
+    /** Draw an API or parsing error for the current-price request. */
     function drawErrorScreen(dc, width, height) {
         drawTextStack(dc, width, height, [
             ["Error", Graphics.FONT_SMALL],
-            [_errorMessage, Graphics.FONT_TINY],
+            [_priceErrorMessage, Graphics.FONT_TINY],
             ["Tibber Energy", Graphics.FONT_TINY]
         ]);
     }
 
+    /** Draw the current price, currency, timestamp, and selected resolution. */
     function drawCurrentPriceScreen(dc, width, height) {
-        if (_priceData != null) {
-            var currentPrice = _priceData.get("current_price");
-            var currentTime = _priceData.get("current_time");
+        if (_currentPriceData != null) {
+            var currentPriceText = _currentPriceData.get("current_price");
+            var currentIntervalTime = _currentPriceData.get("current_time");
 
-            if (currentPrice != null) {
-                var currency = _priceData.get("currency");
+            if (currentPriceText != null) {
+                var currency = _currentPriceData.get("currency");
                 var priceUnit = "öre/kWh";
                 if (currency != null && !currency.equals("SEK")) {
                     priceUnit = currency + "/kWh";
@@ -87,16 +87,16 @@ class TibberWidgetView extends WatchUi.View {
                     priceFont = Graphics.FONT_MEDIUM;
                 }
 
-                var rows = [
-                    [currentPrice, priceFont],
+                var priceRows = [
+                    [currentPriceText, priceFont],
                     [priceUnit, Graphics.FONT_SMALL]
                 ];
-                if (currentTime != null) {
-                    rows.add([currentTime, Graphics.FONT_TINY]);
+                if (currentIntervalTime != null) {
+                    priceRows.add([currentIntervalTime, Graphics.FONT_TINY]);
                 }
-                var resolutionLabel = _priceResolution.equals("HOURLY") ? "Hourly price" : "15-minute price";
-                rows.add([resolutionLabel, Graphics.FONT_TINY]);
-                drawTextStack(dc, width, height, rows);
+                var resolutionLabel = _currentPriceResolution.equals("HOURLY") ? "Hourly price" : "15-minute price";
+                priceRows.add([resolutionLabel, Graphics.FONT_TINY]);
+                drawTextStack(dc, width, height, priceRows);
             } else {
                 drawTextStack(dc, width, height, [
                     ["No price data", Graphics.FONT_SMALL]
@@ -110,118 +110,123 @@ class TibberWidgetView extends WatchUi.View {
         }
     }
 
-    function drawTextStack(dc, width, height, rows) {
-        var maxWidth = width - 16;
-        var spacing = 3;
-        var heights = [];
-        var totalHeight = 0;
+    /** Measure and vertically center a stack of text/font row pairs. */
+    function drawTextStack(dc, width, height, textRows) {
+        var availableTextWidth = width - 16;
+        var rowSpacing = 3;
+        var rowHeights = [];
+        var textStackHeight = 0;
 
-        for (var i = 0; i < rows.size(); i++) {
-            var text = rows[i][0] as String;
-            var font = fitFont(dc, text, rows[i][1], maxWidth);
-            text = fitText(dc, text, font, maxWidth);
-            rows[i][0] = text;
-            rows[i][1] = font;
+        for (var rowIndex = 0; rowIndex < textRows.size(); rowIndex++) {
+            var rowText = textRows[rowIndex][0] as String;
+            var rowFont = fitFont(dc, rowText, textRows[rowIndex][1], availableTextWidth);
+            rowText = fitText(dc, rowText, rowFont, availableTextWidth);
+            textRows[rowIndex][0] = rowText;
+            textRows[rowIndex][1] = rowFont;
 
-            var dimensions = dc.getTextDimensions(text, font);
-            var lineHeight = dimensions[1];
-            heights.add(lineHeight);
-            totalHeight += lineHeight;
-            if (i > 0) {
-                totalHeight += spacing;
+            var textDimensions = dc.getTextDimensions(rowText, rowFont);
+            var rowHeight = textDimensions[1];
+            rowHeights.add(rowHeight);
+            textStackHeight += rowHeight;
+            if (rowIndex > 0) {
+                textStackHeight += rowSpacing;
             }
         }
 
-        var y = (height - totalHeight) / 2;
-        for (var i = 0; i < rows.size(); i++) {
-            var lineHeight = heights[i];
-            var centerY = y + lineHeight / 2;
+        var nextRowTop = (height - textStackHeight) / 2;
+        for (var rowIndex = 0; rowIndex < textRows.size(); rowIndex++) {
+            var rowHeight = rowHeights[rowIndex];
+            var rowCenterY = nextRowTop + rowHeight / 2;
             dc.drawText(
                 width / 2,
-                centerY,
-                rows[i][1],
-                rows[i][0],
+                rowCenterY,
+                textRows[rowIndex][1],
+                textRows[rowIndex][0],
                 Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER
             );
-            y += lineHeight + spacing;
+            nextRowTop += rowHeight + rowSpacing;
         }
     }
 
-    function fitFont(dc, text, font, maxWidth) {
-        while (dc.getTextWidthInPixels(text, font) > maxWidth && font != Graphics.FONT_TINY) {
-            if (font == Graphics.FONT_LARGE) {
-                font = Graphics.FONT_MEDIUM;
-            } else if (font == Graphics.FONT_MEDIUM) {
-                font = Graphics.FONT_SMALL;
+    /** Choose the largest built-in font that fits a line within maxWidth. */
+    function fitFont(dc, candidateText, preferredFont, availableTextWidth) {
+        var selectedFont = preferredFont;
+        while (dc.getTextWidthInPixels(candidateText, selectedFont) > availableTextWidth && selectedFont != Graphics.FONT_TINY) {
+            if (selectedFont == Graphics.FONT_LARGE) {
+                selectedFont = Graphics.FONT_MEDIUM;
+            } else if (selectedFont == Graphics.FONT_MEDIUM) {
+                selectedFont = Graphics.FONT_SMALL;
             } else {
-                font = Graphics.FONT_TINY;
+                selectedFont = Graphics.FONT_TINY;
             }
         }
-        return font;
+        return selectedFont;
     }
 
-    function fitText(dc, text, font, maxWidth) {
-        if (dc.getTextWidthInPixels(text, font) <= maxWidth) {
-            return text;
+    /** Truncate text with an ellipsis when it remains too wide at FONT_TINY. */
+    function fitText(dc, candidateText, selectedFont, availableTextWidth) {
+        if (dc.getTextWidthInPixels(candidateText, selectedFont) <= availableTextWidth) {
+            return candidateText;
         }
 
-        var shortened = text;
-        while (shortened.length() > 3 && dc.getTextWidthInPixels(shortened + "...", font) > maxWidth) {
-            shortened = shortened.substring(0, shortened.length() - 1);
+        var shortenedText = candidateText;
+        while (shortenedText.length() > 3 && dc.getTextWidthInPixels(shortenedText + "...", selectedFont) > availableTextWidth) {
+            shortenedText = shortenedText.substring(0, shortenedText.length() - 1);
         }
 
-        if (shortened.length() > 3) {
-            return shortened + "...";
+        if (shortenedText.length() > 3) {
+            return shortenedText + "...";
         }
 
-        while (shortened.length() > 0 && dc.getTextWidthInPixels(shortened, font) > maxWidth) {
-            shortened = shortened.substring(0, shortened.length() - 1);
+        while (shortenedText.length() > 0 && dc.getTextWidthInPixels(shortenedText, selectedFont) > availableTextWidth) {
+            shortenedText = shortenedText.substring(0, shortenedText.length() - 1);
         }
-        return shortened;
+        return shortenedText;
     }
 
+    /** Request the current price using the selected main-screen resolution. */
     function fetchPriceData() {
-        _isLoading = true;
+        _isPriceLoading = true;
         WatchUi.requestUpdate();
 
-        _tibberClient.getCurrentPrice(method(:onPriceDataReceived), _priceResolution);
+        _priceApiClient.getCurrentPrice(method(:onPriceDataReceived), _currentPriceResolution);
     }
 
+    /** Switch hourly/quarter-hourly resolution and reload the current price. */
     function togglePriceResolution() {
-        _priceResolution = _priceResolution.equals("QUARTER_HOURLY") ? "HOURLY" : "QUARTER_HOURLY";
-        _priceData = null;
-        _errorMessage = null;
+        _currentPriceResolution = _currentPriceResolution.equals("QUARTER_HOURLY") ? "HOURLY" : "QUARTER_HOURLY";
+        _currentPriceData = null;
+        _priceErrorMessage = null;
         fetchPriceData();
     }
 
+    /** Push the graph detail view above the current-price screen. */
     function showPriceGraph() {
-        var graphView = new TibberPriceGraphView(_priceResolution, method(:onGraphResolutionChanged));
+        var graphView = new TibberPriceGraphView();
         var graphDelegate = new TibberPriceGraphDelegate(graphView);
         WatchUi.pushView(graphView, graphDelegate, WatchUi.SLIDE_UP);
     }
 
-    function onGraphResolutionChanged(resolution) {
-        _priceResolution = resolution;
-    }
-
+    /** Refresh current-price data from a touch or physical input event. */
     function refreshPriceData() {
         // Public method for refreshing data on button press
         System.println("refreshPriceData called");
         fetchPriceData();
     }
 
+    /** Save the result of the asynchronous current-price request. */
     function onPriceDataReceived(responseData) {
-        _isLoading = false;
+        _isPriceLoading = false;
 
         if (responseData instanceof Dictionary) {
-            _priceData = responseData;
-            _errorMessage = null;
+            _currentPriceData = responseData;
+            _priceErrorMessage = null;
         } else if (responseData instanceof String) {
-            _errorMessage = responseData;
-            _priceData = null;
+            _priceErrorMessage = responseData;
+            _currentPriceData = null;
         } else {
-            _errorMessage = "Unknown error";
-            _priceData = null;
+            _priceErrorMessage = "Unknown error";
+            _currentPriceData = null;
         }
 
         WatchUi.requestUpdate();

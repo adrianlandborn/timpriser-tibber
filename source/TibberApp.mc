@@ -4,23 +4,24 @@ import Toybox.WatchUi;
 
 class TibberApp extends Application.AppBase {
 
+    /** Initialize the base Connect IQ application. */
     function initialize() {
         AppBase.initialize();
     }
 
-    // onStart() is called on application start up
+    /** Handle application startup state when the widget is opened. */
     function onStart(state as Dictionary?) as Void {
     }
 
-    // onStop() is called when your application is exiting
+    /** Handle application shutdown state when the widget is closed. */
     function onStop(state as Dictionary?) as Void {
     }
 
-    // Return the initial view of your widget here
+    /** Create the initial price view and its input delegate. */
     function getInitialView() {
-        var view = new TibberWidgetView();
-        var delegate = new TibberWidgetDelegate(view);
-        return [view, delegate];
+        var priceView = new TibberWidgetView();
+        var inputDelegate = new TibberWidgetDelegate(priceView);
+        return [priceView, inputDelegate];
     }
 
 }
