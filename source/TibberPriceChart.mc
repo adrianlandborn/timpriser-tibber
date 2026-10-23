@@ -117,7 +117,7 @@ class TibberPriceChart {
         }
     }
 
-    /** Highlight the price interval active at the watch's local time. */
+    /** Highlight the active interval at the center of its time span. */
     private function drawCurrentMarker(deviceContext, graphPoints, plotLeft, plotWidth, chartSpanMinutes) {
         var localTime = Time.Gregorian.info(Time.now(), Time.FORMAT_SHORT);
         var currentMinuteOfDay = localTime.hour * 60 + localTime.min;
@@ -135,12 +135,18 @@ class TibberPriceChart {
             return;
         }
 
-        var markerX = plotLeft + currentMinuteOfDay * plotWidth / chartSpanMinutes;
+        var activeInterval = activeGraphPoint[3];
+        var intervalDuration = activeInterval.get("duration_minutes");
+        if (intervalDuration == null) {
+            return;
+        }
+        var intervalCenterMinute = activeGraphPoint[2] + intervalDuration / 2;
+        var markerX = plotLeft + intervalCenterMinute * plotWidth / chartSpanMinutes;
         var markerY = activeGraphPoint[1];
-        deviceContext.setColor(Graphics.COLOR_YELLOW, Graphics.COLOR_BLACK);
-        deviceContext.fillCircle(markerX, markerY, 4);
+        deviceContext.setColor(Graphics.COLOR_ORANGE, Graphics.COLOR_BLACK);
+        deviceContext.fillCircle(markerX, markerY, 5);
         deviceContext.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
-        deviceContext.drawCircle(markerX, markerY, 4);
+        deviceContext.drawCircle(markerX, markerY, 5);
         drawCurrentIntervalFooter(deviceContext, activeGraphPoint);
     }
 

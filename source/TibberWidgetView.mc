@@ -157,7 +157,8 @@ class TibberWidgetView extends WatchUi.View {
             contentHeight += logoResource.getHeight() + logoSpacing;
         }
 
-        var nextRowTop = (height - contentHeight) / 2;
+        var verticalOffset = 10;
+        var nextRowTop = (height - contentHeight) / 2 - verticalOffset;
         if (logoResource != null) {
             var logoX = (width - logoResource.getWidth()) / 2;
             dc.drawBitmap(logoX, nextRowTop, logoResource);
