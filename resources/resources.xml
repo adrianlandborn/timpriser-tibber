@@ -5,5 +5,13 @@
 
     <bitmaps>
         <bitmap id="LauncherIcon" filename="launcher_icon.png" />
+        <bitmap id="WidgetLogo" filename="widget_logo.png" />
     </bitmaps>
+    <fonts>
+        <font id="PoppinsTiny" filename="fonts/PoppinsTiny.fnt" antialias="true" />
+        <font id="PoppinsSmall" filename="fonts/PoppinsSmall.fnt" antialias="true" />
+        <font id="PoppinsMedium" filename="fonts/PoppinsMedium.fnt" antialias="true" />
+        <font id="PoppinsLarge" filename="fonts/PoppinsLarge.fnt" antialias="true" />
+        <font id="PoppinsPrice" filename="fonts/PoppinsPrice.fnt" antialias="true" />
+    </fonts>
 </resources>

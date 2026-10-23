@@ -11,6 +11,8 @@ class TibberPriceGraphView extends WatchUi.View {
     private var _hasTomorrowPrices;
     private var _isLoading;
     private var _errorMessage;
+    private var _poppinsSmallFont;
+    private var _poppinsTinyFont;
 
     /** Create the graph page controller and its reusable chart renderer. */
     function initialize() {
@@ -23,6 +25,8 @@ class TibberPriceGraphView extends WatchUi.View {
         _hasTomorrowPrices = false;
         _isLoading = false;
         _errorMessage = null;
+        _poppinsSmallFont = WatchUi.loadResource(Rez.Fonts.PoppinsSmall) as WatchUi.FontResource;
+        _poppinsTinyFont = WatchUi.loadResource(Rez.Fonts.PoppinsTiny) as WatchUi.FontResource;
     }
 
     /** Fetch graph data when the detail page becomes visible. */
@@ -132,6 +136,14 @@ class TibberPriceGraphView extends WatchUi.View {
     /** Center a short loading/error message in the watch display. */
     function drawCenteredText(deviceContext, displayWidth, displayHeight, message) {
         deviceContext.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
-        deviceContext.drawText(displayWidth / 2, displayHeight / 2, Graphics.FONT_SMALL, message, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+        var selectedFont = _poppinsSmallFont;
+        var availableWidth = displayWidth - 16;
+        if (deviceContext.getTextWidthInPixels(message, selectedFont) > availableWidth) {
+            selectedFont = _poppinsTinyFont;
+        }
+        while (message.length() > 0 && deviceContext.getTextWidthInPixels(message, selectedFont) > availableWidth) {
+            message = message.substring(0, message.length() - 1);
+        }
+        deviceContext.drawText(displayWidth / 2, displayHeight / 2, selectedFont, message, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
     }
 }

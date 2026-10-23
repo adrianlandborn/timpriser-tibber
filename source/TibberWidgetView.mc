@@ -9,6 +9,12 @@ class TibberWidgetView extends WatchUi.View {
     var _priceErrorMessage;
     var _priceApiClient;
     var _currentPriceResolution;
+    var _poppinsTinyFont;
+    var _poppinsSmallFont;
+    var _poppinsMediumFont;
+    var _poppinsLargeFont;
+    var _poppinsPriceFont;
+    var _widgetLogo;
 
     /** Initialize the price screen and its API client. */
     function initialize() {
@@ -18,6 +24,12 @@ class TibberWidgetView extends WatchUi.View {
         _priceErrorMessage = null;
         _priceApiClient = new TibberApiClient();
         _currentPriceResolution = "QUARTER_HOURLY";
+        _poppinsTinyFont = WatchUi.loadResource(Rez.Fonts.PoppinsTiny) as WatchUi.FontResource;
+        _poppinsSmallFont = WatchUi.loadResource(Rez.Fonts.PoppinsSmall) as WatchUi.FontResource;
+        _poppinsMediumFont = WatchUi.loadResource(Rez.Fonts.PoppinsMedium) as WatchUi.FontResource;
+        _poppinsLargeFont = WatchUi.loadResource(Rez.Fonts.PoppinsLarge) as WatchUi.FontResource;
+        _poppinsPriceFont = WatchUi.loadResource(Rez.Fonts.PoppinsPrice) as WatchUi.FontResource;
+        _widgetLogo = WatchUi.loadResource(Rez.Drawables.WidgetLogo) as WatchUi.BitmapResource;
     }
 
     /** Lay out the price screen; drawing is sized from the device context. */
@@ -35,13 +47,10 @@ class TibberWidgetView extends WatchUi.View {
 
     /** Draw the loading, error, or current-price state. */
     function onUpdate(dc) {
-        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
-        dc.clear();
-
-        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
-
         var width = dc.getWidth();
         var height = dc.getHeight();
+        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
+        dc.clear();
 
         if (_isPriceLoading) {
             drawLoadingScreen(dc, width, height);
@@ -55,18 +64,18 @@ class TibberWidgetView extends WatchUi.View {
     /** Draw the waiting state while the Tibber request is in flight. */
     function drawLoadingScreen(dc, width, height) {
         drawTextStack(dc, width, height, [
-            ["Loading...", Graphics.FONT_SMALL],
-            ["Tibber Energy", Graphics.FONT_TINY]
-        ]);
+            ["Loading...", _poppinsSmallFont],
+            ["Tibber Energy", _poppinsTinyFont]
+        ], null);
     }
 
     /** Draw an API or parsing error for the current-price request. */
     function drawErrorScreen(dc, width, height) {
         drawTextStack(dc, width, height, [
-            ["Error", Graphics.FONT_SMALL],
-            [_priceErrorMessage, Graphics.FONT_TINY],
-            ["Tibber Energy", Graphics.FONT_TINY]
-        ]);
+            ["Error", _poppinsSmallFont],
+            [_priceErrorMessage, _poppinsTinyFont],
+            ["Tibber Energy", _poppinsTinyFont]
+        ], null);
     }
 
     /** Draw the current price, currency, timestamp, and selected resolution. */
@@ -74,48 +83,59 @@ class TibberWidgetView extends WatchUi.View {
         if (_currentPriceData != null) {
             var currentPriceText = _currentPriceData.get("current_price");
             var currentIntervalTime = _currentPriceData.get("current_time");
+            var currentIntervalMinutes = _currentPriceData.get("interval_minutes");
 
             if (currentPriceText != null) {
                 var currency = _currentPriceData.get("currency");
-                var priceUnit = "öre/kWh";
+                var priceUnit = "öre";
                 if (currency != null && !currency.equals("SEK")) {
-                    priceUnit = currency + "/kWh";
-                }
-
-                var priceFont = Graphics.FONT_LARGE;
-                if (width < 220 || height < 220) {
-                    priceFont = Graphics.FONT_MEDIUM;
+                    priceUnit = currency;
                 }
 
                 var priceRows = [
-                    [currentPriceText, priceFont],
-                    [priceUnit, Graphics.FONT_SMALL]
+                    [currentPriceText + " " + priceUnit, _poppinsPriceFont]
                 ];
-                if (currentIntervalTime != null) {
-                    priceRows.add([currentIntervalTime, Graphics.FONT_TINY]);
+                var currentIntervalRange = formatIntervalRange(currentIntervalTime, currentIntervalMinutes);
+                if (currentIntervalRange != null) {
+                    priceRows.add([currentIntervalRange, _poppinsSmallFont]);
                 }
-                var resolutionLabel = _currentPriceResolution.equals("HOURLY") ? "Hourly price" : "15-minute price";
-                priceRows.add([resolutionLabel, Graphics.FONT_TINY]);
-                drawTextStack(dc, width, height, priceRows);
+                drawTextStack(dc, width, height, priceRows, _widgetLogo);
             } else {
                 drawTextStack(dc, width, height, [
-                    ["No price data", Graphics.FONT_SMALL]
-                ]);
+                    ["No price data", _poppinsSmallFont]
+                ], null);
             }
         } else {
             drawTextStack(dc, width, height, [
-                ["TIBBER", Graphics.FONT_SMALL],
-                ["Loading...", Graphics.FONT_TINY]
-            ]);
+                ["Loading...", _poppinsTinyFont]
+            ], _widgetLogo);
         }
     }
 
-    /** Measure and vertically center a stack of text/font row pairs. */
-    function drawTextStack(dc, width, height, textRows) {
+    /** Format an interval start and duration as an HH:mm-HH:mm range. */
+    function formatIntervalRange(startTime, intervalMinutes) {
+        if (!(startTime instanceof String) || intervalMinutes == null || startTime.length() < 5) {
+            return null;
+        }
+
+        var startHour = startTime.substring(0, 2).toNumber();
+        var startMinute = startTime.substring(3, 5).toNumber();
+        if (startHour == null || startMinute == null) {
+            return null;
+        }
+
+        var endMinuteOfDay = (startHour * 60 + startMinute + intervalMinutes) % 1440;
+        var endTime = (endMinuteOfDay / 60).format("%02d") + ":" + (endMinuteOfDay % 60).format("%02d");
+        return startTime.substring(0, 5) + "-" + endTime;
+    }
+
+    /** Measure and vertically center a stack of text/font rows and optional logo. */
+    function drawTextStack(dc, width, height, textRows, logoResource) {
         var availableTextWidth = width - 16;
         var rowSpacing = 3;
+        var logoSpacing = 8;
         var rowHeights = [];
-        var textStackHeight = 0;
+        var contentHeight = 0;
 
         for (var rowIndex = 0; rowIndex < textRows.size(); rowIndex++) {
             var rowText = textRows[rowIndex][0] as String;
@@ -127,13 +147,23 @@ class TibberWidgetView extends WatchUi.View {
             var textDimensions = dc.getTextDimensions(rowText, rowFont);
             var rowHeight = textDimensions[1];
             rowHeights.add(rowHeight);
-            textStackHeight += rowHeight;
+            contentHeight += rowHeight;
             if (rowIndex > 0) {
-                textStackHeight += rowSpacing;
+                contentHeight += rowSpacing;
             }
         }
 
-        var nextRowTop = (height - textStackHeight) / 2;
+        if (logoResource != null) {
+            contentHeight += logoResource.getHeight() + logoSpacing;
+        }
+
+        var nextRowTop = (height - contentHeight) / 2;
+        if (logoResource != null) {
+            var logoX = (width - logoResource.getWidth()) / 2;
+            dc.drawBitmap(logoX, nextRowTop, logoResource);
+            nextRowTop += logoResource.getHeight() + logoSpacing;
+        }
+
         for (var rowIndex = 0; rowIndex < textRows.size(); rowIndex++) {
             var rowHeight = rowHeights[rowIndex];
             var rowCenterY = nextRowTop + rowHeight / 2;
@@ -151,13 +181,15 @@ class TibberWidgetView extends WatchUi.View {
     /** Choose the largest built-in font that fits a line within maxWidth. */
     function fitFont(dc, candidateText, preferredFont, availableTextWidth) {
         var selectedFont = preferredFont;
-        while (dc.getTextWidthInPixels(candidateText, selectedFont) > availableTextWidth && selectedFont != Graphics.FONT_TINY) {
-            if (selectedFont == Graphics.FONT_LARGE) {
-                selectedFont = Graphics.FONT_MEDIUM;
-            } else if (selectedFont == Graphics.FONT_MEDIUM) {
-                selectedFont = Graphics.FONT_SMALL;
+        while (dc.getTextWidthInPixels(candidateText, selectedFont) > availableTextWidth && selectedFont != _poppinsTinyFont) {
+            if (selectedFont == _poppinsPriceFont) {
+                selectedFont = _poppinsLargeFont;
+            } else if (selectedFont == _poppinsLargeFont) {
+                selectedFont = _poppinsMediumFont;
+            } else if (selectedFont == _poppinsMediumFont) {
+                selectedFont = _poppinsSmallFont;
             } else {
-                selectedFont = Graphics.FONT_TINY;
+                selectedFont = _poppinsTinyFont;
             }
         }
         return selectedFont;

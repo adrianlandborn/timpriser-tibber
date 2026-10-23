@@ -37,22 +37,27 @@ Replace `fenix6` with a supported product ID below. If `monkeyc` is not on `PATH
 
 ## Run in the simulator
 
-On macOS, start the Connect IQ simulator from a terminal:
+On macOS, start the Connect IQ simulator in one terminal and leave it open:
 
 ```sh
 connectiq
 ```
 
-Once the simulator is open, use a second terminal from the project root to load the existing Fenix 7X Pro build:
+Once the simulator is open, run the local `tibber-sim` alias in a second terminal. It changes to this project, removes the old package, compiles for Fenix 7X Pro, verifies and timestamps the new package, then launches that package:
 
 ```sh
-monkeydo bin/TibberWidget-fenix7xpro.prg fenix7xpro
+tibber-sim
 ```
 
-To run a fresh build instead, compile for the same device and pass the output package to `monkeydo`:
+The alias is defined in `~/.zshrc`. After adding or changing it, reload it in an existing terminal with `source ~/.zshrc`; new terminals load it automatically. Its `cd` command should point to `<project_folder>`; update that path if your checkout is elsewhere.
+
+Without the alias, build and run manually from the project root. Removing the old package first ensures a failed compile cannot leave an older build to launch:
 
 ```sh
-monkeyc -f monkey.jungle -o bin/TibberWidget-fenix7xpro.prg -y developer_key.der -d fenix7xpro
+rm -f bin/TibberWidget-fenix7xpro.prg &&
+monkeyc -f monkey.jungle -o bin/TibberWidget-fenix7xpro.prg -y developer_key.der -d fenix7xpro &&
+test -s bin/TibberWidget-fenix7xpro.prg &&
+stat -f 'Compiled: %Sm %N' bin/TibberWidget-fenix7xpro.prg &&
 monkeydo bin/TibberWidget-fenix7xpro.prg fenix7xpro
 ```
 
@@ -75,6 +80,10 @@ The Fenix 7 products are declared in the manifest. A device pack must be install
 The main screen defaults to Tibber's `QUARTER_HOURLY` resolution. Its MENU button toggles between `QUARTER_HOURLY` and `HOURLY`. The graph pages use fixed resolutions: `QUARTER_HOURLY` for today, then `HOURLY` for today and tomorrow. If tomorrow's prices are not published yet, the second page shows today's hourly prices and an availability note. Both `getCurrentPrice(callback, resolution)` and `getDailyPrices(callback, resolution, includeTomorrow)` accept a resolution.
 
 The graph plots Tibber's `today` series and appends `tomorrow` for its second page when available. Each interval keeps its ISO `starts_at`, local `start_time`, timestamp-based plot offset, `duration_minutes`, numeric and formatted price, currency, and level. A typical quarter-hour day contains 96 intervals, though daylight-saving transitions can change the count.
+
+## Typography
+
+All app-drawn text uses bundled Poppins SemiBold bitmap fonts sized for watch displays, including Swedish characters and common symbols. The font is from Google Fonts and is distributed under the SIL Open Font License 1.1; see `resources/fonts/OFL.txt`. Rebuild the font resources after changing the source font with `python3 tools/build_poppins_price_font.py`.
 
 ## Project layout
 

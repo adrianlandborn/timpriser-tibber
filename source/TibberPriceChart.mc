@@ -1,12 +1,24 @@
 import Toybox.Graphics;
 import Toybox.Math;
 import Toybox.Time;
+import Toybox.WatchUi;
 
 /**
  * Reusable price-series renderer for timestamped hourly or quarter-hour data.
  * Prices are scaled from raw values; axis bounds are rounded only for ticks.
  */
 class TibberPriceChart {
+    private var _poppinsTinyFont;
+    private var _poppinsSmallFont;
+    private var _poppinsMediumFont;
+
+    /** Load the font sizes used by chart labels and the active interval footer. */
+    function initialize() {
+        _poppinsTinyFont = WatchUi.loadResource(Rez.Fonts.PoppinsTiny) as WatchUi.FontResource;
+        _poppinsSmallFont = WatchUi.loadResource(Rez.Fonts.PoppinsSmall) as WatchUi.FontResource;
+        _poppinsMediumFont = WatchUi.loadResource(Rez.Fonts.PoppinsMedium) as WatchUi.FontResource;
+    }
+
     /**
      * Draw a step series within the supplied time span.
      *
@@ -14,7 +26,7 @@ class TibberPriceChart {
       * @param priceIntervals Parsed prices with plot_minute and price_value fields.
       * @param chartSpanMinutes Horizontal range in minutes, normally 1440 or 2880.
       * @param chartTitle Page title shown above the plot.
-     * @param statusNote Optional availability note shown below the title.
+      * @param statusNote Optional availability note shown below the title.
      */
     function draw(deviceContext, priceIntervals, chartSpanMinutes, chartTitle, statusNote) {
         if (priceIntervals == null || priceIntervals.size() == 0) {
@@ -56,9 +68,9 @@ class TibberPriceChart {
         var yAxisRange = yAxisMaximum - yAxisMinimum;
 
         deviceContext.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
-        deviceContext.drawText(centerX, centerY - safeHalfHeight - 45, Graphics.FONT_XTINY, chartTitle, Graphics.TEXT_JUSTIFY_CENTER);
+        deviceContext.drawText(centerX, centerY - safeHalfHeight - 35, _poppinsSmallFont, chartTitle, Graphics.TEXT_JUSTIFY_CENTER);
         if (statusNote != null) {
-            deviceContext.drawText(centerX, centerY - safeHalfHeight - 10, Graphics.FONT_XTINY, statusNote, Graphics.TEXT_JUSTIFY_CENTER);
+            deviceContext.drawText(centerX, centerY - safeHalfHeight - 10, _poppinsTinyFont, statusNote, Graphics.TEXT_JUSTIFY_CENTER);
         }
 
         deviceContext.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_BLACK);
@@ -142,18 +154,17 @@ class TibberPriceChart {
         }
 
         var priceUnit = currency.equals("SEK") ? "öre" : currency;
-        var priceFont = Graphics.FONT_LARGE;
-        var unitFont = Graphics.FONT_SMALL;
+        var priceFont = _poppinsMediumFont;
+        var unitFont = _poppinsTinyFont;
         var availableWidth = deviceContext.getWidth() - 20;
         var priceWidth = deviceContext.getTextWidthInPixels(formattedPrice, priceFont);
         var unitWidth = deviceContext.getTextWidthInPixels(priceUnit, unitFont);
         if (priceWidth + unitWidth + 6 > availableWidth) {
-            priceFont = Graphics.FONT_MEDIUM;
+            priceFont = _poppinsSmallFont;
             priceWidth = deviceContext.getTextWidthInPixels(formattedPrice, priceFont);
         }
         if (priceWidth + unitWidth + 6 > availableWidth) {
-            priceFont = Graphics.FONT_SMALL;
-            unitFont = Graphics.FONT_XTINY;
+            priceFont = _poppinsTinyFont;
             priceWidth = deviceContext.getTextWidthInPixels(formattedPrice, priceFont);
             unitWidth = deviceContext.getTextWidthInPixels(priceUnit, unitFont);
         }
@@ -173,7 +184,7 @@ class TibberPriceChart {
         var intervalStartMinute = activeInterval.get("start_minute_of_day");
         var intervalEndMinute = (intervalStartMinute + intervalDuration) % 1440;
         var intervalEndTime = (intervalEndMinute / 60).format("%02d") + ":" + (intervalEndMinute % 60).format("%02d");
-        deviceContext.drawText(deviceContext.getWidth() / 2, deviceContext.getHeight() - 20, Graphics.FONT_XTINY, intervalStartTime + "-" + intervalEndTime, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+        deviceContext.drawText(deviceContext.getWidth() / 2, deviceContext.getHeight() - 20, _poppinsTinyFont, intervalStartTime + "-" + intervalEndTime, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
     }
 
     /** Draw rounded Y ticks and sparse hour labels over a 24- or 48-hour span. */
@@ -184,7 +195,7 @@ class TibberPriceChart {
         var tickCount = 0;
         while (tickValue <= axisMinimum + yAxisRange + yAxisTickStep * 0.001 && tickCount < 6) {
             var tickY = plotBottom - (tickValue - axisMinimum) * (plotBottom - plotTop) / yAxisRange;
-            deviceContext.drawText(plotLeft - 3, tickY, Graphics.FONT_XTINY, tickValue.format(labelFormat), Graphics.TEXT_JUSTIFY_RIGHT | Graphics.TEXT_JUSTIFY_VCENTER);
+            deviceContext.drawText(plotLeft - 3, tickY, _poppinsTinyFont, tickValue.format(labelFormat), Graphics.TEXT_JUSTIFY_RIGHT | Graphics.TEXT_JUSTIFY_VCENTER);
             tickValue += yAxisTickStep;
             tickCount++;
         }
@@ -200,7 +211,7 @@ class TibberPriceChart {
         }
         for (var labelIndex = 0; labelIndex < hourLabels.size(); labelIndex++) {
             var labelX = plotLeft + (plotRight - plotLeft) * hourLabelOffsets[labelIndex] / (chartSpanMinutes / 60);
-            deviceContext.drawText(labelX, plotBottom + 2, Graphics.FONT_XTINY, hourLabels[labelIndex], Graphics.TEXT_JUSTIFY_CENTER);
+            deviceContext.drawText(labelX, plotBottom + 2, _poppinsTinyFont, hourLabels[labelIndex], Graphics.TEXT_JUSTIFY_CENTER);
         }
     }
 
