@@ -56,9 +56,9 @@ class TibberPriceChart {
         var yAxisRange = yAxisMaximum - yAxisMinimum;
 
         deviceContext.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
-        deviceContext.drawText(centerX, centerY - safeHalfHeight + 2, Graphics.FONT_XTINY, chartTitle, Graphics.TEXT_JUSTIFY_CENTER);
+        deviceContext.drawText(centerX, centerY - safeHalfHeight - 45, Graphics.FONT_XTINY, chartTitle, Graphics.TEXT_JUSTIFY_CENTER);
         if (statusNote != null) {
-            deviceContext.drawText(centerX, centerY - safeHalfHeight + 10, Graphics.FONT_XTINY, statusNote, Graphics.TEXT_JUSTIFY_CENTER);
+            deviceContext.drawText(centerX, centerY - safeHalfHeight - 10, Graphics.FONT_XTINY, statusNote, Graphics.TEXT_JUSTIFY_CENTER);
         }
 
         deviceContext.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_BLACK);
