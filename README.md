@@ -20,10 +20,10 @@ Signing keys and local credentials are not stored in Git. Keep `developer_key.de
 Create a local secrets source from the template if one is not already present:
 
 ```sh
-cp source/TibberSecrets.mc.example source/TibberSecrets.mc
+cp source/config/Secrets.mc.example source/config/Secrets.mc
 ```
 
-Set your token as the return value of `TibberSecrets.getApiToken()` in `source/TibberSecrets.mc`. That local file is ignored. Never put a real token in the template or commit it. The app sends authenticated HTTPS POST requests to Tibber and requests current price data when opened; refresh is available from the watch controls.
+Set your token as the return value of `TibberSecrets.getApiToken()` in `source/config/Secrets.mc`. That local file is ignored. Never put a real token in the template or commit it. The app sends authenticated HTTPS POST requests to Tibber and requests current price data when opened; refresh is available from the watch controls.
 
 ## Build
 
@@ -87,12 +87,12 @@ All app-drawn text uses bundled Poppins SemiBold bitmap fonts sized for watch di
 
 ## Project layout
 
-- `source/TibberApp.mc`: widget application entry point
-- `source/TibberWidgetView.mc` and `source/TibberWidgetDelegate.mc`: active widget view and input handling
-- `source/TibberPriceGraphView.mc` and `source/TibberPriceGraphDelegate.mc`: two-page price graph and navigation
-- `source/TibberPriceChart.mc`: reusable, rendering-only step chart
-- `source/TibberApiClient.mc`: Tibber GraphQL requests, response parsing, and error handling
-- `source/TibberSecrets.mc.example`: token-free local configuration template
+- `source/app/App.mc`: application lifecycle and entry point
+- `source/screens/`: `WidgetView.mc` and `PriceGraphView.mc`
+- `source/delegates/`: `WidgetDelegate.mc` and `PriceGraphDelegate.mc`
+- `source/network/ApiClient.mc`: Tibber GraphQL requests and response parsing
+- `source/config/`: local secrets source and token-free template
+- `source/charts/PriceChart.mc`: reusable, rendering-only price chart
 - `experiments/`: standalone test apps and archived legacy views/delegates excluded from production builds
 - `experiments/legacy/`: older views/delegates and their backups retained for reference
 - `resources/`: application strings and launcher icon

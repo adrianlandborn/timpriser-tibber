@@ -60,12 +60,12 @@ class TibberPriceGraphView extends WatchUi.View {
     /** Return the display title for the selected graph page. */
     function getPageTitle() {
         if (_selectedPage == 0) {
-            return "TODAY / 15 MIN";
+            return "TODAY | 15 MIN";
         }
         if (_hasTomorrowPrices) {
-            return "2 DAYS / HOURLY";
+            return "2 DAYS | HOURLY";
         }
-        return "TODAY / HOURLY";
+        return "TODAY | HOURLY";
     }
 
     /** Return a note when hourly tomorrow prices have not been published. */

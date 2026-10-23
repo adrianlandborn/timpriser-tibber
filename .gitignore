@@ -10,7 +10,7 @@ developer_key.der
 *.key
 *.p12
 *.pfx
-source/TibberSecrets.mc
+source/config/Secrets.mc
 
 # Connect IQ generated build output
 /TibberWidget.prg
