@@ -41,9 +41,9 @@ class TibberApiClient {
             return;
         }
 
-        var requestedPriceFields = "today { total startsAt level currency }";
+        var requestedPriceFields = "today { total startsAt currency }";
         if (includeTomorrow) {
-            requestedPriceFields += " tomorrow { total startsAt level currency }";
+            requestedPriceFields += " tomorrow { total startsAt currency }";
         }
         var query = {
             "query" => "{ viewer { homes { currentSubscription { priceInfo(resolution: " + priceResolution + ") { " + requestedPriceFields + " } } } } }"
@@ -86,8 +86,7 @@ class TibberApiClient {
                 "Content-Type" => Communications.REQUEST_CONTENT_TYPE_JSON,
                 "Accept" => "application/json",
                 "User-Agent" => "Garmin Connect IQ/9.3.0 TibberWidget/1.0.0"
-            },
-            :responseType => Communications.HTTP_RESPONSE_CONTENT_TYPE_JSON
+            }
         };
 
         _responseCallback = responseCallback;
@@ -96,7 +95,7 @@ class TibberApiClient {
         _requestIncludeTomorrow = includeTomorrow;
 
         try {
-            Communications.makeWebRequest(
+            Communications.makeJsonRequest(
                 TIBBER_API_URL,
                 graphQlRequest,
                 requestOptions,
@@ -301,14 +300,19 @@ class TibberApiClient {
                 return "No daily prices found";
             }
 
+            var currency = null;
+            if ((todayPrices as Array).size() > 0 && (todayPrices as Array)[0] instanceof Dictionary) {
+                currency = ((todayPrices as Array)[0] as Dictionary).get("currency");
+            }
+
             var priceIntervals = [];
-            appendPriceIntervals(priceIntervals, todayPrices as Array, priceResolution, 0);
+            appendPriceIntervals(priceIntervals, todayPrices as Array, priceResolution, 0, currency);
 
             var tomorrowAvailable = false;
             if (includeTomorrow) {
                 var tomorrowPrices = (priceInfo as Dictionary).get("tomorrow");
                 if (tomorrowPrices instanceof Array && (tomorrowPrices as Array).size() > 0) {
-                    appendPriceIntervals(priceIntervals, tomorrowPrices as Array, priceResolution, 1440);
+                    appendPriceIntervals(priceIntervals, tomorrowPrices as Array, priceResolution, 1440, currency);
                     tomorrowAvailable = true;
                 }
             }
@@ -316,6 +320,7 @@ class TibberApiClient {
             return {
                 "resolution" => priceResolution,
                 "resolution_minutes" => getIntervalMinutes(priceResolution),
+                "currency" => currency,
                 "span_minutes" => tomorrowAvailable ? 2880 : 1440,
                 "tomorrow_available" => tomorrowAvailable,
                 "intervals" => priceIntervals
@@ -327,18 +332,15 @@ class TibberApiClient {
     }
 
     /** Append validated price records using a local-day offset for graph placement. */
-    private function appendPriceIntervals(priceIntervals, sourcePrices, priceResolution, dayOffset) as Void {
+    private function appendPriceIntervals(priceIntervals, sourcePrices, priceResolution, dayOffset, currency) as Void {
         for (var priceIndex = 0; priceIndex < sourcePrices.size(); priceIndex++) {
             var priceEntry = sourcePrices[priceIndex];
             if (priceEntry instanceof Dictionary) {
                 var total = (priceEntry as Dictionary).get("total");
                 var startsAt = (priceEntry as Dictionary).get("startsAt");
-                var currency = (priceEntry as Dictionary).get("currency");
-                var level = (priceEntry as Dictionary).get("level");
 
                 if (total != null && startsAt != null) {
-                    var startTimestamp = startsAt as String;
-                    var startMinuteOfDay = getMinuteOfDay(startTimestamp);
+                    var startMinuteOfDay = getMinuteOfDay(startsAt);
                     if (startMinuteOfDay == null) {
                         continue;
                     }
@@ -348,18 +350,7 @@ class TibberApiClient {
                         displayPrice = displayPrice * 100;
                     }
 
-                    priceIntervals.add({
-                        "starts_at" => startTimestamp,
-                        "start_time" => getCurrentTimeString(startTimestamp),
-                        "price" => displayPrice.format("%.0f"),
-                        "price_value" => displayPrice,
-                        "start_minute_of_day" => startMinuteOfDay,
-                        "plot_minute" => dayOffset + startMinuteOfDay,
-                        "currency" => currency,
-                        "level" => level,
-                        "resolution" => priceResolution,
-                        "duration_minutes" => getIntervalMinutes(priceResolution)
-                    });
+                    priceIntervals.add([dayOffset + startMinuteOfDay, displayPrice]);
                 }
             }
         }

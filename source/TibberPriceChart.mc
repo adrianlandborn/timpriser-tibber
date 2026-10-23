@@ -1,7 +1,6 @@
 import Toybox.Graphics;
 import Toybox.Math;
 import Toybox.Time;
-import Toybox.WatchUi;
 
 /**
  * Reusable price-series renderer for timestamped hourly or quarter-hour data.
@@ -12,23 +11,25 @@ class TibberPriceChart {
     private var _poppinsSmallFont;
     private var _poppinsMediumFont;
 
-    /** Load the font sizes used by chart labels and the active interval footer. */
-    function initialize() {
-        _poppinsTinyFont = WatchUi.loadResource(Rez.Fonts.PoppinsTiny) as WatchUi.FontResource;
-        _poppinsSmallFont = WatchUi.loadResource(Rez.Fonts.PoppinsSmall) as WatchUi.FontResource;
-        _poppinsMediumFont = WatchUi.loadResource(Rez.Fonts.PoppinsMedium) as WatchUi.FontResource;
+    /** Use font resources supplied by the parent graph view. */
+    function initialize(poppinsTinyFont, poppinsSmallFont, poppinsMediumFont) {
+        _poppinsTinyFont = poppinsTinyFont;
+        _poppinsSmallFont = poppinsSmallFont;
+        _poppinsMediumFont = poppinsMediumFont;
     }
 
     /**
      * Draw a step series within the supplied time span.
      *
       * @param deviceContext Device context for the current view update.
-      * @param priceIntervals Parsed prices with plot_minute and price_value fields.
+    * @param priceIntervals Compact [plot minute, price value] pairs.
       * @param chartSpanMinutes Horizontal range in minutes, normally 1440 or 2880.
+    * @param intervalDurationMinutes The interval length, normally 15 or 60.
+    * @param currency Currency for the active interval footer.
       * @param chartTitle Page title shown above the plot.
       * @param statusNote Optional availability note shown below the title.
      */
-    function draw(deviceContext, priceIntervals, chartSpanMinutes, chartTitle, statusNote) {
+    function draw(deviceContext, priceIntervals, chartSpanMinutes, intervalDurationMinutes, currency, chartTitle, statusNote) {
         if (priceIntervals == null || priceIntervals.size() == 0) {
             return;
         }
@@ -47,10 +48,10 @@ class TibberPriceChart {
         var plotWidth = plotRight - plotLeft;
         var plotHeight = plotBottom - plotTop;
 
-        var minimumPrice = priceIntervals[0].get("price_value");
+        var minimumPrice = priceIntervals[0][1];
         var maximumPrice = minimumPrice;
         for (var intervalIndex = 1; intervalIndex < priceIntervals.size(); intervalIndex++) {
-            var intervalPrice = priceIntervals[intervalIndex].get("price_value");
+            var intervalPrice = priceIntervals[intervalIndex][1];
             if (intervalPrice < minimumPrice) {
                 minimumPrice = intervalPrice;
             }
@@ -81,21 +82,18 @@ class TibberPriceChart {
         var graphPoints = [];
         for (var intervalIndex = 0; intervalIndex < priceIntervals.size(); intervalIndex++) {
             var priceInterval = priceIntervals[intervalIndex];
-            var plotMinute = priceInterval.get("plot_minute");
-            var intervalPrice = priceInterval.get("price_value");
-            if (plotMinute == null || intervalPrice == null) {
-                continue;
-            }
+            var plotMinute = priceInterval[0];
+            var intervalPrice = priceInterval[1];
 
             var pointX = plotLeft + plotMinute * plotWidth / chartSpanMinutes;
             var pointY = plotBottom - (intervalPrice - yAxisMinimum) * plotHeight / yAxisRange;
-            graphPoints.add([pointX, pointY, plotMinute, priceInterval]);
+            graphPoints.add([pointX, pointY, plotMinute, intervalPrice]);
         }
 
         deviceContext.setColor(Graphics.COLOR_BLUE, Graphics.COLOR_BLACK);
         deviceContext.setPenWidth(2);
         drawStepSeries(deviceContext, graphPoints, plotRight);
-        drawCurrentMarker(deviceContext, graphPoints, plotLeft, plotWidth, chartSpanMinutes);
+        drawCurrentMarker(deviceContext, graphPoints, plotLeft, plotWidth, chartSpanMinutes, intervalDurationMinutes, currency);
     }
 
     /** Draw each price as a flat interval followed by a vertical step. */
@@ -118,7 +116,7 @@ class TibberPriceChart {
     }
 
     /** Highlight the active interval at the center of its time span. */
-    private function drawCurrentMarker(deviceContext, graphPoints, plotLeft, plotWidth, chartSpanMinutes) {
+    private function drawCurrentMarker(deviceContext, graphPoints, plotLeft, plotWidth, chartSpanMinutes, intervalDurationMinutes, currency) {
         var localTime = Time.Gregorian.info(Time.now(), Time.FORMAT_SHORT);
         var currentMinuteOfDay = localTime.hour * 60 + localTime.min;
         if (currentMinuteOfDay >= chartSpanMinutes) {
@@ -135,26 +133,22 @@ class TibberPriceChart {
             return;
         }
 
-        var activeInterval = activeGraphPoint[3];
-        var intervalDuration = activeInterval.get("duration_minutes");
-        if (intervalDuration == null) {
+        if (intervalDurationMinutes == null) {
             return;
         }
-        var intervalCenterMinute = activeGraphPoint[2] + intervalDuration / 2;
+        var intervalCenterMinute = activeGraphPoint[2] + intervalDurationMinutes / 2;
         var markerX = plotLeft + intervalCenterMinute * plotWidth / chartSpanMinutes;
         var markerY = activeGraphPoint[1];
         deviceContext.setColor(Graphics.COLOR_ORANGE, Graphics.COLOR_BLACK);
         deviceContext.fillCircle(markerX, markerY, 5);
         deviceContext.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
         deviceContext.drawCircle(markerX, markerY, 5);
-        drawCurrentIntervalFooter(deviceContext, activeGraphPoint);
+        drawCurrentIntervalFooter(deviceContext, activeGraphPoint, intervalDurationMinutes, currency);
     }
 
     /** Draw the active interval's price, unit, and start/end time below the plot. */
-    private function drawCurrentIntervalFooter(deviceContext, activeGraphPoint) {
-        var activeInterval = activeGraphPoint[3];
-        var formattedPrice = activeInterval.get("price");
-        var currency = activeInterval.get("currency");
+    private function drawCurrentIntervalFooter(deviceContext, activeGraphPoint, intervalDurationMinutes, currency) {
+        var formattedPrice = activeGraphPoint[3].format("%.0f");
         if (formattedPrice == null || currency == null) {
             return;
         }
@@ -181,14 +175,9 @@ class TibberPriceChart {
         deviceContext.drawText(footerStartX, priceCenterY, priceFont, formattedPrice, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
         deviceContext.drawText(footerStartX + priceWidth + 6, priceCenterY + 3, unitFont, priceUnit, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
 
-        var intervalStartTime = activeInterval.get("start_time");
-        var intervalDuration = activeInterval.get("duration_minutes");
-        if (intervalStartTime == null || intervalDuration == null) {
-            return;
-        }
-
-        var intervalStartMinute = activeInterval.get("start_minute_of_day");
-        var intervalEndMinute = (intervalStartMinute + intervalDuration) % 1440;
+        var intervalStartMinute = activeGraphPoint[2] % 1440;
+        var intervalEndMinute = (intervalStartMinute + intervalDurationMinutes) % 1440;
+        var intervalStartTime = (intervalStartMinute / 60).format("%02d") + ":" + (intervalStartMinute % 60).format("%02d");
         var intervalEndTime = (intervalEndMinute / 60).format("%02d") + ":" + (intervalEndMinute % 60).format("%02d");
         deviceContext.drawText(deviceContext.getWidth() / 2, deviceContext.getHeight() - 20, _poppinsTinyFont, intervalStartTime + "-" + intervalEndTime, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
     }

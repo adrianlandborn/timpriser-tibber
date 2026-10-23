@@ -17,10 +17,18 @@ FONT_SIZES = {
     "PoppinsLarge": 34,
     "PoppinsPrice": 46,
 }
-GLYPHS = "".join(chr(codepoint) for codepoint in range(32, 127)) + "ÅÄÖåäö€"
+UI_GLYPHS = "".join(chr(codepoint) for codepoint in range(32, 127)) + "ÅÄÖåäö€"
+PRICE_GLYPHS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ- .,€£$¥ÅÄÖåäöre"
+GLYPHS_BY_RESOURCE = {
+    "PoppinsTiny": UI_GLYPHS,
+    "PoppinsSmall": UI_GLYPHS,
+    "PoppinsMedium": PRICE_GLYPHS,
+    "PoppinsLarge": PRICE_GLYPHS,
+    "PoppinsPrice": PRICE_GLYPHS,
+}
 
 
-def build_font(resource_name, font_size):
+def build_font(resource_name, font_size, glyphs):
     """Rasterize the supported glyphs into a packed grayscale atlas."""
     descriptor_file = FONT_DIRECTORY / (resource_name + ".fnt")
     atlas_file = FONT_DIRECTORY / (resource_name + "_0.png")
@@ -31,7 +39,7 @@ def build_font(resource_name, font_size):
     glyph_records = []
     atlas_x = ATLAS_PADDING
     row_y = ATLAS_PADDING
-    for glyph in GLYPHS:
+    for glyph in glyphs:
         bounds = font.getbbox(glyph)
         glyph_width = bounds[2] - bounds[0]
         glyph_height = bounds[3] - bounds[1]
@@ -58,7 +66,7 @@ def build_font(resource_name, font_size):
     atlas_height = row_y + line_height + ATLAS_PADDING
     atlas = Image.new("L", (ATLAS_WIDTH, atlas_height), 0)
     atlas_draw = ImageDraw.Draw(atlas)
-    for glyph, record in zip(GLYPHS, glyph_records):
+    for glyph, record in zip(glyphs, glyph_records):
         bounds = font.getbbox(glyph)
         atlas_draw.text(
             (record["x"] - bounds[0], record["y"] - bounds[1]),
@@ -89,7 +97,7 @@ def build_font(resource_name, font_size):
 def main():
     """Build the Poppins sizes used by current-price and graph screens."""
     for resource_name, font_size in FONT_SIZES.items():
-        build_font(resource_name, font_size)
+        build_font(resource_name, font_size, GLYPHS_BY_RESOURCE[resource_name])
 
 
 if __name__ == "__main__":

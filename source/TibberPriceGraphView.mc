@@ -8,6 +8,8 @@ class TibberPriceGraphView extends WatchUi.View {
     private var _selectedPage;
     private var _priceIntervals;
     private var _chartSpanMinutes;
+    private var _intervalDurationMinutes;
+    private var _currency;
     private var _hasTomorrowPrices;
     private var _isLoading;
     private var _errorMessage;
@@ -15,18 +17,20 @@ class TibberPriceGraphView extends WatchUi.View {
     private var _poppinsTinyFont;
 
     /** Create the graph page controller and its reusable chart renderer. */
-    function initialize() {
+    function initialize(poppinsTinyFont, poppinsSmallFont, poppinsMediumFont) {
         View.initialize();
         _apiClient = new TibberApiClient();
-        _chart = new TibberPriceChart();
+        _poppinsSmallFont = poppinsSmallFont;
+        _poppinsTinyFont = poppinsTinyFont;
+        _chart = new TibberPriceChart(poppinsTinyFont, poppinsSmallFont, poppinsMediumFont);
         _selectedPage = 0;
         _priceIntervals = null;
         _chartSpanMinutes = 1440;
+        _intervalDurationMinutes = 15;
+        _currency = null;
         _hasTomorrowPrices = false;
         _isLoading = false;
         _errorMessage = null;
-        _poppinsSmallFont = WatchUi.loadResource(Rez.Fonts.PoppinsSmall) as WatchUi.FontResource;
-        _poppinsTinyFont = WatchUi.loadResource(Rez.Fonts.PoppinsTiny) as WatchUi.FontResource;
     }
 
     /** Fetch graph data when the detail page becomes visible. */
@@ -49,7 +53,7 @@ class TibberPriceGraphView extends WatchUi.View {
         } else if (_priceIntervals == null || _priceIntervals.size() == 0) {
             drawCenteredText(deviceContext, displayWidth, displayHeight, "No prices available");
         } else {
-            _chart.draw(deviceContext, _priceIntervals, _chartSpanMinutes, getPageTitle(), getPageNote());
+            _chart.draw(deviceContext, _priceIntervals, _chartSpanMinutes, _intervalDurationMinutes, _currency, getPageTitle(), getPageNote());
         }
     }
 
@@ -92,6 +96,8 @@ class TibberPriceGraphView extends WatchUi.View {
             if (dailyPriceIntervals instanceof Array && chartSpanMinutes != null) {
                 _priceIntervals = dailyPriceIntervals;
                 _chartSpanMinutes = chartSpanMinutes;
+                _intervalDurationMinutes = apiResponse.get("resolution_minutes");
+                _currency = apiResponse.get("currency");
                 _hasTomorrowPrices = apiResponse.get("tomorrow_available") == true;
                 _errorMessage = null;
             } else {

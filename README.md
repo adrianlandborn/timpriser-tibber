@@ -79,7 +79,7 @@ The Fenix 7 products are declared in the manifest. A device pack must be install
 
 The main screen defaults to Tibber's `QUARTER_HOURLY` resolution. Its MENU button toggles between `QUARTER_HOURLY` and `HOURLY`. The graph pages use fixed resolutions: `QUARTER_HOURLY` for today, then `HOURLY` for today and tomorrow. If tomorrow's prices are not published yet, the second page shows today's hourly prices and an availability note. Both `getCurrentPrice(callback, resolution)` and `getDailyPrices(callback, resolution, includeTomorrow)` accept a resolution.
 
-The graph plots Tibber's `today` series and appends `tomorrow` for its second page when available. Each interval keeps its ISO `starts_at`, local `start_time`, timestamp-based plot offset, `duration_minutes`, numeric and formatted price, currency, and level. A typical quarter-hour day contains 96 intervals, though daylight-saving transitions can change the count.
+The graph plots Tibber's `today` series and appends `tomorrow` for its second page when available. Its compact interval data stores timestamp-based plot offsets and numeric price values, with resolution and currency kept once per series to limit memory use on smaller watches. A typical quarter-hour day contains 96 intervals, though daylight-saving transitions can change the count.
 
 ## Typography
 

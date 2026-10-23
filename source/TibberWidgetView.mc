@@ -235,7 +235,7 @@ class TibberWidgetView extends WatchUi.View {
 
     /** Push the graph detail view above the current-price screen. */
     function showPriceGraph() {
-        var graphView = new TibberPriceGraphView();
+        var graphView = new TibberPriceGraphView(_poppinsTinyFont, _poppinsSmallFont, _poppinsMediumFont);
         var graphDelegate = new TibberPriceGraphDelegate(graphView);
         WatchUi.pushView(graphView, graphDelegate, WatchUi.SLIDE_UP);
     }
