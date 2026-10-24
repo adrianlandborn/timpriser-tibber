@@ -24,4 +24,9 @@ class TibberApp extends Application.AppBase {
         return [priceView, inputDelegate];
     }
 
+    /** Provide a compact current-price preview in the widget glance list. */
+    function getGlanceView() {
+        return [new TibberGlanceView()];
+    }
+
 }

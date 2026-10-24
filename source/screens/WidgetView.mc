@@ -1,7 +1,7 @@
 import Toybox.Graphics;
 import Toybox.WatchUi;
 import Toybox.Lang;
-import Toybox.System;
+import Toybox.Application.Storage;
 
 class TibberWidgetView extends WatchUi.View {
     var _currentPriceData;
@@ -9,6 +9,7 @@ class TibberWidgetView extends WatchUi.View {
     var _priceErrorMessage;
     var _priceApiClient;
     var _currentPriceResolution;
+    var _currentPriceType;
     var _poppinsTinyFont;
     var _poppinsSmallFont;
     var _poppinsMediumFont;
@@ -23,7 +24,16 @@ class TibberWidgetView extends WatchUi.View {
         _isPriceLoading = false;
         _priceErrorMessage = null;
         _priceApiClient = new TibberApiClient();
-        _currentPriceResolution = "QUARTER_HOURLY";
+        _currentPriceResolution = Storage.getValue("tibber_price_resolution");
+        if (!(_currentPriceResolution instanceof String) ||
+            (!_currentPriceResolution.equals("HOURLY") && !_currentPriceResolution.equals("QUARTER_HOURLY"))) {
+            _currentPriceResolution = "QUARTER_HOURLY";
+        }
+        _currentPriceType = Storage.getValue("tibber_price_type");
+        if (!(_currentPriceType instanceof String) ||
+            (!_currentPriceType.equals("TOTAL") && !_currentPriceType.equals("SPOT"))) {
+            _currentPriceType = "TOTAL";
+        }
         _poppinsTinyFont = WatchUi.loadResource(Rez.Fonts.PoppinsTiny) as WatchUi.FontResource;
         _poppinsSmallFont = WatchUi.loadResource(Rez.Fonts.PoppinsSmall) as WatchUi.FontResource;
         _poppinsMediumFont = WatchUi.loadResource(Rez.Fonts.PoppinsMedium) as WatchUi.FontResource;
@@ -38,7 +48,7 @@ class TibberWidgetView extends WatchUi.View {
 
     /** Refresh current price data when the main screen becomes visible. */
     function onShow() {
-        fetchPriceData();
+        fetchPriceData(false);
     }
 
     /** Release or reset view state when the main screen is hidden. */
@@ -64,24 +74,25 @@ class TibberWidgetView extends WatchUi.View {
     /** Draw the waiting state while the Tibber request is in flight. */
     function drawLoadingScreen(dc, width, height) {
         drawTextStack(dc, width, height, [
-            ["Loading...", _poppinsSmallFont],
-            ["Tibber Energy", _poppinsTinyFont]
+            ["Laddar...", _poppinsSmallFont],
+            ["Tibber elpris", _poppinsTinyFont]
         ], null);
     }
 
     /** Draw an API or parsing error for the current-price request. */
     function drawErrorScreen(dc, width, height) {
         drawTextStack(dc, width, height, [
-            ["Error", _poppinsSmallFont],
+            ["Fel", _poppinsSmallFont],
             [_priceErrorMessage, _poppinsTinyFont],
-            ["Tibber Energy", _poppinsTinyFont]
+            ["Tibber elpris", _poppinsTinyFont]
         ], null);
     }
 
     /** Draw the current price, currency, timestamp, and selected resolution. */
     function drawCurrentPriceScreen(dc, width, height) {
         if (_currentPriceData != null) {
-            var currentPriceText = _currentPriceData.get("current_price");
+            var currentPriceKey = _currentPriceType.equals("SPOT") ? "current_spot_price" : "current_price";
+            var currentPriceText = _currentPriceData.get(currentPriceKey);
             var currentIntervalTime = _currentPriceData.get("current_time");
             var currentIntervalMinutes = _currentPriceData.get("interval_minutes");
 
@@ -95,19 +106,26 @@ class TibberWidgetView extends WatchUi.View {
                 var priceRows = [
                     [currentPriceText + " " + priceUnit, _poppinsPriceFont]
                 ];
+                priceRows.add([_currentPriceType.equals("SPOT") ? "Spotpris" : "Totalpris", _poppinsTinyFont]);
                 var currentIntervalRange = formatIntervalRange(currentIntervalTime, currentIntervalMinutes);
                 if (currentIntervalRange != null) {
                     priceRows.add([currentIntervalRange, _poppinsSmallFont]);
                 }
+                if (_currentPriceType.equals("SPOT")) {
+                    priceRows.add(["Skatter/moms ingår ej", _poppinsTinyFont]);
+                } else {
+                    priceRows.add(["Skatter inkl. moms", _poppinsTinyFont]);
+                }
+                priceRows.add(["Exkl. nätavgift", _poppinsTinyFont]);
                 drawTextStack(dc, width, height, priceRows, _widgetLogo);
             } else {
                 drawTextStack(dc, width, height, [
-                    ["No price data", _poppinsSmallFont]
+                    ["Prisdata saknas", _poppinsSmallFont]
                 ], null);
             }
         } else {
             drawTextStack(dc, width, height, [
-                ["Loading...", _poppinsTinyFont]
+                ["Laddar...", _poppinsTinyFont]
             ], _widgetLogo);
         }
     }
@@ -218,24 +236,58 @@ class TibberWidgetView extends WatchUi.View {
     }
 
     /** Request the current price using the selected main-screen resolution. */
-    function fetchPriceData() {
+    function fetchPriceData(forceRefresh) {
         _isPriceLoading = true;
         WatchUi.requestUpdate();
 
-        _priceApiClient.getCurrentPrice(method(:onPriceDataReceived), _currentPriceResolution);
+        if (forceRefresh) {
+            _priceApiClient.refreshCurrentPrice(method(:onPriceDataReceived), _currentPriceResolution);
+        } else {
+            _priceApiClient.getCurrentPrice(method(:onPriceDataReceived), _currentPriceResolution);
+        }
     }
 
-    /** Switch hourly/quarter-hourly resolution and reload the current price. */
-    function togglePriceResolution() {
-        _currentPriceResolution = _currentPriceResolution.equals("QUARTER_HOURLY") ? "HOURLY" : "QUARTER_HOURLY";
+    function getCurrentPriceType() {
+        return _currentPriceType;
+    }
+
+    function getCurrentPriceResolution() {
+        return _currentPriceResolution;
+    }
+
+    function showSettings() {
+        var settingsView = new TibberWidgetSettingsView(self, _poppinsTinyFont, _poppinsSmallFont);
+        var settingsDelegate = new TibberWidgetSettingsDelegate(settingsView);
+        WatchUi.pushView(settingsView, settingsDelegate, WatchUi.SLIDE_UP);
+    }
+
+    function setCurrentPriceType(priceType) {
+        if (_currentPriceType.equals(priceType)) {
+            return;
+        }
+        _currentPriceType = priceType;
+        Storage.setValue("tibber_price_type", priceType);
+        refreshDisplayedPrice();
+    }
+
+    function setCurrentPriceResolution(priceResolution) {
+        if (_currentPriceResolution.equals(priceResolution)) {
+            return;
+        }
+        _currentPriceResolution = priceResolution;
+        Storage.setValue("tibber_price_resolution", priceResolution);
+        refreshDisplayedPrice();
+    }
+
+    private function refreshDisplayedPrice() {
         _currentPriceData = null;
         _priceErrorMessage = null;
-        fetchPriceData();
+        fetchPriceData(false);
     }
 
     /** Push the graph detail view above the current-price screen. */
-    function showPriceGraph() {
-        var graphView = new TibberPriceGraphView(_poppinsTinyFont, _poppinsSmallFont, _poppinsMediumFont);
+    function showPriceGraph(initialPage) {
+        var graphView = new TibberPriceGraphView(_poppinsTinyFont, _poppinsSmallFont, _poppinsMediumFont, _currentPriceType, initialPage);
         var graphDelegate = new TibberPriceGraphDelegate(graphView);
         WatchUi.pushView(graphView, graphDelegate, WatchUi.SLIDE_UP);
     }
@@ -243,8 +295,7 @@ class TibberWidgetView extends WatchUi.View {
     /** Refresh current-price data from a touch or physical input event. */
     function refreshPriceData() {
         // Public method for refreshing data on button press
-        System.println("refreshPriceData called");
-        fetchPriceData();
+        fetchPriceData(true);
     }
 
     /** Save the result of the asynchronous current-price request. */
@@ -254,15 +305,31 @@ class TibberWidgetView extends WatchUi.View {
         if (responseData instanceof Dictionary) {
             _currentPriceData = responseData;
             _priceErrorMessage = null;
+            cacheGlancePrice(responseData);
         } else if (responseData instanceof String) {
             _priceErrorMessage = responseData;
             _currentPriceData = null;
         } else {
-            _priceErrorMessage = "Unknown error";
+            _priceErrorMessage = "Okänt fel";
             _currentPriceData = null;
         }
 
         WatchUi.requestUpdate();
+    }
+
+    /** Persist the small price fields used by the glance preview. */
+    private function cacheGlancePrice(priceData) {
+        try {
+            Storage.setValue("tibber_glance_ready", false);
+            Storage.setValue("tibber_glance_price", priceData.get("current_price"));
+            Storage.setValue("tibber_glance_spot_price", priceData.get("current_spot_price"));
+            Storage.setValue("tibber_glance_currency", priceData.get("currency"));
+            Storage.setValue("tibber_glance_time", priceData.get("current_time"));
+            Storage.setValue("tibber_glance_interval", priceData.get("interval_minutes"));
+            Storage.setValue("tibber_glance_price_type", _currentPriceType);
+            Storage.setValue("tibber_glance_ready", true);
+        } catch (ex) {
+        }
     }
 
 }

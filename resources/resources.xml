@@ -8,6 +8,7 @@
         <bitmap id="WidgetLogo" filename="widget_logo.png" />
     </bitmaps>
     <fonts>
+        <font id="PoppinsMicro" filename="fonts/PoppinsMicro.fnt" antialias="true" />
         <font id="PoppinsTiny" filename="fonts/PoppinsTiny.fnt" antialias="true" />
         <font id="PoppinsSmall" filename="fonts/PoppinsSmall.fnt" antialias="true" />
         <font id="PoppinsMedium" filename="fonts/PoppinsMedium.fnt" antialias="true" />

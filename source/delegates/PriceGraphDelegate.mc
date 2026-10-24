@@ -27,15 +27,23 @@ class TibberPriceGraphDelegate extends WatchUi.BehaviorDelegate {
         return true;
     }
 
-    /** Select the quarter-hour prices page. */
+    /** Move up from quarter-hour prices to the widget or to hourly prices. */
     function onPreviousPage() {
-        _graphView.showQuarterHourlyPage();
+        if (_graphView.getSelectedPage() == 0) {
+            WatchUi.popView(WatchUi.SLIDE_DOWN);
+        } else {
+            _graphView.showQuarterHourlyPage();
+        }
         return true;
     }
 
-    /** Select the hourly today/tomorrow prices page. */
+    /** Move down from hourly prices to the widget or to quarter-hour prices. */
     function onNextPage() {
-        _graphView.showHourlyPage();
+        if (_graphView.getSelectedPage() == 1) {
+            WatchUi.popView(WatchUi.SLIDE_DOWN);
+        } else {
+            _graphView.showHourlyPage();
+        }
         return true;
     }
 }

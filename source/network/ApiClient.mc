@@ -9,6 +9,7 @@ class TibberApiClient {
     private var _requestType; // "current" or "daily"
     private var _requestResolution;
     private var _requestIncludeTomorrow;
+    private var _priceCache;
 
     /** Initialize the HTTP request state for this client instance. */
     function initialize() {
@@ -16,17 +17,38 @@ class TibberApiClient {
         _requestType = null;
         _requestResolution = null;
         _requestIncludeTomorrow = false;
+        _priceCache = new TibberPriceCache();
     }
 
     /** Fetch the current price for the requested Tibber resolution. */
     function getCurrentPrice(responseCallback, priceResolution) {
         if (!isSupportedResolution(priceResolution)) {
-            responseCallback.invoke("Unsupported Tibber price resolution");
+            responseCallback.invoke("Ogiltig prisupplösning");
             return;
         }
 
+        var cachedPrice = _priceCache.getCurrentPrice(priceResolution);
+        if (cachedPrice != null) {
+            responseCallback.invoke(cachedPrice);
+            return;
+        }
+
+        requestCurrentPrice(responseCallback, priceResolution);
+    }
+
+    /** Fetch the current price while bypassing cached values. */
+    function refreshCurrentPrice(responseCallback, priceResolution) {
+        if (!isSupportedResolution(priceResolution)) {
+            responseCallback.invoke("Ogiltig prisupplösning");
+            return;
+        }
+        requestCurrentPrice(responseCallback, priceResolution);
+    }
+
+    private function requestCurrentPrice(responseCallback, priceResolution) {
+
         var query = {
-            "query" => "{ viewer { homes { currentSubscription { priceInfo(resolution: " + priceResolution + ") { current { total level currency startsAt } } } } } }"
+            "query" => "{ viewer { homes { currentSubscription { priceInfo(resolution: " + priceResolution + ") { current { total energy level currency startsAt } } } } } }"
         };
         makeRequest(query, "current", priceResolution, false, responseCallback);
     }
@@ -37,13 +59,33 @@ class TibberApiClient {
      */
     function getDailyPrices(responseCallback, priceResolution, includeTomorrow) {
         if (!isSupportedResolution(priceResolution)) {
-            responseCallback.invoke("Unsupported Tibber price resolution");
+            responseCallback.invoke("Ogiltig prisupplösning");
             return;
         }
 
-        var requestedPriceFields = "today { total startsAt currency }";
+        var cachedPrices = _priceCache.getDailyPrices(priceResolution, includeTomorrow, false);
+        if (cachedPrices != null) {
+            responseCallback.invoke(cachedPrices);
+            return;
+        }
+
+        requestDailyPrices(responseCallback, priceResolution, includeTomorrow);
+    }
+
+    /** Fetch daily prices while bypassing cached values. */
+    function refreshDailyPrices(responseCallback, priceResolution, includeTomorrow) {
+        if (!isSupportedResolution(priceResolution)) {
+            responseCallback.invoke("Ogiltig prisupplösning");
+            return;
+        }
+        requestDailyPrices(responseCallback, priceResolution, includeTomorrow);
+    }
+
+    private function requestDailyPrices(responseCallback, priceResolution, includeTomorrow) {
+
+        var requestedPriceFields = "today { total energy startsAt currency }";
         if (includeTomorrow) {
-            requestedPriceFields += " tomorrow { total startsAt currency }";
+            requestedPriceFields += " tomorrow { total energy startsAt currency }";
         }
         var query = {
             "query" => "{ viewer { homes { currentSubscription { priceInfo(resolution: " + priceResolution + ") { " + requestedPriceFields + " } } } } }"
@@ -67,17 +109,17 @@ class TibberApiClient {
     /** Send one authenticated GraphQL request and remember its response context. */
     private function makeRequest(graphQlRequest, requestKind, priceResolution, includeTomorrow, responseCallback) {
         if (_responseCallback != null) {
-            responseCallback.invoke("A Tibber request is already in progress");
+            responseCallback.invoke("En Tibber-förfrågan pågår redan");
             return;
         }
 
         var accessToken = TibberSecrets.getApiToken();
         if (accessToken.length() == 0) {
-            responseCallback.invoke("Tibber API token is missing");
+            responseCallback.invoke("Tibber-token saknas");
             return;
         }
 
-        System.println("Requesting Tibber " + priceResolution + " prices");
+        System.println("Tibber POST " + TIBBER_API_URL + " " + requestKind + " " + priceResolution);
 
         var requestOptions = {
             :method => Communications.HTTP_REQUEST_METHOD_POST,
@@ -106,7 +148,7 @@ class TibberApiClient {
             _requestType = null;
             _requestResolution = null;
             _requestIncludeTomorrow = false;
-            responseCallback.invoke("Unable to start Tibber API request");
+            responseCallback.invoke("Kunde inte starta Tibber-förfrågan");
         }
     }
 
@@ -116,7 +158,7 @@ class TibberApiClient {
             return;
         }
 
-        System.println("Tibber HTTP response: " + responseCode.toString());
+        System.println("Tibber HTTP " + responseCode.toString() + " from " + TIBBER_API_URL + " " + _requestType + " " + _requestResolution);
 
         var pendingCallback = _responseCallback;
         var requestKind = _requestType;
@@ -135,31 +177,29 @@ class TibberApiClient {
                     parsedResult = graphQlError;
                 } else if (requestKind.equals("current")) {
                     parsedResult = parseCurrentPriceData(responseData as Dictionary, priceResolution);
+                    if (parsedResult instanceof Dictionary) {
+                        _priceCache.storeCurrentPrice(priceResolution, parsedResult as Dictionary);
+                    }
                 } else {
                     parsedResult = parseDailyPricesData(responseData as Dictionary, priceResolution, includeTomorrow);
+                    if (parsedResult instanceof Dictionary) {
+                        _priceCache.storeDailyPrices(priceResolution, includeTomorrow, parsedResult as Dictionary);
+                    }
                 }
             } else {
-                parsedResult = "Tibber returned an invalid response";
+                parsedResult = "Tibber returnerade ett ogiltigt svar";
             }
         } else {
-            parsedResult = "Tibber HTTP error " + responseCode.toString();
+            parsedResult = "Tibber HTTP-fel " + responseCode.toString();
             if (responseCode == 401) {
-                parsedResult = "Tibber rejected the API token";
+                parsedResult = "Tibber avvisade API-token";
             } else if (responseCode == 403) {
-                parsedResult = "Tibber denied access; check the token's home scope";
+                parsedResult = "Åtkomst nekad. Kontrollera tokenens behörighet.";
             } else if (responseCode == 429) {
-                parsedResult = "Tibber rate limit reached; try again later";
+                parsedResult = "Tibbers anropsgräns nåddes. Försök senare.";
             } else if (responseCode < 0) {
-                parsedResult = "Unable to reach Tibber; check the watch connection";
+                parsedResult = "Ingen kontakt med Tibber. Kontrollera klockans anslutning.";
             }
-        }
-
-        if (parsedResult instanceof Dictionary && requestKind.equals("current")) {
-            System.println("Tibber " + priceResolution + " current price parsed successfully");
-        } else if (parsedResult instanceof Dictionary && requestKind.equals("daily")) {
-            System.println("Tibber " + priceResolution + " daily prices parsed successfully");
-        } else {
-            System.println("Tibber GraphQL response returned an error");
         }
 
         pendingCallback.invoke(parsedResult);
@@ -173,10 +213,10 @@ class TibberApiClient {
             if (firstError instanceof Dictionary) {
                 var message = (firstError as Dictionary).get("message");
                 if (message instanceof String) {
-                    return "Tibber query failed: " + (message as String);
+                    return "Tibber-förfrågan misslyckades";
                 }
             }
-            return "Tibber query failed";
+            return "Tibber-förfrågan misslyckades";
         }
         return null;
     }
@@ -186,58 +226,62 @@ class TibberApiClient {
         try {
             var responseBody = responseData.get("data");
             if (responseBody == null) {
-                return "No data received";
+                return "Ingen data hämtades";
             }
 
             var viewerData = (responseBody as Dictionary).get("viewer");
             if (viewerData == null) {
-                return "Invalid data structure";
+                return "Ogiltigt svarsformat";
             }
 
             var userHomes = (viewerData as Dictionary).get("homes");
             if (userHomes == null || !(userHomes instanceof Array) || (userHomes as Array).size() == 0) {
-                return "No homes found";
+                return "Inget Tibber-hem hittades";
             }
 
             var selectedHome = (userHomes as Array)[0];
             if (!(selectedHome instanceof Dictionary)) {
-                return "Invalid home data";
+                return "Ogiltiga hemuppgifter";
             }
 
             var subscription = (selectedHome as Dictionary).get("currentSubscription");
             if (subscription == null) {
-                return "No subscription found";
+                return "Inget aktivt elavtal hittades";
             }
 
             var priceInfo = (subscription as Dictionary).get("priceInfo");
             if (priceInfo == null) {
-                return "No price info found";
+                return "Prisdata saknas";
             }
 
             var current = (priceInfo as Dictionary).get("current");
             if (current == null) {
-                return "No current price found";
+                return "Aktuellt pris saknas";
             }
 
             var currentDict = current as Dictionary;
             var total = currentDict.get("total");
+            var energy = currentDict.get("energy");
             var level = currentDict.get("level");
             var currency = currentDict.get("currency");
             var startsAt = currentDict.get("startsAt");
 
-            if (total == null) {
-                return "Invalid price data";
+            if (total == null || energy == null) {
+                return "Ogiltiga prisuppgifter";
             }
 
             var price = total as Float;
+            var spotPrice = energy as Float;
             if (currency != null && currency.equals("SEK")) {
                 price = price * 100;
+                spotPrice = spotPrice * 100;
             }
 
             var currentPriceTime = getCurrentTimeString(startsAt);
 
             return {
                 "current_price" => price.format("%.0f"),
+                "current_spot_price" => spotPrice.format("%.0f"),
                 "current_time" => currentPriceTime,
                 "level" => level,
                 "currency" => currency,
@@ -247,8 +291,7 @@ class TibberApiClient {
             };
 
         } catch (ex) {
-            System.println("Unable to parse Tibber current price response");
-            return "Invalid Tibber price response";
+            return "Ogiltigt prissvar från Tibber";
         }
     }
 
@@ -267,37 +310,37 @@ class TibberApiClient {
         try {
             var responseBody = responseData.get("data");
             if (responseBody == null) {
-                return "No data received";
+                return "Ingen data hämtades";
             }
 
             var viewerData = (responseBody as Dictionary).get("viewer");
             if (viewerData == null) {
-                return "Invalid data structure";
+                return "Ogiltigt svarsformat";
             }
 
             var userHomes = (viewerData as Dictionary).get("homes");
             if (userHomes == null || !(userHomes instanceof Array) || (userHomes as Array).size() == 0) {
-                return "No homes found";
+                return "Inget Tibber-hem hittades";
             }
 
             var selectedHome = (userHomes as Array)[0];
             if (!(selectedHome instanceof Dictionary)) {
-                return "Invalid home data";
+                return "Ogiltiga hemuppgifter";
             }
 
             var subscription = (selectedHome as Dictionary).get("currentSubscription");
             if (subscription == null) {
-                return "No subscription found";
+                return "Inget aktivt elavtal hittades";
             }
 
             var priceInfo = (subscription as Dictionary).get("priceInfo");
             if (priceInfo == null) {
-                return "No price info found";
+                return "Prisdata saknas";
             }
 
             var todayPrices = (priceInfo as Dictionary).get("today");
             if (todayPrices == null || !(todayPrices instanceof Array)) {
-                return "No daily prices found";
+                return "Dagens priser saknas";
             }
 
             var currency = null;
@@ -327,7 +370,7 @@ class TibberApiClient {
             };
 
         } catch (ex) {
-            return "Error parsing daily prices";
+            return "Kunde inte läsa dagspriser";
         }
     }
 
@@ -337,20 +380,23 @@ class TibberApiClient {
             var priceEntry = sourcePrices[priceIndex];
             if (priceEntry instanceof Dictionary) {
                 var total = (priceEntry as Dictionary).get("total");
+                var energy = (priceEntry as Dictionary).get("energy");
                 var startsAt = (priceEntry as Dictionary).get("startsAt");
 
-                if (total != null && startsAt != null) {
+                if (total != null && energy != null && startsAt != null) {
                     var startMinuteOfDay = getMinuteOfDay(startsAt);
                     if (startMinuteOfDay == null) {
                         continue;
                     }
 
                     var displayPrice = total as Float;
+                    var spotPrice = energy as Float;
                     if (currency != null && currency.equals("SEK")) {
                         displayPrice = displayPrice * 100;
+                        spotPrice = spotPrice * 100;
                     }
 
-                    priceIntervals.add([dayOffset + startMinuteOfDay, displayPrice]);
+                    priceIntervals.add([dayOffset + startMinuteOfDay, displayPrice, spotPrice]);
                 }
             }
         }

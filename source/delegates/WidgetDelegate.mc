@@ -1,6 +1,5 @@
 import Toybox.WatchUi;
 import Toybox.Lang;
-import Toybox.System;
 
 class TibberWidgetDelegate extends WatchUi.BehaviorDelegate {
     var _widgetView;
@@ -9,13 +8,30 @@ class TibberWidgetDelegate extends WatchUi.BehaviorDelegate {
     function initialize(widgetView) {
         BehaviorDelegate.initialize();
         _widgetView = widgetView;
-        System.println("TibberWidgetDelegate initialized with view: " + (_widgetView != null ? "yes" : "no"));
     }
 
-    /** Open the graph when START/SELECT is pressed. */
+    /** Refresh the current price when START/SELECT is pressed. */
     function onSelect() {
+        if (_widgetView != null && _widgetView has :refreshPriceData) {
+            _widgetView.refreshPriceData();
+            return true;
+        }
+        return false;
+    }
+
+    /** Open the hourly graph when navigating upward from the main view. */
+    function onPreviousPage() {
         if (_widgetView != null && _widgetView has :showPriceGraph) {
-            _widgetView.showPriceGraph();
+            _widgetView.showPriceGraph(1);
+            return true;
+        }
+        return false;
+    }
+
+    /** Open the quarter-hour graph when navigating downward from the main view. */
+    function onNextPage() {
+        if (_widgetView != null && _widgetView has :showPriceGraph) {
+            _widgetView.showPriceGraph(0);
             return true;
         }
         return false;
@@ -23,33 +39,28 @@ class TibberWidgetDelegate extends WatchUi.BehaviorDelegate {
 
     /** Refresh the current price when the screen is tapped. */
     function onTap(tapEvent) {
-        System.println("onTap called");
         if (_widgetView != null && _widgetView has :refreshPriceData) {
-            System.println("Calling refreshPriceData from tap");
             _widgetView.refreshPriceData();
         }
         return true;
     }
 
-    /** Route the physical ENTER key to the graph entry action. */
+    /** Keep ENTER mapped to refresh on devices that report key events directly. */
     function onKey(keyEvent) {
-        System.println("onKey called");
         var pressedKey = keyEvent.getKey();
         if (pressedKey == WatchUi.KEY_ENTER) {
-            if (_widgetView != null && _widgetView has :showPriceGraph) {
-                _widgetView.showPriceGraph();
+            if (_widgetView != null && _widgetView has :refreshPriceData) {
+                _widgetView.refreshPriceData();
             }
             return true;
         }
         return false;
     }
 
-    /** Toggle current-price resolution from the main screen's MENU button. */
+    /** Open price and resolution settings. */
     function onMenu() {
-        if (_widgetView != null && _widgetView has :togglePriceResolution) {
-            _widgetView.togglePriceResolution();
-        } else if (_widgetView != null && _widgetView has :refreshPriceData) {
-            _widgetView.refreshPriceData();
+        if (_widgetView != null && _widgetView has :showSettings) {
+            _widgetView.showSettings();
         }
         return true;
     }
@@ -57,7 +68,6 @@ class TibberWidgetDelegate extends WatchUi.BehaviorDelegate {
     /** Preserve the widget's existing back-button behavior. */
     function onBack() {
         // Handle back button - close widget
-        System.println("onBack called");
         return true;
     }
 }

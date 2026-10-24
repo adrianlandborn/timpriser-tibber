@@ -10,6 +10,7 @@ class TibberPriceGraphView extends WatchUi.View {
     private var _chartSpanMinutes;
     private var _intervalDurationMinutes;
     private var _currency;
+    private var _priceType;
     private var _hasTomorrowPrices;
     private var _isLoading;
     private var _errorMessage;
@@ -17,17 +18,18 @@ class TibberPriceGraphView extends WatchUi.View {
     private var _poppinsTinyFont;
 
     /** Create the graph page controller and its reusable chart renderer. */
-    function initialize(poppinsTinyFont, poppinsSmallFont, poppinsMediumFont) {
+    function initialize(poppinsTinyFont, poppinsSmallFont, poppinsMediumFont, priceType, initialPage) {
         View.initialize();
         _apiClient = new TibberApiClient();
         _poppinsSmallFont = poppinsSmallFont;
         _poppinsTinyFont = poppinsTinyFont;
         _chart = new TibberPriceChart(poppinsTinyFont, poppinsSmallFont, poppinsMediumFont);
-        _selectedPage = 0;
+        _selectedPage = initialPage;
         _priceIntervals = null;
         _chartSpanMinutes = 1440;
         _intervalDurationMinutes = 15;
         _currency = null;
+        _priceType = priceType;
         _hasTomorrowPrices = false;
         _isLoading = false;
         _errorMessage = null;
@@ -36,7 +38,7 @@ class TibberPriceGraphView extends WatchUi.View {
     /** Fetch graph data when the detail page becomes visible. */
     /** Load the selected page when the graph view becomes visible. */
     function onShow() {
-        fetchGraphPrices();
+        fetchGraphPrices(false);
     }
 
     /** Draw the current loading, error, empty, or chart state. */
@@ -47,11 +49,11 @@ class TibberPriceGraphView extends WatchUi.View {
         var displayWidth = deviceContext.getWidth();
         var displayHeight = deviceContext.getHeight();
         if (_isLoading) {
-            drawCenteredText(deviceContext, displayWidth, displayHeight, "Loading prices...");
+            drawCenteredText(deviceContext, displayWidth, displayHeight, "Laddar priser...");
         } else if (_errorMessage != null) {
             drawCenteredText(deviceContext, displayWidth, displayHeight, _errorMessage);
         } else if (_priceIntervals == null || _priceIntervals.size() == 0) {
-            drawCenteredText(deviceContext, displayWidth, displayHeight, "No prices available");
+            drawCenteredText(deviceContext, displayWidth, displayHeight, "Priser saknas");
         } else {
             _chart.draw(deviceContext, _priceIntervals, _chartSpanMinutes, _intervalDurationMinutes, _currency, getPageTitle(), getPageNote());
         }
@@ -60,41 +62,52 @@ class TibberPriceGraphView extends WatchUi.View {
     /** Return the display title for the selected graph page. */
     function getPageTitle() {
         if (_selectedPage == 0) {
-            return "TODAY | 15 MIN";
+            return "IDAG | 15 MIN";
         }
         if (_hasTomorrowPrices) {
-            return "2 DAYS | HOURLY";
+            return "2 DAGAR | TIMPRIS";
         }
-        return "TODAY | HOURLY";
+        return "IDAG | TIMPRIS";
     }
 
     /** Return a note when hourly tomorrow prices have not been published. */
     function getPageNote() {
         if (_selectedPage == 1 && !_hasTomorrowPrices) {
-            return "Tomorrow not available";
+            return "Imorgon saknas";
         }
         return null;
     }
 
     /** Fetch today's prices, optionally including tomorrow on the hourly page. */
-    function fetchGraphPrices() {
+    function fetchGraphPrices(forceRefresh) {
         _isLoading = true;
         _errorMessage = null;
         WatchUi.requestUpdate();
 
         var priceResolution = _selectedPage == 0 ? "QUARTER_HOURLY" : "HOURLY";
         var includeTomorrow = _selectedPage == 1;
-        _apiClient.getDailyPrices(method(:onPricesReceived), priceResolution, includeTomorrow);
+        if (forceRefresh) {
+            _apiClient.refreshDailyPrices(method(:onPricesReceived), priceResolution, includeTomorrow);
+        } else {
+            _apiClient.getDailyPrices(method(:onPricesReceived), priceResolution, includeTomorrow);
+        }
     }
 
     /** Save a successful interval response or display its error state. */
     function onPricesReceived(apiResponse) {
         _isLoading = false;
         if (apiResponse instanceof Dictionary) {
-            var dailyPriceIntervals = apiResponse.get("intervals");
+            var sourceIntervals = apiResponse.get("intervals");
             var chartSpanMinutes = apiResponse.get("span_minutes");
-            if (dailyPriceIntervals instanceof Array && chartSpanMinutes != null) {
-                _priceIntervals = dailyPriceIntervals;
+            if (sourceIntervals instanceof Array && chartSpanMinutes != null) {
+                _priceIntervals = [];
+                var selectedPriceIndex = _priceType.equals("SPOT") ? 2 : 1;
+                for (var intervalIndex = 0; intervalIndex < (sourceIntervals as Array).size(); intervalIndex++) {
+                    var sourceInterval = (sourceIntervals as Array)[intervalIndex];
+                    if (sourceInterval instanceof Array && (sourceInterval as Array).size() > selectedPriceIndex) {
+                        _priceIntervals.add([(sourceInterval as Array)[0], (sourceInterval as Array)[selectedPriceIndex]]);
+                    }
+                }
                 _chartSpanMinutes = chartSpanMinutes;
                 _intervalDurationMinutes = apiResponse.get("resolution_minutes");
                 _currency = apiResponse.get("currency");
@@ -102,14 +115,14 @@ class TibberPriceGraphView extends WatchUi.View {
                 _errorMessage = null;
             } else {
                 _priceIntervals = null;
-                _errorMessage = "Invalid price data";
+                _errorMessage = "Ogiltiga prisdata";
             }
         } else if (apiResponse instanceof String) {
             _priceIntervals = null;
             _errorMessage = apiResponse as String;
         } else {
             _priceIntervals = null;
-            _errorMessage = "Unable to load prices";
+            _errorMessage = "Kunde inte läsa priser";
         }
         WatchUi.requestUpdate();
     }
@@ -124,6 +137,10 @@ class TibberPriceGraphView extends WatchUi.View {
         setPage(1);
     }
 
+    function getSelectedPage() {
+        return _selectedPage;
+    }
+
     /** Change pages and request fresh data unless that request is already active. */
     private function setPage(pageIndex) {
         if (_isLoading || (pageIndex == _selectedPage && _priceIntervals != null)) {
@@ -131,12 +148,12 @@ class TibberPriceGraphView extends WatchUi.View {
         }
         _selectedPage = pageIndex;
         _priceIntervals = null;
-        fetchGraphPrices();
+        fetchGraphPrices(false);
     }
 
     /** Refresh the selected page's prices. */
     function refreshPriceData() {
-        fetchGraphPrices();
+        fetchGraphPrices(true);
     }
 
     /** Center a short loading/error message in the watch display. */

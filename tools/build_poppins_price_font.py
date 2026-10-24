@@ -11,6 +11,7 @@ SOURCE_FONT = FONT_DIRECTORY / "Poppins-SemiBold.ttf"
 ATLAS_WIDTH = 512
 ATLAS_PADDING = 2
 FONT_SIZES = {
+    "PoppinsMicro": 10,
     "PoppinsTiny": 12,
     "PoppinsSmall": 16,
     "PoppinsMedium": 24,
@@ -20,6 +21,7 @@ FONT_SIZES = {
 UI_GLYPHS = "".join(chr(codepoint) for codepoint in range(32, 127)) + "ÅÄÖåäö€"
 PRICE_GLYPHS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ- .,€£$¥ÅÄÖåäöre"
 GLYPHS_BY_RESOURCE = {
+    "PoppinsMicro": UI_GLYPHS,
     "PoppinsTiny": UI_GLYPHS,
     "PoppinsSmall": UI_GLYPHS,
     "PoppinsMedium": PRICE_GLYPHS,
