@@ -24,7 +24,7 @@ class TibberWidgetSettingsView extends WatchUi.View {
     function initialize(widgetView, tinyFont, smallFont) {
         View.initialize();
         _widgetView = widgetView;
-        _priceToggle = new TibberSettingsToggle();
+        _priceToggle = new Toggle();
         _resolutionControl = new TibberSegmentedControl();
         _fontCaption = tinyFont;
         _fontOption = smallFont;

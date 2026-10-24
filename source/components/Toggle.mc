@@ -1,14 +1,13 @@
 import Toybox.Graphics;
 import Toybox.Lang;
 
-class TibberSettingsToggle {
+class Toggle {
     private const LABEL_X = 24;
     private const LABEL_GAP = 8;
     private const RIGHT_INSET = 16;
-    private const ROW_INSET = 16;
     private const FOCUS_LINE_X = 8;
-    private const WIDTH = 38;
-    private const HEIGHT = 16;
+    private const WIDTH = 44;
+    private const HEIGHT = 20;
 
     function draw(dc, width, top, rowHeight, label, isOn, isSelected, optionFont, captionFont) {
         var backgroundColor = Graphics.COLOR_BLACK;
