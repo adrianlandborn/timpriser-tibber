@@ -65,9 +65,8 @@ class TibberWidgetDelegate extends WatchUi.BehaviorDelegate {
         return true;
     }
 
-    /** Preserve the widget's existing back-button behavior. */
+    /** Allow the system to close the widget from its base view. */
     function onBack() {
-        // Handle back button - close widget
-        return true;
+        return false;
     }
 }

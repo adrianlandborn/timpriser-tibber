@@ -1,6 +1,7 @@
 import Toybox.Graphics;
 import Toybox.Lang;
 import Toybox.WatchUi;
+import Toybox.Application.Storage;
 
 class TibberPriceGraphView extends WatchUi.View {
     private var _apiClient;
@@ -61,13 +62,15 @@ class TibberPriceGraphView extends WatchUi.View {
 
     /** Return the display title for the selected graph page. */
     function getPageTitle() {
+        var title;
         if (_selectedPage == 0) {
-            return "IDAG | 15 MIN";
+            title = "IDAG | 15 MIN";
+        } else if (_hasTomorrowPrices) {
+            title = "2 DAGAR | TIMPRIS";
+        } else {
+            title = "IDAG | TIMPRIS";
         }
-        if (_hasTomorrowPrices) {
-            return "2 DAGAR | TIMPRIS";
-        }
-        return "IDAG | TIMPRIS";
+        return title;
     }
 
     /** Return a note when hourly tomorrow prices have not been published. */
@@ -102,10 +105,26 @@ class TibberPriceGraphView extends WatchUi.View {
             if (sourceIntervals instanceof Array && chartSpanMinutes != null) {
                 _priceIntervals = [];
                 var selectedPriceIndex = _priceType.equals("SPOT") ? 2 : 1;
+                var includeNetworkFees = _priceType.equals("TOTAL") && Storage.getValue("tibber_network_fees_enabled") == true;
+                var priceCalculator = new TibberPriceCache();
+                var hourlySpotTotals = [];
+                var hourlySpotCounts = [];
+
+                if (includeNetworkFees) {
+                    buildHourlySpotAverages(sourceIntervals as Array, hourlySpotTotals, hourlySpotCounts);
+                }
+
                 for (var intervalIndex = 0; intervalIndex < (sourceIntervals as Array).size(); intervalIndex++) {
                     var sourceInterval = (sourceIntervals as Array)[intervalIndex];
                     if (sourceInterval instanceof Array && (sourceInterval as Array).size() > selectedPriceIndex) {
-                        _priceIntervals.add([(sourceInterval as Array)[0], (sourceInterval as Array)[selectedPriceIndex]]);
+                        var plotMinute = (sourceInterval as Array)[0];
+                        var displayPrice = (sourceInterval as Array)[selectedPriceIndex] as Float;
+                        if (includeNetworkFees) {
+                            var hourBucket = plotMinute / 60;
+                            var spotAverage = (hourlySpotTotals as Array)[hourBucket] / (hourlySpotCounts as Array)[hourBucket];
+                            displayPrice = priceCalculator.getPriceWithNetworkFees(displayPrice, spotAverage);
+                        }
+                        _priceIntervals.add([plotMinute, displayPrice]);
                     }
                 }
                 _chartSpanMinutes = chartSpanMinutes;
@@ -139,6 +158,27 @@ class TibberPriceGraphView extends WatchUi.View {
 
     function getSelectedPage() {
         return _selectedPage;
+    }
+
+    private function buildHourlySpotAverages(sourceIntervals, hourlySpotTotals, hourlySpotCounts) {
+        for (var intervalIndex = 0; intervalIndex < sourceIntervals.size(); intervalIndex++) {
+            var interval = sourceIntervals[intervalIndex];
+            if (!(interval instanceof Array) || (interval as Array).size() < 3) {
+                continue;
+            }
+
+            var plotMinute = (interval as Array)[0];
+            var hourBucket = 0;
+            while ((hourBucket + 1) * 60 <= plotMinute) {
+                hourBucket++;
+            }
+            while (hourlySpotTotals.size() <= hourBucket) {
+                hourlySpotTotals.add(0.0);
+                hourlySpotCounts.add(0);
+            }
+            hourlySpotTotals[hourBucket] = hourlySpotTotals[hourBucket] + ((interval as Array)[2] as Float);
+            hourlySpotCounts[hourBucket] = hourlySpotCounts[hourBucket] + 1;
+        }
     }
 
     /** Change pages and request fresh data unless that request is already active. */

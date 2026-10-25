@@ -8,11 +8,16 @@ class Toggle {
     private const FOCUS_LINE_X = 8;
     private const WIDTH = 44;
     private const HEIGHT = 20;
+    private var _isEnabled = true;
+
+    function setEnabled(isEnabled) {
+        _isEnabled = isEnabled;
+    }
 
     function draw(dc, width, top, rowHeight, label, isOn, isSelected, optionFont, captionFont) {
         var backgroundColor = Graphics.COLOR_BLACK;
-        var textColor = Graphics.COLOR_WHITE;
-        var trackColor = isOn ? Graphics.COLOR_BLUE : Graphics.COLOR_LT_GRAY;
+        var textColor = _isEnabled ? Graphics.COLOR_WHITE : Graphics.COLOR_DK_GRAY;
+        var trackColor = !_isEnabled ? Graphics.COLOR_DK_GRAY : (isOn ? Graphics.COLOR_BLUE : Graphics.COLOR_LT_GRAY);
         var trackLeft = width - WIDTH - RIGHT_INSET;
         var trackTop = top + (rowHeight - HEIGHT) / 2;
         var radius = HEIGHT / 2;
@@ -38,7 +43,7 @@ class Toggle {
         dc.fillCircle(trackLeft + WIDTH - radius, trackTop + radius, radius);
 
         var thumbX = isOn ? trackLeft + WIDTH - radius : trackLeft + radius;
-        dc.setColor(Graphics.COLOR_WHITE, trackColor);
+        dc.setColor(_isEnabled ? Graphics.COLOR_WHITE : Graphics.COLOR_LT_GRAY, trackColor);
         dc.fillCircle(thumbX, trackTop + radius, radius - 3);
     }
 }

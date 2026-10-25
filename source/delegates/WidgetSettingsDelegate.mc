@@ -16,6 +16,24 @@ class TibberWidgetSettingsDelegate extends WatchUi.BehaviorDelegate {
         return _settingsView.moveSelection(1);
     }
 
+    function onPreviousMode() {
+        return _settingsView.openSelectedNetworkFeeDetails();
+    }
+
+    function onNextMode() {
+        return _settingsView.openSelectedNetworkFeeDetails();
+    }
+
+    function onKey(keyEvent) {
+        var key = keyEvent.getKey();
+        if (key == WatchUi.KEY_LEFT) {
+            return _settingsView.openSelectedNetworkFeeDetails();
+        } else if (key == WatchUi.KEY_RIGHT) {
+            return _settingsView.openSelectedNetworkFeeDetails();
+        }
+        return false;
+    }
+
     function onSelect() {
         return _settingsView.selectCurrentOption();
     }

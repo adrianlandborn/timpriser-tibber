@@ -3,18 +3,68 @@ import Toybox.Lang;
 import Toybox.Time;
 
 class TibberPriceCache {
-    function getCurrentPrice(priceResolution) {
-        var currentPrice = readCurrentPrice(priceResolution);
-        if (currentPrice != null && isCurrentPriceValid(currentPrice)) {
-            return currentPrice;
+    private const STANDARD_ENERGY_TAX_ORE = 45.0;
+
+    function getEnergyTax() {
+        return getStoredFee("tibber_energy_tax_ore", STANDARD_ENERGY_TAX_ORE);
+    }
+
+    function getPriceWithNetworkFees(tibberTotal, spotAverageExcludingVat) {
+        return tibberTotal + getNetworkFee(spotAverageExcludingVat);
+    }
+
+    function getDisplayPrice(priceData, priceType) {
+        var priceKey = priceType.equals("SPOT") ? "current_spot_price" : "current_price";
+        var priceText = priceData.get(priceKey);
+        if (!(priceText instanceof String) || !priceType.equals("TOTAL")) {
+            return priceText;
         }
 
+        var valueKey = priceType.equals("SPOT") ? "current_spot_value" : "current_price_value";
+        var price = priceData.get(valueKey);
+        if (!(price instanceof Number || price instanceof Float)) {
+            price = priceText.toFloat();
+        }
+        if (Storage.getValue("tibber_network_fees_enabled") != true) {
+            return price.format("%.0f");
+        }
+        var spotAverage = priceData.get("hourly_spot_average");
+        if (!(spotAverage instanceof Number || spotAverage instanceof Float)) {
+            var resolution = priceData.get("resolution");
+            if (resolution instanceof String && resolution.equals("QUARTER_HOURLY")) {
+                return null;
+            }
+            spotAverage = priceData.get("current_spot_price").toFloat();
+        }
+        return getPriceWithNetworkFees(price, spotAverage).format("%.0f");
+    }
+
+    function getNetworkFee(spotAverageExcludingVat) {
+        var fixedFee = getStoredFee("tibber_network_fixed_ore", 20.0);
+        var variablePercent = getStoredFee("tibber_network_variable_percent", 5.0);
+        var spotIncludingVat = spotAverageExcludingVat * 1.25;
+        return fixedFee + spotIncludingVat * variablePercent / 100 + getEnergyTax();
+    }
+
+    private function getStoredFee(key, fallbackValue) {
+        var value = Storage.getValue(key);
+        return (value instanceof Number || value instanceof Float) ? value : fallbackValue;
+    }
+
+    function getCurrentPrice(priceResolution) {
+        var currentPrice = readCurrentPrice(priceResolution);
         var includeTomorrow = priceResolution.equals("HOURLY");
         var dailyPrices = getDailyPrices(priceResolution, includeTomorrow, true);
         if (dailyPrices == null && includeTomorrow) {
             dailyPrices = getDailyPrices(priceResolution, false, true);
         }
         if (dailyPrices == null) {
+            var priceType = Storage.getValue("tibber_price_type");
+            var spotOnly = priceType instanceof String && priceType.equals("SPOT");
+            if (currentPrice != null && isCurrentPriceValid(currentPrice) &&
+                (spotOnly || Storage.getValue("tibber_network_fees_enabled") != true || priceResolution.equals("HOURLY"))) {
+                return currentPrice;
+            }
             return null;
         }
 
@@ -173,8 +223,16 @@ class TibberPriceCache {
         var activeStartMinute = nowMinute - (nowMinute % intervalMinutes);
         var matchingPrice = null;
         var matchCount = 0;
+        var hourStartMinute = nowMinute - (nowMinute % 60);
+        var hourlySpotTotal = 0.0;
+        var hourlySpotCount = 0;
         for (var index = 0; index < (intervals as Array).size(); index++) {
             var interval = (intervals as Array)[index];
+            if (interval instanceof Array && (interval as Array).size() >= 3 &&
+                interval[0] >= hourStartMinute && interval[0] < hourStartMinute + 60) {
+                hourlySpotTotal += interval[2];
+                hourlySpotCount += 1;
+            }
             if (interval instanceof Array && (interval as Array).size() >= 3 &&
                 (interval as Array)[0] == activeStartMinute) {
                 matchingPrice = (interval as Array)[1];
@@ -193,6 +251,9 @@ class TibberPriceCache {
         return {
             "current_price" => (matchingPrice[0] as Float).format("%.0f"),
             "current_spot_price" => (matchingPrice[1] as Float).format("%.0f"),
+            "current_price_value" => matchingPrice[0],
+            "current_spot_value" => matchingPrice[1],
+            "hourly_spot_average" => hourlySpotTotal / hourlySpotCount,
             "current_time" => formatMinuteOfDay(activeStartMinute),
             "currency" => dailyPrices.get("currency"),
             "resolution" => priceResolution,

@@ -91,8 +91,8 @@ class TibberWidgetView extends WatchUi.View {
     /** Draw the current price, currency, timestamp, and selected resolution. */
     function drawCurrentPriceScreen(dc, width, height) {
         if (_currentPriceData != null) {
-            var currentPriceKey = _currentPriceType.equals("SPOT") ? "current_spot_price" : "current_price";
-            var currentPriceText = _currentPriceData.get(currentPriceKey);
+            var priceCache = new TibberPriceCache();
+            var currentPriceText = priceCache.getDisplayPrice(_currentPriceData, _currentPriceType);
             var currentIntervalTime = _currentPriceData.get("current_time");
             var currentIntervalMinutes = _currentPriceData.get("interval_minutes");
 
@@ -111,12 +111,10 @@ class TibberWidgetView extends WatchUi.View {
                 if (currentIntervalRange != null) {
                     priceRows.add([currentIntervalRange, _poppinsSmallFont]);
                 }
-                if (_currentPriceType.equals("SPOT")) {
-                    priceRows.add(["Skatter/moms ingår ej", _poppinsTinyFont]);
-                } else {
-                    priceRows.add(["Skatter inkl. moms", _poppinsTinyFont]);
-                }
-                priceRows.add(["Exkl. nätavgift", _poppinsTinyFont]);
+                var tradingTaxesIncluded = _currentPriceType.equals("TOTAL");
+                var networkFeesIncluded = tradingTaxesIncluded && Storage.getValue("tibber_network_fees_enabled") == true;
+                priceRows.add([tradingTaxesIncluded ? "Elhandel: inkl. skatter/avg." : "Elhandel: exkl. skatter/avg.", _poppinsTinyFont]);
+                priceRows.add([networkFeesIncluded ? "Elnät: inkl. avgifter/skatt" : "Elnät: exkl. avgifter/skatt", _poppinsTinyFont]);
                 drawTextStack(dc, width, height, priceRows, _widgetLogo);
             } else {
                 drawTextStack(dc, width, height, [
@@ -255,8 +253,16 @@ class TibberWidgetView extends WatchUi.View {
         return _currentPriceResolution;
     }
 
+    function getPriceFont() {
+        return _poppinsPriceFont;
+    }
+
+    function getLargeFont() {
+        return _poppinsLargeFont;
+    }
+
     function showSettings() {
-        var settingsView = new TibberWidgetSettingsView(self, _poppinsTinyFont, _poppinsSmallFont);
+        var settingsView = new TibberWidgetSettingsView(self, _poppinsTinyFont, _poppinsSmallFont, _poppinsLargeFont);
         var settingsDelegate = new TibberWidgetSettingsDelegate(settingsView);
         WatchUi.pushView(settingsView, settingsDelegate, WatchUi.SLIDE_UP);
     }

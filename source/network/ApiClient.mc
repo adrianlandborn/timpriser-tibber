@@ -48,7 +48,7 @@ class TibberApiClient {
     private function requestCurrentPrice(responseCallback, priceResolution) {
 
         var query = {
-            "query" => "{ viewer { homes { currentSubscription { priceInfo(resolution: " + priceResolution + ") { current { total energy level currency startsAt } } } } } }"
+            "query" => "{ viewer { homes { currentSubscription { priceInfo(resolution: " + priceResolution + ") { current { total energy level currency startsAt } today { total energy startsAt currency } } } } } }"
         };
         makeRequest(query, "current", priceResolution, false, responseCallback);
     }
@@ -179,6 +179,14 @@ class TibberApiClient {
                     parsedResult = parseCurrentPriceData(responseData as Dictionary, priceResolution);
                     if (parsedResult instanceof Dictionary) {
                         _priceCache.storeCurrentPrice(priceResolution, parsedResult as Dictionary);
+                        var dailyPrices = parseDailyPricesData(responseData as Dictionary, priceResolution, false);
+                        if (dailyPrices instanceof Dictionary) {
+                            _priceCache.storeDailyPrices(priceResolution, false, dailyPrices);
+                            var derivedPrice = _priceCache.getCurrentPrice(priceResolution);
+                            if (derivedPrice instanceof Dictionary) {
+                                parsedResult = derivedPrice;
+                            }
+                        }
                     }
                 } else {
                     parsedResult = parseDailyPricesData(responseData as Dictionary, priceResolution, includeTomorrow);

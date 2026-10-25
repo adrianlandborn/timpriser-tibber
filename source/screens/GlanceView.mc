@@ -58,8 +58,7 @@ class TibberGlanceView extends WatchUi.GlanceView {
         }
 
         if (_priceData != null) {
-            var priceKey = (priceType as String).equals("SPOT") ? "current_spot_price" : "current_price";
-            var price = _priceData.get(priceKey);
+            var price = _priceCache.getDisplayPrice(_priceData, priceType);
             var currency = _priceData.get("currency");
             if (price instanceof String) {
                 var unit = currency != null && !currency.equals("SEK") ? currency : "öre";
