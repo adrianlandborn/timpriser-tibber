@@ -113,8 +113,8 @@ class TibberWidgetView extends WatchUi.View {
                 }
                 var tradingTaxesIncluded = _currentPriceType.equals("TOTAL");
                 var networkFeesIncluded = tradingTaxesIncluded && Storage.getValue("tibber_network_fees_enabled") == true;
-                priceRows.add([tradingTaxesIncluded ? "Elhandel: inkl. skatter/avg." : "Elhandel: exkl. skatter/avg.", _poppinsTinyFont]);
-                priceRows.add([networkFeesIncluded ? "Elnät: inkl. avgifter/skatt" : "Elnät: exkl. avgifter/skatt", _poppinsTinyFont]);
+                priceRows.add([tradingTaxesIncluded ? "Elhandel: inkl. skatter/avg." : "Elhandel: exkl. skatter/avg.", _poppinsTinyFont, Graphics.COLOR_LT_GRAY]);
+                priceRows.add([networkFeesIncluded ? "Elnät: inkl. avgifter/skatt" : "Elnät: exkl. avgifter/skatt", _poppinsTinyFont, Graphics.COLOR_LT_GRAY]);
                 drawTextStack(dc, width, height, priceRows, _widgetLogo);
             } else {
                 drawTextStack(dc, width, height, [
@@ -184,6 +184,7 @@ class TibberWidgetView extends WatchUi.View {
         for (var rowIndex = 0; rowIndex < textRows.size(); rowIndex++) {
             var rowHeight = rowHeights[rowIndex];
             var rowCenterY = nextRowTop + rowHeight / 2;
+            dc.setColor((textRows[rowIndex] as Array).size() > 2 ? textRows[rowIndex][2] : Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
             dc.drawText(
                 width / 2,
                 rowCenterY,
@@ -294,7 +295,7 @@ class TibberWidgetView extends WatchUi.View {
     /** Push the graph detail view above the current-price screen. */
     function showPriceGraph(initialPage) {
         var graphView = new TibberPriceGraphView(_poppinsTinyFont, _poppinsSmallFont, _poppinsMediumFont, _currentPriceType, initialPage);
-        var graphDelegate = new TibberPriceGraphDelegate(graphView);
+        var graphDelegate = new TibberPriceGraphDelegate(graphView, self);
         WatchUi.pushView(graphView, graphDelegate, WatchUi.SLIDE_UP);
     }
 

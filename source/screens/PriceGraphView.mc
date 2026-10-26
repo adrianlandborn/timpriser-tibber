@@ -39,6 +39,10 @@ class TibberPriceGraphView extends WatchUi.View {
     /** Fetch graph data when the detail page becomes visible. */
     /** Load the selected page when the graph view becomes visible. */
     function onShow() {
+        var storedPriceType = Storage.getValue("tibber_price_type");
+        if (storedPriceType instanceof String) {
+            _priceType = storedPriceType;
+        }
         fetchGraphPrices(false);
     }
 

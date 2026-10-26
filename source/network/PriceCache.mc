@@ -54,9 +54,9 @@ class TibberPriceCache {
     function getCurrentPrice(priceResolution) {
         var currentPrice = readCurrentPrice(priceResolution);
         var includeTomorrow = priceResolution.equals("HOURLY");
-        var dailyPrices = getDailyPrices(priceResolution, includeTomorrow, true);
+        var dailyPrices = readDailyPrices(priceResolution, includeTomorrow, true, true);
         if (dailyPrices == null && includeTomorrow) {
-            dailyPrices = getDailyPrices(priceResolution, false, true);
+            dailyPrices = readDailyPrices(priceResolution, false, true, true);
         }
         if (dailyPrices == null) {
             var priceType = Storage.getValue("tibber_price_type");
@@ -85,12 +85,18 @@ class TibberPriceCache {
             Storage.setValue(prefix + "t", priceData.get("current_time"));
             Storage.setValue(prefix + "c", getStringValue(priceData.get("currency")));
             Storage.setValue(prefix + "i", priceData.get("interval_minutes"));
+            Storage.setValue(prefix + "l", getStringValue(priceData.get("hour_levels")));
             Storage.setValue(prefix + "r", true);
         } catch (ex) {
         }
     }
 
     function getDailyPrices(priceResolution, includeTomorrow, allowStaleTomorrow) {
+        return readDailyPrices(priceResolution, includeTomorrow, allowStaleTomorrow, false);
+    }
+
+    /** Compact reads keep intervals as the flat stored array to save memory in the glance. */
+    private function readDailyPrices(priceResolution, includeTomorrow, allowStaleTomorrow, compact) {
         var prefix = getDailyCachePrefix(priceResolution, includeTomorrow);
         try {
             var cacheReady = Storage.getValue(prefix + "r");
@@ -106,15 +112,18 @@ class TibberPriceCache {
             var currencyValue = Storage.getValue(prefix + "c");
             var tomorrowAvailable = Storage.getValue(prefix + "t");
             var checkedMinute = Storage.getValue(prefix + "n");
-            if (!(flatIntervals instanceof Array) || (flatIntervals as Array).size() % 3 != 0 ||
+            if (!(flatIntervals instanceof Array) || (flatIntervals as Array).size() % 4 != 0 ||
                 spanMinutes == null || resolutionMinutes == null || checkedMinute == null) {
                 return null;
             }
 
-            var intervals = [];
-            var values = flatIntervals as Array;
-            for (var index = 0; index < values.size(); index += 3) {
-                intervals.add([values[index], values[index + 1], values[index + 2]]);
+            var intervals = flatIntervals as Array;
+            if (!compact) {
+                intervals = [];
+                var values = flatIntervals as Array;
+                for (var index = 0; index < values.size(); index += 4) {
+                    intervals.add([values[index], values[index + 1], values[index + 2], values[index + 3]]);
+                }
             }
 
             var currency = currencyValue instanceof String && (currencyValue as String).length() > 0 ? currencyValue : null;
@@ -124,7 +133,8 @@ class TibberPriceCache {
                 "currency" => currency,
                 "span_minutes" => spanMinutes,
                 "tomorrow_available" => tomorrowAvailable == true,
-                "intervals" => intervals
+                "intervals" => intervals,
+                "flat" => compact
             };
 
             if (includeTomorrow && tomorrowAvailable != true && !isMissingTomorrowCacheFresh(checkedMinute) && !allowStaleTomorrow) {
@@ -151,6 +161,7 @@ class TibberPriceCache {
                     flatIntervals.add((interval as Array)[0]);
                     flatIntervals.add((interval as Array)[1]);
                     flatIntervals.add((interval as Array)[2]);
+                    flatIntervals.add((interval as Array).size() >= 4 ? (interval as Array)[3] : 0);
                 }
             }
 
@@ -182,6 +193,7 @@ class TibberPriceCache {
             var startTime = Storage.getValue(prefix + "t");
             var currencyValue = Storage.getValue(prefix + "c");
             var intervalMinutes = Storage.getValue(prefix + "i");
+            var hourLevels = Storage.getValue(prefix + "l");
             if (!(price instanceof String) || !(spotPrice instanceof String) || !(startTime instanceof String) || intervalMinutes == null) {
                 return null;
             }
@@ -192,6 +204,7 @@ class TibberPriceCache {
                 "current_spot_price" => spotPrice,
                 "current_time" => startTime,
                 "currency" => currency,
+                "hour_levels" => hourLevels,
                 "resolution" => priceResolution,
                 "interval_minutes" => intervalMinutes
             };
@@ -219,28 +232,56 @@ class TibberPriceCache {
             return null;
         }
 
+        var flat = dailyPrices.get("flat") == true;
+        var stride = flat ? 4 : 1;
         var nowMinute = getCurrentMinuteOfDay();
         var activeStartMinute = nowMinute - (nowMinute % intervalMinutes);
         var matchingPrice = null;
+        var matchingSpot = null;
         var matchCount = 0;
         var hourStartMinute = nowMinute - (nowMinute % 60);
         var hourlySpotTotal = 0.0;
         var hourlySpotCount = 0;
-        for (var index = 0; index < (intervals as Array).size(); index++) {
-            var interval = (intervals as Array)[index];
-            if (interval instanceof Array && (interval as Array).size() >= 3 &&
-                interval[0] >= hourStartMinute && interval[0] < hourStartMinute + 60) {
-                hourlySpotTotal += interval[2];
+        var levelSums = new [24];
+        var levelCounts = new [24];
+        for (var hour = 0; hour < 24; hour++) {
+            levelSums[hour] = 0;
+            levelCounts[hour] = 0;
+        }
+        var values = intervals as Array;
+        for (var index = 0; index < values.size(); index += stride) {
+            var startMinute;
+            var price;
+            var spot;
+            var level;
+            if (flat) {
+                startMinute = values[index];
+                price = values[index + 1];
+                spot = values[index + 2];
+                level = values[index + 3];
+            } else {
+                var interval = values[index];
+                if (!(interval instanceof Array) || (interval as Array).size() < 3) {
+                    continue;
+                }
+                startMinute = interval[0];
+                price = interval[1];
+                spot = interval[2];
+                level = (interval as Array).size() >= 4 ? interval[3] : 0;
+            }
+
+            if (startMinute < 1440 && level > 0) {
+                levelSums[startMinute / 60] += level;
+                levelCounts[startMinute / 60] += 1;
+            }
+            if (startMinute >= hourStartMinute && startMinute < hourStartMinute + 60) {
+                hourlySpotTotal += spot;
                 hourlySpotCount += 1;
             }
-            if (interval instanceof Array && (interval as Array).size() >= 3 &&
-                (interval as Array)[0] == activeStartMinute) {
-                matchingPrice = (interval as Array)[1];
-                var matchingSpotPrice = (interval as Array)[2];
+            if (startMinute == activeStartMinute) {
+                matchingPrice = price;
+                matchingSpot = spot;
                 matchCount++;
-                if (matchCount == 1) {
-                    matchingPrice = [matchingPrice, matchingSpotPrice];
-                }
             }
         }
 
@@ -248,11 +289,22 @@ class TibberPriceCache {
             return null;
         }
 
+        var hourLevels = "";
+        for (var hour = 0; hour < 24; hour++) {
+            var hourClass = "3";
+            if (levelCounts[hour] > 0) {
+                var averageLevel = levelSums[hour].toFloat() / levelCounts[hour];
+                hourClass = (averageLevel + 0.5).toNumber().toString();
+            }
+            hourLevels += hourClass;
+        }
+
         return {
-            "current_price" => (matchingPrice[0] as Float).format("%.0f"),
-            "current_spot_price" => (matchingPrice[1] as Float).format("%.0f"),
-            "current_price_value" => matchingPrice[0],
-            "current_spot_value" => matchingPrice[1],
+            "hour_levels" => hourLevels,
+            "current_price" => (matchingPrice as Float).format("%.0f"),
+            "current_spot_price" => (matchingSpot as Float).format("%.0f"),
+            "current_price_value" => matchingPrice,
+            "current_spot_value" => matchingSpot,
             "hourly_spot_average" => hourlySpotTotal / hourlySpotCount,
             "current_time" => formatMinuteOfDay(activeStartMinute),
             "currency" => dailyPrices.get("currency"),
@@ -269,11 +321,11 @@ class TibberPriceCache {
     private function getDailyCachePrefix(priceResolution, includeTomorrow) {
         var resolutionKey = priceResolution.equals("HOURLY") ? "h" : "q";
         var horizonKey = includeTomorrow ? "t" : "d";
-        return "pd3" + resolutionKey + horizonKey;
+        return "pd5" + resolutionKey + horizonKey;
     }
 
     private function getCurrentCachePrefix(priceResolution) {
-        return "pc3" + (priceResolution.equals("HOURLY") ? "h" : "q");
+        return "pc5" + (priceResolution.equals("HOURLY") ? "h" : "q");
     }
 
     private function getDateKey() {

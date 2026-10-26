@@ -48,7 +48,7 @@ class TibberApiClient {
     private function requestCurrentPrice(responseCallback, priceResolution) {
 
         var query = {
-            "query" => "{ viewer { homes { currentSubscription { priceInfo(resolution: " + priceResolution + ") { current { total energy level currency startsAt } today { total energy startsAt currency } } } } } }"
+            "query" => "{ viewer { homes { currentSubscription { priceInfo(resolution: " + priceResolution + ") { current { total energy level currency startsAt } today { total energy level startsAt currency } } } } } }"
         };
         makeRequest(query, "current", priceResolution, false, responseCallback);
     }
@@ -83,9 +83,9 @@ class TibberApiClient {
 
     private function requestDailyPrices(responseCallback, priceResolution, includeTomorrow) {
 
-        var requestedPriceFields = "today { total energy startsAt currency }";
+        var requestedPriceFields = "today { total energy level startsAt currency }";
         if (includeTomorrow) {
-            requestedPriceFields += " tomorrow { total energy startsAt currency }";
+            requestedPriceFields += " tomorrow { total energy level startsAt currency }";
         }
         var query = {
             "query" => "{ viewer { homes { currentSubscription { priceInfo(resolution: " + priceResolution + ") { " + requestedPriceFields + " } } } } }"
@@ -404,10 +404,24 @@ class TibberApiClient {
                         spotPrice = spotPrice * 100;
                     }
 
-                    priceIntervals.add([dayOffset + startMinuteOfDay, displayPrice, spotPrice]);
+                    priceIntervals.add([dayOffset + startMinuteOfDay, displayPrice, spotPrice, getLevelCode((priceEntry as Dictionary).get("level"))]);
                 }
             }
         }
+    }
+
+    /** Map Tibber's price level enum to 1 (very cheap) .. 5 (very expensive); 0 when unknown. */
+    private function getLevelCode(level) {
+        if (!(level instanceof String)) {
+            return 0;
+        }
+        var levels = ["VERY_CHEAP", "CHEAP", "NORMAL", "EXPENSIVE", "VERY_EXPENSIVE"];
+        for (var index = 0; index < levels.size(); index++) {
+            if ((level as String).equals(levels[index])) {
+                return index + 1;
+            }
+        }
+        return 0;
     }
 
     /** Extract local minutes since midnight from an ISO 8601 price timestamp. */

@@ -11,11 +11,13 @@ class TibberGlanceView extends WatchUi.GlanceView {
     var _smallFont;
     var _mediumFont;
     var _largeFont;
+    var _hourBar;
 
     function initialize() {
         GlanceView.initialize();
         _priceCache = new TibberPriceCache();
         _priceData = null;
+        _hourBar = new HourLevelBar();
         _microFont = WatchUi.loadResource(Rez.Fonts.PoppinsMicro) as WatchUi.FontResource;
         _tinyFont = WatchUi.loadResource(Rez.Fonts.PoppinsTiny) as WatchUi.FontResource;
         _smallFont = WatchUi.loadResource(Rez.Fonts.PoppinsSmall) as WatchUi.FontResource;
@@ -69,19 +71,41 @@ class TibberGlanceView extends WatchUi.GlanceView {
             }
         }
 
-        metadataLine = fitText(dc, metadataLine, _microFont, availableWidth);
+        var hourLevels = _priceData != null ? _priceData.get("hour_levels") : null;
+        var showBar = _hourBar.isValid(hourLevels);
+        var markerHeight = _hourBar.getHeight();
+        var barGap = 4;
+        var reservedBarHeight = showBar ? markerHeight + barGap : 0;
 
-        var metadataHeight = metadataLine.length() > 0 ? dc.getTextDimensions(metadataLine, _microFont)[1] : 0;
-        var reservedTextHeight = metadataHeight > 0 ? metadataHeight + rowSpacing : 0;
-        selectedPriceFont = fitPriceFont(dc, priceLine, availableWidth, height - reservedTextHeight - 4);
-        priceLine = fitText(dc, priceLine, selectedPriceFont, availableWidth);
+        var intervalGap = 8;
+        var intervalWidth = metadataLine.length() > 0 ? dc.getTextWidthInPixels(metadataLine, _microFont) : 0;
+        var priceAvailableWidth = availableWidth - (intervalWidth > 0 ? intervalWidth + intervalGap : 0);
+        if (priceAvailableWidth < availableWidth / 2) {
+            metadataLine = "";
+            intervalWidth = 0;
+            priceAvailableWidth = availableWidth;
+        }
+
+        selectedPriceFont = fitPriceFont(dc, priceLine, priceAvailableWidth, height - reservedBarHeight - 4);
+        priceLine = fitText(dc, priceLine, selectedPriceFont, priceAvailableWidth);
         var priceHeight = dc.getTextDimensions(priceLine, selectedPriceFont)[1];
-        var contentHeight = priceHeight + reservedTextHeight;
+        var contentHeight = priceHeight + reservedBarHeight;
         var rowY = (height - contentHeight) / 2;
-        drawRow(dc, textX, rowY, priceLine, selectedPriceFont, priceHeight);
-        if (metadataHeight > 0) {
-            rowY += priceHeight + rowSpacing;
-            drawRow(dc, textX, rowY, metadataLine, _microFont, metadataHeight);
+        dc.drawText(textX, rowY, selectedPriceFont, priceLine, Graphics.TEXT_JUSTIFY_LEFT);
+        if (metadataLine.length() > 0) {
+            var priceWidth = dc.getTextWidthInPixels(priceLine, selectedPriceFont);
+            var baselineY = rowY + Graphics.getFontAscent(selectedPriceFont);
+            dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_BLACK);
+            dc.drawText(
+                textX + priceWidth + intervalGap,
+                baselineY - Graphics.getFontAscent(_microFont),
+                _microFont,
+                metadataLine,
+                Graphics.TEXT_JUSTIFY_LEFT
+            );
+        }
+        if (showBar) {
+            _hourBar.draw(dc, textX, rowY + priceHeight + barGap, availableWidth, hourLevels as String);
         }
     }
 

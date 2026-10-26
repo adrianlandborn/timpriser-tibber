@@ -4,10 +4,10 @@ import Toybox.WatchUi;
 import Toybox.Application.Storage;
 
 class TibberWidgetSettingsView extends WatchUi.View {
-    private const HEADER_HEIGHT = 54;
     private const HEADER_TOP_INSET = 20;
     private const VERTICAL_INSET = 26;
     private const SECTION_GAP = 10;
+    private const TITLE_DIVIDER_OFFSET = 30;
     private const OPTION_ROW_HEIGHT = 60;
     private const FEE_ROW_HEIGHT = 60;
     private const RESOLUTION_ROW_HEIGHT = 44;
@@ -53,9 +53,11 @@ class TibberWidgetSettingsView extends WatchUi.View {
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
         dc.clear();
 
-        drawCenteredRow(dc, width, VERTICAL_INSET + HEADER_TOP_INSET, "INSTÄLLNINGAR", _fontOption);
-        var bodyTop = VERTICAL_INSET + HEADER_HEIGHT - SECTION_GAP;
-        dc.setClip(0, bodyTop, width, height - bodyTop);
+        var titleY = VERTICAL_INSET + HEADER_TOP_INSET - _scrollOffset;
+        drawCenteredRow(dc, width, titleY, "INSTÄLLNINGAR", _fontOption);
+        var dividerY = titleY + TITLE_DIVIDER_OFFSET;
+        dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_BLACK);
+        dc.drawLine(SELECTION_SIDE_INSET, dividerY, width - SELECTION_SIDE_INSET, dividerY);
         var rowsTop = getListTop() - _scrollOffset;
         var taxesIncluded = _widgetView.getCurrentPriceType().equals("TOTAL");
         _priceToggle.setEnabled(true);
@@ -76,7 +78,6 @@ class TibberWidgetSettingsView extends WatchUi.View {
         var energyTax = new TibberPriceCache();
         drawFeeOption(dc, width, rowsTop + getOptionTop(5), 5, "Energiskatt",
             energyTax.getEnergyTax().format("%.0f") + " öre", networkFeesIncluded);
-        dc.clearClip();
     }
 
     function moveSelection(direction) {
@@ -97,7 +98,7 @@ class TibberWidgetSettingsView extends WatchUi.View {
     }
 
     function selectOptionAt(x, y) {
-        var bodyTop = VERTICAL_INSET + HEADER_HEIGHT - SECTION_GAP;
+        var bodyTop = VERTICAL_INSET + HEADER_TOP_INSET + TITLE_DIVIDER_OFFSET - _scrollOffset;
         if (x < 0 || x >= _screenWidth || y < bodyTop || y >= _screenHeight) {
             return true;
         }

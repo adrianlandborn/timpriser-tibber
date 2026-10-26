@@ -71,6 +71,7 @@ class TibberPriceChart {
         deviceContext.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
         deviceContext.drawText(centerX, centerY - safeHalfHeight - 35, _poppinsSmallFont, chartTitle, Graphics.TEXT_JUSTIFY_CENTER);
         if (statusNote != null) {
+            deviceContext.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_BLACK);
             deviceContext.drawText(centerX, centerY - safeHalfHeight - 10, _poppinsTinyFont, statusNote, Graphics.TEXT_JUSTIFY_CENTER);
         }
 

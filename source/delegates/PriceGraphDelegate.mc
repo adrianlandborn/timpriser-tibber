@@ -2,11 +2,13 @@ import Toybox.WatchUi;
 
 class TibberPriceGraphDelegate extends WatchUi.BehaviorDelegate {
     var _graphView;
+    var _widgetView;
 
-    /** Create an input delegate for a graph page. */
-    function initialize(graphView) {
+    /** Create an input delegate for a graph page; the widget view hosts the settings. */
+    function initialize(graphView, widgetView) {
         BehaviorDelegate.initialize();
         _graphView = graphView;
+        _widgetView = widgetView;
     }
 
     /** Refresh the graph page when START/SELECT is pressed. */
@@ -15,9 +17,9 @@ class TibberPriceGraphDelegate extends WatchUi.BehaviorDelegate {
         return true;
     }
 
-    /** Refresh the graph page when MENU is pressed. */
+    /** Open price and resolution settings when MENU is pressed. */
     function onMenu() {
-        _graphView.refreshPriceData();
+        _widgetView.showSettings();
         return true;
     }
 
