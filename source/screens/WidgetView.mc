@@ -16,10 +16,12 @@ class TibberWidgetView extends WatchUi.View {
     var _poppinsLargeFont;
     var _poppinsPriceFont;
     var _widgetLogo;
+    var _hourBar;
 
     /** Initialize the price screen and its API client. */
     function initialize() {
         View.initialize();
+        _hourBar = new HourLevelBar();
         _currentPriceData = null;
         _isPriceLoading = false;
         _priceErrorMessage = null;
@@ -111,6 +113,10 @@ class TibberWidgetView extends WatchUi.View {
                 if (currentIntervalRange != null) {
                     priceRows.add([currentIntervalRange, _poppinsSmallFont]);
                 }
+                var hourLevels = _currentPriceData.get("hour_levels");
+                if (_hourBar.isValid(hourLevels)) {
+                    priceRows.add([null, null, null, hourLevels]);
+                }
                 var tradingTaxesIncluded = _currentPriceType.equals("TOTAL");
                 var networkFeesIncluded = tradingTaxesIncluded && Storage.getValue("tibber_network_fees_enabled") == true;
                 priceRows.add([tradingTaxesIncluded ? "Elhandel: inkl. skatter/avg." : "Elhandel: exkl. skatter/avg.", _poppinsTinyFont, Graphics.COLOR_LT_GRAY]);
@@ -154,6 +160,11 @@ class TibberWidgetView extends WatchUi.View {
         var contentHeight = 0;
 
         for (var rowIndex = 0; rowIndex < textRows.size(); rowIndex++) {
+            if (textRows[rowIndex][0] == null) {
+                rowHeights.add(_hourBar.getHeight());
+                contentHeight += _hourBar.getHeight() + (rowIndex > 0 ? rowSpacing : 0);
+                continue;
+            }
             var rowText = textRows[rowIndex][0] as String;
             var rowFont = fitFont(dc, rowText, textRows[rowIndex][1], availableTextWidth);
             rowText = fitText(dc, rowText, rowFont, availableTextWidth);
@@ -184,6 +195,11 @@ class TibberWidgetView extends WatchUi.View {
         for (var rowIndex = 0; rowIndex < textRows.size(); rowIndex++) {
             var rowHeight = rowHeights[rowIndex];
             var rowCenterY = nextRowTop + rowHeight / 2;
+            if (textRows[rowIndex][0] == null) {
+                _hourBar.draw(dc, (width * 15 / 100), nextRowTop, width - (width * 15 / 100) * 2, textRows[rowIndex][3] as String);
+                nextRowTop += rowHeight + rowSpacing;
+                continue;
+            }
             dc.setColor((textRows[rowIndex] as Array).size() > 2 ? textRows[rowIndex][2] : Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
             dc.drawText(
                 width / 2,
