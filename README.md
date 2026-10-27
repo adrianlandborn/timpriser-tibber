@@ -2,7 +2,25 @@
 
 A Garmin Connect IQ widget for displaying current Tibber electricity prices using the Tibber GraphQL API.
 
-Press START/STOP to open the price graph and BACK to return. On the graph, UP shows today's quarter-hour prices and DOWN shows hourly prices for today plus tomorrow when available. START/STOP or MENU refreshes the active graph page. On the main screen, MENU toggles the current-price resolution.
+## Screenshots
+
+### Main views
+
+| Glance | Current price | Settings |
+| :---: | :---: | :---: |
+| <img src="docs/screenshots/glance.png" alt="Glance showing the current electricity price and daily price-level bar" width="240"> | <img src="docs/screenshots/current-price.png" alt="Current-price screen showing the total price, time interval, and tax and network-fee status" width="240"> | <img src="docs/screenshots/settings.png" alt="Settings with price interval selection and toggles for taxes and network fees" width="240"> |
+
+### Price charts
+
+| Today's quarter-hour prices | Hourly prices for today and tomorrow |
+| :---: | :---: |
+| <img src="docs/screenshots/quarter-hour-prices.png" alt="Today's quarter-hour price chart with the selected interval and price" width="240"> | <img src="docs/screenshots/hourly-prices.png" alt="Two-day hourly price chart including tomorrow's prices" width="240"> |
+
+Screenshots show the app in Swedish (which is also the only supported language).
+
+## Controls
+
+START/STOP refreshes prices, MENU opens settings, and BACK returns from graph or settings screens. From the main screen, UP opens the hourly graph and DOWN opens the quarter-hour graph. Within the graph, UP moves from hourly to quarter-hour prices and then back to the main screen; DOWN moves from quarter-hour to hourly prices and then back to the main screen. The hourly graph includes tomorrow's prices when they are available.
 
 ## Requirements
 
@@ -93,7 +111,7 @@ The interval selector is the first settings row and is initially selected. Physi
 
 ## Pricing regression baseline
 
-On 2026-10-25, the user confirmed that the current calculation matches the official Tibber app for their home. Preserve the full additive network charge, including the configured energy tax; do not reintroduce the previous assumed 45 ore deduction based only on generic API documentation. This is a user-confirmed comparison, not a captured raw API response or a guarantee for every home.
+On 2026-10-25, this calculation was compared with the official Tibber app for one home and matched. This is a home-specific comparison, not a captured raw API response or a guarantee for every home. The regression cases preserve the full additive network charge, including configured energy tax; verify the API response and your own bill rather than assuming tax treatment is identical for every home.
 
 The saved synthetic reference cases below use a base total of 200 ore/kWh, a fixed transfer fee of 20 ore/kWh including VAT, and a variable fee of 5%. Spot inputs exclude VAT; the calculator includes 25% VAT in the variable-fee basis. Expected totals are before display rounding.
 
@@ -126,15 +144,25 @@ All app-drawn text uses bundled Poppins SemiBold bitmap fonts sized for watch di
 ## Project layout
 
 - `source/app/App.mc`: application lifecycle and entry point
-- `source/screens/`: `WidgetView.mc` and `PriceGraphView.mc`
-- `source/delegates/`: `WidgetDelegate.mc` and `PriceGraphDelegate.mc`
-- `source/network/ApiClient.mc`: Tibber GraphQL requests and response parsing
+- `source/screens/`: current-price, glance, graph, settings, and network-fee detail views
+- `source/delegates/`: input handlers for the widget, graph, settings, and fee-detail screens
+- `source/network/`: Tibber GraphQL requests and price caching
+- `source/charts/` and `source/components/`: graph renderer and reusable UI components
 - `source/config/`: local secrets source and token-free template
-- `source/charts/PriceChart.mc`: reusable, rendering-only price chart
+- `source/theme/` and `source/tests/`: shared theme and simulator tests
 - `experiments/`: standalone test apps and archived legacy views/delegates excluded from production builds
-- `experiments/legacy/`: older views/delegates and their backups retained for reference
-- `resources/`: application strings and launcher icon
+- `resources/`: application strings, bitmap assets, and bundled fonts
+
+## Disclaimer
+
+This is an independent, standalone Connect IQ app project. It is not affiliated with, endorsed by, sponsored by, or associated with Tibber AB, Garmin Ltd., or their affiliates. Tibber, Garmin, and Connect IQ are names and marks of their respective owners.
+
+The app and its price calculations are provided "as is," without warranty. API data, rates, configured fees, and availability may be incomplete or change. Verify prices and fee assumptions with your provider before relying on them. Use the app at your own risk; you are responsible for securing your credentials and complying with applicable API terms and laws.
 
 ## Data and privacy
 
-The access token is sent only to Tibber's GraphQL endpoint over HTTPS. Use a personal access token only for your own account; a distributed app should use Tibber's OAuth flow rather than embedding a personal token. Follow Tibber's API terms and applicable privacy requirements.
+The access token is sent to Tibber's GraphQL endpoint over HTTPS. A token in the local secrets source is included in builds compiled from that source, so do not share a build containing your personal token. Use a personal access token only for your own account; a distributed app should use Tibber's OAuth flow rather than embedding a personal token. Follow Tibber's API terms and applicable privacy requirements.
+
+## License
+
+The project source is licensed under the MIT License; see `LICENSE`. The bundled Poppins font files are separately licensed under the SIL Open Font License 1.1; see `resources/fonts/OFL.txt`.
