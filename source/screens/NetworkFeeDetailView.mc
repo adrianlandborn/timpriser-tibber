@@ -26,34 +26,34 @@ class TibberNetworkFeeDetailView extends WatchUi.View {
     function onUpdate(dc) {
         var width = dc.getWidth();
         var height = dc.getHeight();
-        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
+        dc.setColor(Theme.TEXT_PRIMARY, Theme.BACKGROUND);
         dc.clear();
 
         var isFixedFee = _feeOption == 2;
         var isEnergyTax = _feeOption == 5;
         var title = isEnergyTax ? "Energiskatt" : (isFixedFee ? "Fast nätavgift" : "Rörlig nätavgift");
-        drawCentered(dc, width, 28, title, _fontBody, Graphics.COLOR_WHITE);
+        drawCentered(dc, width, 28, title, _fontBody, Theme.TEXT_PRIMARY);
 
         if (isEnergyTax) {
-            drawCentered(dc, width, 58, "Statlig skatt per kWh", _fontCaption, Graphics.COLOR_LT_GRAY);
-            drawCentered(dc, width, 73, "Inklusive 25% moms", _fontCaption, Graphics.COLOR_LT_GRAY);
+            drawCentered(dc, width, 58, "Statlig skatt per kWh", _fontCaption, Theme.TEXT_SECONDARY);
+            drawCentered(dc, width, 73, "Inklusive 25% moms", _fontCaption, Theme.TEXT_SECONDARY);
         } else if (isFixedFee) {
-            drawCentered(dc, width, 58, "Fast avgift från nätägaren", _fontCaption, Graphics.COLOR_LT_GRAY);
-            drawCentered(dc, width, 73, "Inklusive moms per kWh", _fontCaption, Graphics.COLOR_LT_GRAY);
+            drawCentered(dc, width, 58, "Fast avgift från nätägaren", _fontCaption, Theme.TEXT_SECONDARY);
+            drawCentered(dc, width, 73, "Inklusive moms per kWh", _fontCaption, Theme.TEXT_SECONDARY);
         } else {
-            drawCentered(dc, width, 58, "Timmens snittspotpris", _fontCaption, Graphics.COLOR_LT_GRAY);
-            drawCentered(dc, width, 73, "inklusive moms", _fontCaption, Graphics.COLOR_LT_GRAY);
+            drawCentered(dc, width, 58, "Timmens snittspotpris", _fontCaption, Theme.TEXT_SECONDARY);
+            drawCentered(dc, width, 73, "inklusive moms", _fontCaption, Theme.TEXT_SECONDARY);
         }
 
         var numericValue = getFeeValue();
         var valueText = numericValue.format("%.0f");
         var valueCenterY = height * 0.57;
         var displayFont = fitDisplayFont(dc, valueText, width - 2 * (BUTTON_LEFT_INSET + BUTTON_RADIUS + 8));
-        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
+        dc.setColor(Theme.TEXT_PRIMARY, Theme.BACKGROUND);
         dc.drawText(width / 2, valueCenterY, displayFont, valueText, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
         var unit = isFixedFee || isEnergyTax ? "öre/kWh" : "%";
-        drawCentered(dc, width, valueCenterY + dc.getTextDimensions(valueText, displayFont)[1] / 2 + 12, unit, _fontCaption, Graphics.COLOR_LT_GRAY);
+        drawCentered(dc, width, valueCenterY + dc.getTextDimensions(valueText, displayFont)[1] / 2 + 12, unit, _fontCaption, Theme.TEXT_SECONDARY);
 
         _plusCenterX = BUTTON_LEFT_INSET;
         _plusCenterY = height / 2;
@@ -111,14 +111,14 @@ class TibberNetworkFeeDetailView extends WatchUi.View {
     }
 
     private function drawCentered(dc, width, y, text, font, color) {
-        dc.setColor(color, Graphics.COLOR_BLACK);
+        dc.setColor(color, Theme.BACKGROUND);
         dc.drawText(width / 2, y, font, text, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
     }
 
     private function drawAdjustButton(dc, centerX, centerY, isPlus) {
-        dc.setColor(Graphics.COLOR_BLUE, Graphics.COLOR_BLACK);
+        dc.setColor(Theme.ACCENT, Theme.BACKGROUND);
         dc.fillCircle(centerX, centerY, BUTTON_RADIUS);
-        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLUE);
+        dc.setColor(Theme.TEXT_PRIMARY, Theme.ACCENT);
         dc.setPenWidth(3);
         dc.drawLine(centerX - 8, centerY, centerX + 8, centerY);
         if (isPlus) {

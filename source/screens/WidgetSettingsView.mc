@@ -6,15 +6,15 @@ import Toybox.Application.Storage;
 class TibberWidgetSettingsView extends WatchUi.View {
     private const HEADER_TOP_INSET = 20;
     private const VERTICAL_INSET = 26;
-    private const SECTION_GAP = 10;
+    private const SECTION_GAP = 14;
     private const TITLE_DIVIDER_OFFSET = 30;
-    private const OPTION_ROW_HEIGHT = 60;
-    private const FEE_ROW_HEIGHT = 60;
+    private const OPTION_ROW_HEIGHT = Theme.ROW_HEIGHT;
+    private const FEE_ROW_HEIGHT = Theme.ROW_HEIGHT;
     private const RESOLUTION_ROW_HEIGHT = 44;
-    private const SELECTION_SIDE_INSET = 16;
-    private const FEE_LABEL_X = 24;
-    private const FEE_VALUE_RIGHT_INSET = 24;
-    private const FOCUS_LINE_X = 8;
+    private const SELECTION_SIDE_INSET = Theme.SPACE_SIDE_INSET;
+    private const FEE_LABEL_X = Theme.SPACE_LABEL_X;
+    private const FEE_VALUE_RIGHT_INSET = Theme.SPACE_LABEL_X;
+    private const FOCUS_LINE_X = Theme.FOCUS_BAR_X;
     private const OPTION_COUNT = 6;
 
     private var _widgetView;
@@ -50,13 +50,13 @@ class TibberWidgetSettingsView extends WatchUi.View {
         _screenHeight = height;
         _screenWidth = width;
         scrollSelectionIntoView();
-        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
+        dc.setColor(Theme.TEXT_PRIMARY, Theme.BACKGROUND);
         dc.clear();
 
         var titleY = VERTICAL_INSET + HEADER_TOP_INSET - _scrollOffset;
         drawCenteredRow(dc, width, titleY, "INSTÄLLNINGAR", _fontOption);
         var dividerY = titleY + TITLE_DIVIDER_OFFSET;
-        dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_BLACK);
+        dc.setColor(Theme.TEXT_SECONDARY, Theme.BACKGROUND);
         dc.drawLine(SELECTION_SIDE_INSET, dividerY, width - SELECTION_SIDE_INSET, dividerY);
         var rowsTop = getListTop() - _scrollOffset;
         var taxesIncluded = _widgetView.getCurrentPriceType().equals("TOTAL");
@@ -68,7 +68,7 @@ class TibberWidgetSettingsView extends WatchUi.View {
         var networkFeesIncluded = getNetworkFeesIncluded();
         _priceToggle.setEnabled(taxesIncluded);
         _priceToggle.draw(dc, width, rowsTop + getOptionTop(1), OPTION_ROW_HEIGHT,
-            "Nätavgifter (beta)", networkFeesIncluded, _selectedOption == 1, _fontOption, _fontCaption);
+            "Nätavgifter", networkFeesIncluded, _selectedOption == 1, _fontOption, _fontCaption);
 
         drawFeeOption(dc, width, rowsTop + getOptionTop(2), 2, "Fast nätavgift",
             getFixedNetworkFee().format("%.0f") + " öre", networkFeesIncluded);
@@ -187,7 +187,7 @@ class TibberWidgetSettingsView extends WatchUi.View {
     }
 
     private function drawCenteredRow(dc, width, y, label, font) {
-        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
+        dc.setColor(Theme.TEXT_PRIMARY, Theme.BACKGROUND);
         dc.drawText(width / 2, y, font, label, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
     }
 
@@ -196,8 +196,8 @@ class TibberWidgetSettingsView extends WatchUi.View {
             drawFocusLine(dc, top, FEE_ROW_HEIGHT);
         }
 
-        var textColor = isEnabled ? Graphics.COLOR_WHITE : Graphics.COLOR_DK_GRAY;
-        dc.setColor(textColor, Graphics.COLOR_BLACK);
+        var textColor = isEnabled ? Theme.TEXT_PRIMARY : Theme.TEXT_DISABLED;
+        dc.setColor(textColor, Theme.BACKGROUND);
         dc.drawText(SELECTION_SIDE_INSET + 8, top + FEE_ROW_HEIGHT / 2, _fontCaption, label, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
         dc.drawText(width - SELECTION_SIDE_INSET - 8, top + FEE_ROW_HEIGHT / 2, _fontCaption, value + "  >", Graphics.TEXT_JUSTIFY_RIGHT | Graphics.TEXT_JUSTIFY_VCENTER);
     }
@@ -217,6 +217,8 @@ class TibberWidgetSettingsView extends WatchUi.View {
     }
 
     private function drawResolutionControl(dc, width, top) {
+        dc.setColor(Theme.TEXT_SECONDARY, Theme.BACKGROUND);
+        dc.drawText(SELECTION_SIDE_INSET + 8, top - 10, _fontCaption, "PRISINTERVALL", Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
         if (_selectedOption == 4) {
             drawFocusLine(dc, top + (RESOLUTION_ROW_HEIGHT - OPTION_ROW_HEIGHT) / 2, OPTION_ROW_HEIGHT);
         }
@@ -235,9 +237,9 @@ class TibberWidgetSettingsView extends WatchUi.View {
     }
 
     private function drawFocusLine(dc, top, height) {
-        dc.setColor(Graphics.COLOR_BLUE, Graphics.COLOR_BLACK);
-        dc.setPenWidth(3);
-        dc.drawLine(FOCUS_LINE_X, top + 8, FOCUS_LINE_X, top + height - 8);
+        dc.setColor(Theme.FOCUS, Theme.BACKGROUND);
+        dc.setPenWidth(Theme.FOCUS_BAR_WIDTH);
+        dc.drawLine(FOCUS_LINE_X, top + Theme.FOCUS_BAR_INSET, FOCUS_LINE_X, top + height - Theme.FOCUS_BAR_INSET);
         dc.setPenWidth(1);
     }
 

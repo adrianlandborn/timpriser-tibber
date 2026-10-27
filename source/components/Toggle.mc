@@ -2,10 +2,10 @@ import Toybox.Graphics;
 import Toybox.Lang;
 
 class Toggle {
-    private const LABEL_X = 24;
+    private const LABEL_X = Theme.SPACE_LABEL_X;
     private const LABEL_GAP = 8;
-    private const RIGHT_INSET = 16;
-    private const FOCUS_LINE_X = 8;
+    private const RIGHT_INSET = Theme.SPACE_SIDE_INSET;
+    private const FOCUS_LINE_X = Theme.FOCUS_BAR_X;
     private const WIDTH = 44;
     private const HEIGHT = 20;
     private var _isEnabled = true;
@@ -15,17 +15,17 @@ class Toggle {
     }
 
     function draw(dc, width, top, rowHeight, label, isOn, isSelected, optionFont, captionFont) {
-        var backgroundColor = Graphics.COLOR_BLACK;
-        var textColor = _isEnabled ? Graphics.COLOR_WHITE : Graphics.COLOR_DK_GRAY;
-        var trackColor = !_isEnabled ? Graphics.COLOR_DK_GRAY : (isOn ? Graphics.COLOR_BLUE : Graphics.COLOR_LT_GRAY);
+        var backgroundColor = Theme.BACKGROUND;
+        var textColor = _isEnabled ? Theme.TEXT_PRIMARY : Theme.TEXT_DISABLED;
+        var trackColor = !_isEnabled ? Theme.TOGGLE_DISABLED : (isOn ? Theme.TOGGLE_ON : Theme.TOGGLE_OFF);
         var trackLeft = width - WIDTH - RIGHT_INSET;
         var trackTop = top + (rowHeight - HEIGHT) / 2;
         var radius = HEIGHT / 2;
 
         if (isSelected) {
-            dc.setColor(Graphics.COLOR_BLUE, Graphics.COLOR_BLACK);
-            dc.setPenWidth(3);
-            dc.drawLine(FOCUS_LINE_X, top + 8, FOCUS_LINE_X, top + rowHeight - 8);
+            dc.setColor(Theme.FOCUS, Theme.BACKGROUND);
+            dc.setPenWidth(Theme.FOCUS_BAR_WIDTH);
+            dc.drawLine(FOCUS_LINE_X, top + Theme.FOCUS_BAR_INSET, FOCUS_LINE_X, top + rowHeight - Theme.FOCUS_BAR_INSET);
             dc.setPenWidth(1);
         }
 
@@ -43,7 +43,7 @@ class Toggle {
         dc.fillCircle(trackLeft + WIDTH - radius, trackTop + radius, radius);
 
         var thumbX = isOn ? trackLeft + WIDTH - radius : trackLeft + radius;
-        dc.setColor(_isEnabled ? Graphics.COLOR_WHITE : Graphics.COLOR_LT_GRAY, trackColor);
+        dc.setColor(_isEnabled ? Theme.TEXT_PRIMARY : Theme.TEXT_SECONDARY, trackColor);
         dc.fillCircle(thumbX, trackTop + radius, radius - 3);
     }
 }

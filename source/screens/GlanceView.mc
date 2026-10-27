@@ -45,7 +45,7 @@ class TibberGlanceView extends WatchUi.GlanceView {
     function onUpdate(dc) {
         var width = dc.getWidth();
         var height = dc.getHeight();
-        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
+        dc.setColor(Theme.TEXT_PRIMARY, Theme.BACKGROUND);
         dc.clear();
 
         var textX = 12;
@@ -74,7 +74,7 @@ class TibberGlanceView extends WatchUi.GlanceView {
         var hourLevels = _priceData != null ? _priceData.get("hour_levels") : null;
         var showBar = _hourBar.isValid(hourLevels);
         var markerHeight = _hourBar.getHeight();
-        var barGap = 4;
+        var barGap = 0;
         var reservedBarHeight = showBar ? markerHeight + barGap : 0;
 
         var intervalGap = 8;
@@ -95,7 +95,7 @@ class TibberGlanceView extends WatchUi.GlanceView {
         if (metadataLine.length() > 0) {
             var priceWidth = dc.getTextWidthInPixels(priceLine, selectedPriceFont);
             var baselineY = rowY + Graphics.getFontAscent(selectedPriceFont);
-            dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_BLACK);
+            dc.setColor(Theme.TEXT_SECONDARY, Theme.BACKGROUND);
             dc.drawText(
                 textX + priceWidth + intervalGap,
                 baselineY - Graphics.getFontAscent(_microFont),

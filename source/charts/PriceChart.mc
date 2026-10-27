@@ -10,19 +10,21 @@ class TibberPriceChart {
     private var _poppinsTinyFont;
     private var _poppinsSmallFont;
     private var _poppinsMediumFont;
+    private var _levelColors;
 
     /** Use font resources supplied by the parent graph view. */
     function initialize(poppinsTinyFont, poppinsSmallFont, poppinsMediumFont) {
         _poppinsTinyFont = poppinsTinyFont;
         _poppinsSmallFont = poppinsSmallFont;
         _poppinsMediumFont = poppinsMediumFont;
+        _levelColors = new HourLevelBar();
     }
 
     /**
      * Draw a step series within the supplied time span.
      *
       * @param deviceContext Device context for the current view update.
-    * @param priceIntervals Compact [plot minute, price value] pairs.
+    * @param priceIntervals Compact [plot minute, price value, level code] triples.
       * @param chartSpanMinutes Horizontal range in minutes, normally 1440 or 2880.
     * @param intervalDurationMinutes The interval length, normally 15 or 60.
     * @param currency Currency for the active interval footer.
@@ -50,8 +52,10 @@ class TibberPriceChart {
 
         var minimumPrice = priceIntervals[0][1];
         var maximumPrice = minimumPrice;
+        var priceTotal = priceIntervals[0][1];
         for (var intervalIndex = 1; intervalIndex < priceIntervals.size(); intervalIndex++) {
             var intervalPrice = priceIntervals[intervalIndex][1];
+            priceTotal += intervalPrice;
             if (intervalPrice < minimumPrice) {
                 minimumPrice = intervalPrice;
             }
@@ -68,14 +72,14 @@ class TibberPriceChart {
         }
         var yAxisRange = yAxisMaximum - yAxisMinimum;
 
-        deviceContext.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
+        deviceContext.setColor(Theme.TEXT_PRIMARY, Theme.BACKGROUND);
         deviceContext.drawText(centerX, centerY - safeHalfHeight - 35, _poppinsSmallFont, chartTitle, Graphics.TEXT_JUSTIFY_CENTER);
         if (statusNote != null) {
-            deviceContext.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_BLACK);
+            deviceContext.setColor(Theme.TEXT_SECONDARY, Theme.BACKGROUND);
             deviceContext.drawText(centerX, centerY - safeHalfHeight - 10, _poppinsTinyFont, statusNote, Graphics.TEXT_JUSTIFY_CENTER);
         }
 
-        deviceContext.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_BLACK);
+        deviceContext.setColor(Theme.CHART_AXIS, Theme.BACKGROUND);
         deviceContext.drawLine(plotLeft, plotTop, plotLeft, plotBottom);
         deviceContext.drawLine(plotLeft, plotBottom, plotRight, plotBottom);
         drawAxes(deviceContext, plotLeft, plotRight, plotTop, plotBottom, yAxisMinimum, yAxisTickStep, yAxisRange, chartSpanMinutes);
@@ -88,19 +92,32 @@ class TibberPriceChart {
 
             var pointX = plotLeft + plotMinute * plotWidth / chartSpanMinutes;
             var pointY = plotBottom - (intervalPrice - yAxisMinimum) * plotHeight / yAxisRange;
-            graphPoints.add([pointX, pointY, plotMinute, intervalPrice]);
+            var levelCode = priceInterval.size() > 2 ? priceInterval[2] : 0;
+            graphPoints.add([pointX, pointY, plotMinute, intervalPrice, levelCode]);
         }
 
-        deviceContext.setColor(Graphics.COLOR_BLUE, Graphics.COLOR_BLACK);
+        var averageY = plotBottom - (priceTotal / priceIntervals.size() - yAxisMinimum) * plotHeight / yAxisRange;
+        drawAverageLine(deviceContext, plotLeft, plotRight, averageY);
+
         deviceContext.setPenWidth(2);
         drawStepSeries(deviceContext, graphPoints, plotRight);
         drawCurrentMarker(deviceContext, graphPoints, plotLeft, plotWidth, chartSpanMinutes, intervalDurationMinutes, currency);
+    }
+
+    /** Draw a dashed horizontal line at the average price. */
+    private function drawAverageLine(deviceContext, plotLeft, plotRight, averageY) {
+        deviceContext.setColor(Theme.CHART_AVERAGE, Theme.BACKGROUND);
+        for (var dashX = plotLeft; dashX < plotRight; dashX += 8) {
+            var dashEnd = dashX + 4 < plotRight ? dashX + 4 : plotRight;
+            deviceContext.drawLine(dashX, averageY, dashEnd, averageY);
+        }
     }
 
     /** Draw each price as a flat interval followed by a vertical step. */
     private function drawStepSeries(deviceContext, graphPoints, plotRight) {
         for (var pointIndex = 0; pointIndex < graphPoints.size(); pointIndex++) {
             var currentPoint = graphPoints[pointIndex];
+            deviceContext.setColor(currentPoint[4] > 0 ? _levelColors.getColorForCode(currentPoint[4]) : Theme.CHART_DEFAULT_LINE, Theme.BACKGROUND);
             var nextPointX = plotRight;
             if (pointIndex + 1 < graphPoints.size()) {
                 nextPointX = graphPoints[pointIndex + 1][0];
@@ -140,9 +157,9 @@ class TibberPriceChart {
         var intervalCenterMinute = activeGraphPoint[2] + intervalDurationMinutes / 2;
         var markerX = plotLeft + intervalCenterMinute * plotWidth / chartSpanMinutes;
         var markerY = activeGraphPoint[1];
-        deviceContext.setColor(Graphics.COLOR_ORANGE, Graphics.COLOR_BLACK);
+        deviceContext.setColor(Theme.CHART_MARKER, Theme.BACKGROUND);
         deviceContext.fillCircle(markerX, markerY, 5);
-        deviceContext.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
+        deviceContext.setColor(Theme.CHART_MARKER_OUTLINE, Theme.BACKGROUND);
         deviceContext.drawCircle(markerX, markerY, 5);
         drawCurrentIntervalFooter(deviceContext, activeGraphPoint, intervalDurationMinutes, currency);
     }
@@ -172,7 +189,7 @@ class TibberPriceChart {
 
         var footerStartX = (deviceContext.getWidth() - priceWidth - unitWidth - 6) / 2;
         var priceCenterY = deviceContext.getHeight() - 45;
-        deviceContext.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
+        deviceContext.setColor(Theme.TEXT_PRIMARY, Theme.BACKGROUND);
         deviceContext.drawText(footerStartX, priceCenterY, priceFont, formattedPrice, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
         deviceContext.drawText(footerStartX + priceWidth + 6, priceCenterY + 3, unitFont, priceUnit, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
 
@@ -185,7 +202,7 @@ class TibberPriceChart {
 
     /** Draw rounded Y ticks and sparse hour labels over a 24- or 48-hour span. */
     private function drawAxes(deviceContext, plotLeft, plotRight, plotTop, plotBottom, axisMinimum, yAxisTickStep, yAxisRange, chartSpanMinutes) {
-        deviceContext.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_BLACK);
+        deviceContext.setColor(Theme.CHART_AXIS, Theme.BACKGROUND);
         var labelFormat = yAxisTickStep < 1 ? "%.2f" : "%.0f";
         var tickValue = axisMinimum;
         var tickCount = 0;

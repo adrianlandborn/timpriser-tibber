@@ -48,7 +48,7 @@ class TibberPriceGraphView extends WatchUi.View {
 
     /** Draw the current loading, error, empty, or chart state. */
     function onUpdate(deviceContext) {
-        deviceContext.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
+        deviceContext.setColor(Theme.TEXT_PRIMARY, Theme.BACKGROUND);
         deviceContext.clear();
 
         var displayWidth = deviceContext.getWidth();
@@ -128,7 +128,8 @@ class TibberPriceGraphView extends WatchUi.View {
                             var spotAverage = (hourlySpotTotals as Array)[hourBucket] / (hourlySpotCounts as Array)[hourBucket];
                             displayPrice = priceCalculator.getPriceWithNetworkFees(displayPrice, spotAverage);
                         }
-                        _priceIntervals.add([plotMinute, displayPrice]);
+                        var levelCode = (sourceInterval as Array).size() > 3 ? (sourceInterval as Array)[3] : 0;
+                        _priceIntervals.add([plotMinute, displayPrice, levelCode]);
                     }
                 }
                 _chartSpanMinutes = chartSpanMinutes;
@@ -202,7 +203,7 @@ class TibberPriceGraphView extends WatchUi.View {
 
     /** Center a short loading/error message in the watch display. */
     function drawCenteredText(deviceContext, displayWidth, displayHeight, message) {
-        deviceContext.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
+        deviceContext.setColor(Theme.TEXT_PRIMARY, Theme.BACKGROUND);
         var selectedFont = _poppinsSmallFont;
         var availableWidth = displayWidth - 16;
         if (deviceContext.getTextWidthInPixels(message, selectedFont) > availableWidth) {

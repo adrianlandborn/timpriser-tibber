@@ -1,13 +1,13 @@
 import Toybox.Graphics;
 
 class TibberSegmentedControl {
-    private const SIDE_INSET = 16;
+    private const SIDE_INSET = Theme.SPACE_SIDE_INSET;
     private const TRACK_INSET = 2;
     private const SEGMENT_GAP = 2;
 
     function draw(dc, left, top, width, height, firstLabel, secondLabel, selectedIndex, font) {
         var outerRadius = height / 2;
-        dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_BLACK);
+        dc.setColor(Theme.SURFACE_TRACK, Theme.BACKGROUND);
         dc.fillRectangle(left + outerRadius, top, width - height, height);
         dc.fillCircle(left + outerRadius, top + outerRadius, outerRadius);
         dc.fillCircle(left + width - outerRadius, top + outerRadius, outerRadius);
@@ -26,15 +26,15 @@ class TibberSegmentedControl {
     }
 
     private function drawSegment(dc, left, top, width, height, label, isActive, font) {
-        var textColor = isActive ? Graphics.COLOR_BLACK : Graphics.COLOR_WHITE;
+        var textColor = isActive ? Theme.TEXT_ON_LIGHT : Theme.TEXT_PRIMARY;
         if (isActive) {
             var radius = height / 2;
-            dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_WHITE);
+            dc.setColor(Theme.SEGMENT_ACTIVE, Theme.SEGMENT_ACTIVE);
             dc.fillRectangle(left + radius, top, width - height, height);
             dc.fillCircle(left + radius, top + radius, radius);
             dc.fillCircle(left + width - radius, top + radius, radius);
         }
-        dc.setColor(textColor, isActive ? Graphics.COLOR_WHITE : Graphics.COLOR_DK_GRAY);
+        dc.setColor(textColor, isActive ? Theme.SEGMENT_ACTIVE : Theme.SURFACE_TRACK);
         dc.drawText(left + width / 2, top + height / 2, font, label, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
     }
 }

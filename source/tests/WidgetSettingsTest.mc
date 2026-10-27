@@ -124,17 +124,17 @@ function testNetworkFeesRequireTaxes(logger) {
     view.moveSelection(-1);
     view.selectCurrentOption();
     view.onUpdate(dc);
-    var taxBlockedWithoutNetwork = dc.energyTaxLabelColor == Graphics.COLOR_DK_GRAY;
+    var taxBlockedWithoutNetwork = dc.energyTaxLabelColor == Theme.TEXT_DISABLED;
     view.moveSelection(1);
     view.selectCurrentOption();
     view.onUpdate(dc);
-    var enabled = Storage.getValue(enabledKey) == true && dc.networkLabelColor == Graphics.COLOR_WHITE &&
-        dc.energyTaxLabelColor == Graphics.COLOR_WHITE;
+    var enabled = Storage.getValue(enabledKey) == true && dc.networkLabelColor == Theme.TEXT_PRIMARY &&
+        dc.energyTaxLabelColor == Theme.TEXT_PRIMARY;
     view.moveSelection(-1);
     view.selectCurrentOption();
     view.onUpdate(dc);
     var switchedOff = Storage.getValue(enabledKey) == false &&
-        widget.priceType.equals("SPOT") && dc.networkLabelColor == Graphics.COLOR_DK_GRAY;
+        widget.priceType.equals("SPOT") && dc.networkLabelColor == Theme.TEXT_DISABLED;
     if (originalEnabled == null) {
         Storage.deleteValue(enabledKey);
     } else {
@@ -145,7 +145,7 @@ function testNetworkFeesRequireTaxes(logger) {
     } else {
         Storage.setValue(fixedKey, originalFixed);
     }
-    return disabledColor == Graphics.COLOR_DK_GRAY && blockedToggle && blockedAdjustment &&
+    return disabledColor == Theme.TEXT_DISABLED && blockedToggle && blockedAdjustment &&
         taxBlockedWithoutNetwork && enabled && switchedOff;
 }
 

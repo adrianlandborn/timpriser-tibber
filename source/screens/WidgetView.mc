@@ -61,7 +61,7 @@ class TibberWidgetView extends WatchUi.View {
     function onUpdate(dc) {
         var width = dc.getWidth();
         var height = dc.getHeight();
-        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
+        dc.setColor(Theme.TEXT_PRIMARY, Theme.BACKGROUND);
         dc.clear();
 
         if (_isPriceLoading) {
@@ -108,10 +108,10 @@ class TibberWidgetView extends WatchUi.View {
                 var priceRows = [
                     [currentPriceText + " " + priceUnit, _poppinsPriceFont]
                 ];
-                priceRows.add([_currentPriceType.equals("SPOT") ? "Spotpris" : "Totalpris", _poppinsTinyFont]);
+                priceRows.add([_currentPriceType.equals("SPOT") ? "Spotpris" : "Totalpris", _poppinsTinyFont, Theme.TEXT_SECONDARY, null, -4]);
                 var currentIntervalRange = formatIntervalRange(currentIntervalTime, currentIntervalMinutes);
                 if (currentIntervalRange != null) {
-                    priceRows.add([currentIntervalRange, _poppinsSmallFont]);
+                    priceRows.add([currentIntervalRange, _poppinsSmallFont, Theme.TEXT_PRIMARY, null, 8]);
                 }
                 var hourLevels = _currentPriceData.get("hour_levels");
                 if (_hourBar.isValid(hourLevels)) {
@@ -119,8 +119,7 @@ class TibberWidgetView extends WatchUi.View {
                 }
                 var tradingTaxesIncluded = _currentPriceType.equals("TOTAL");
                 var networkFeesIncluded = tradingTaxesIncluded && Storage.getValue("tibber_network_fees_enabled") == true;
-                priceRows.add([tradingTaxesIncluded ? "Elhandel: inkl. skatter/avg." : "Elhandel: exkl. skatter/avg.", _poppinsTinyFont, Graphics.COLOR_LT_GRAY]);
-                priceRows.add([networkFeesIncluded ? "Elnät: inkl. avgifter/skatt" : "Elnät: exkl. avgifter/skatt", _poppinsTinyFont, Graphics.COLOR_LT_GRAY]);
+                priceRows.add([(tradingTaxesIncluded ? "Skatter inkl." : "Skatter exkl.") + " | " + (networkFeesIncluded ? "Nät inkl." : "Nät exkl."), _poppinsTinyFont, Theme.TEXT_SECONDARY, null, 12]);
                 drawTextStack(dc, width, height, priceRows, _widgetLogo);
             } else {
                 drawTextStack(dc, width, height, [
@@ -151,18 +150,28 @@ class TibberWidgetView extends WatchUi.View {
         return startTime.substring(0, 5) + "-" + endTime;
     }
 
+    /** Spacing above a row: optional 5th element of the row, otherwise the default. */
+    function getRowSpacing(textRows, rowIndex, defaultSpacing) {
+        if (rowIndex >= textRows.size()) {
+            return 0;
+        }
+        var row = textRows[rowIndex] as Array;
+        return row.size() > 4 && row[4] != null ? row[4] : defaultSpacing;
+    }
+
     /** Measure and vertically center a stack of text/font rows and optional logo. */
     function drawTextStack(dc, width, height, textRows, logoResource) {
         var availableTextWidth = width - 16;
-        var rowSpacing = 3;
+        var defaultRowSpacing = 3;
         var logoSpacing = 8;
         var rowHeights = [];
         var contentHeight = 0;
 
         for (var rowIndex = 0; rowIndex < textRows.size(); rowIndex++) {
+            var rowSpacing = rowIndex > 0 ? getRowSpacing(textRows, rowIndex, defaultRowSpacing) : 0;
             if (textRows[rowIndex][0] == null) {
                 rowHeights.add(_hourBar.getHeight());
-                contentHeight += _hourBar.getHeight() + (rowIndex > 0 ? rowSpacing : 0);
+                contentHeight += _hourBar.getHeight() + rowSpacing;
                 continue;
             }
             var rowText = textRows[rowIndex][0] as String;
@@ -174,10 +183,7 @@ class TibberWidgetView extends WatchUi.View {
             var textDimensions = dc.getTextDimensions(rowText, rowFont);
             var rowHeight = textDimensions[1];
             rowHeights.add(rowHeight);
-            contentHeight += rowHeight;
-            if (rowIndex > 0) {
-                contentHeight += rowSpacing;
-            }
+            contentHeight += rowHeight + rowSpacing;
         }
 
         if (logoResource != null) {
@@ -193,6 +199,7 @@ class TibberWidgetView extends WatchUi.View {
         }
 
         for (var rowIndex = 0; rowIndex < textRows.size(); rowIndex++) {
+            var rowSpacing = getRowSpacing(textRows, rowIndex + 1, defaultRowSpacing);
             var rowHeight = rowHeights[rowIndex];
             var rowCenterY = nextRowTop + rowHeight / 2;
             if (textRows[rowIndex][0] == null) {
@@ -200,7 +207,7 @@ class TibberWidgetView extends WatchUi.View {
                 nextRowTop += rowHeight + rowSpacing;
                 continue;
             }
-            dc.setColor((textRows[rowIndex] as Array).size() > 2 ? textRows[rowIndex][2] : Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
+            dc.setColor((textRows[rowIndex] as Array).size() > 2 ? textRows[rowIndex][2] : Theme.TEXT_PRIMARY, Theme.BACKGROUND);
             dc.drawText(
                 width / 2,
                 rowCenterY,
