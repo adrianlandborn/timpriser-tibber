@@ -5,3 +5,6 @@ base.sourcePath = source
 
 # Resources
 base.resourcePath = resources
+
+# Large typography trial: fenix 8 / tactix 8 AMOLED. Other targets stay standard.
+fenix847mm.resourcePath = $(base.resourcePath);resources-large

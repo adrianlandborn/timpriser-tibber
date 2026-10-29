@@ -1,5 +1,6 @@
 """Build Garmin bitmap fonts used throughout the app."""
 
+import argparse
 from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
@@ -18,6 +19,14 @@ FONT_SIZES = {
     "PoppinsLarge": 34,
     "PoppinsPrice": 46,
 }
+LARGE_FONT_SIZES = {
+    "PoppinsMicro": 14,
+    "PoppinsTiny": 16,
+    "PoppinsSmall": 22,
+    "PoppinsMedium": 32,
+    "PoppinsLarge": 46,
+    "PoppinsPrice": 62,
+}
 UI_GLYPHS = "".join(chr(codepoint) for codepoint in range(32, 127)) + "ÅÄÖåäö€"
 PRICE_GLYPHS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ- .,€£$¥ÅÄÖåäöre"
 GLYPHS_BY_RESOURCE = {
@@ -30,10 +39,10 @@ GLYPHS_BY_RESOURCE = {
 }
 
 
-def build_font(resource_name, font_size, glyphs):
+def build_font(resource_name, font_size, glyphs, output_directory=FONT_DIRECTORY):
     """Rasterize the supported glyphs into a packed grayscale atlas."""
-    descriptor_file = FONT_DIRECTORY / (resource_name + ".fnt")
-    atlas_file = FONT_DIRECTORY / (resource_name + "_0.png")
+    descriptor_file = output_directory / (resource_name + ".fnt")
+    atlas_file = output_directory / (resource_name + "_0.png")
     font = ImageFont.truetype(str(SOURCE_FONT), font_size)
     ascent, descent = font.getmetrics()
     line_height = ascent + descent
@@ -98,8 +107,14 @@ def build_font(resource_name, font_size, glyphs):
 
 def main():
     """Build the Poppins sizes used by current-price and graph screens."""
-    for resource_name, font_size in FONT_SIZES.items():
-        build_font(resource_name, font_size, GLYPHS_BY_RESOURCE[resource_name])
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--profile", choices=("standard", "large"), default="standard")
+    args = parser.parse_args()
+    output_directory = FONT_DIRECTORY if args.profile == "standard" else ROOT / "resources-large" / "fonts"
+    font_sizes = FONT_SIZES if args.profile == "standard" else LARGE_FONT_SIZES
+    output_directory.mkdir(parents=True, exist_ok=True)
+    for resource_name, font_size in font_sizes.items():
+        build_font(resource_name, font_size, GLYPHS_BY_RESOURCE[resource_name], output_directory)
 
 
 if __name__ == "__main__":

@@ -90,6 +90,7 @@ If `connectiq`, `monkeyc`, or `monkeydo` is not on `PATH`, invoke the command fr
 - Venu: `venu`
 - Forerunner 55: `fr55`
 - Vivoactive 4: `vivoactive4`
+- Vivoactive 5: `vivoactive5`
 
 The Fenix 7 products are declared in the manifest. A device pack must be installed to compile or simulate its specific target.
 
@@ -140,6 +141,19 @@ monkeydo /tmp/TibberWidget-tests.prg fenix7xpro -t testConfirmedTibberPriceBasel
 ## Typography
 
 All app-drawn text uses bundled Poppins SemiBold bitmap fonts sized for watch displays, including Swedish characters and common symbols. The font is from Google Fonts and is distributed under the SIL Open Font License 1.1; see `resources/fonts/OFL.txt`. Rebuild the font resources after changing the source font with `python3 tools/build_poppins_price_font.py`.
+
+The experimental Large profile is assigned in `monkey.jungle` and generated with `python3 tools/build_poppins_price_font.py --profile large`. Its resources override the standard fonts using the same resource IDs; only the selected font set is used for each build.
+
+| Profile | Micro | Tiny | Small | Medium | Large | Price | Targets |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Standard | 10 | 12 | 16 | 24 | 34 | 46 | All other targets |
+| Large (experimental) | 14 | 16 | 22 | 32 | 46 | 62 | `fenix847mm` (fenix 8 / tactix 8 AMOLED) |
+
+The Large profile needs visual validation on glance, price, chart, and settings screens before extending it to other devices. Remove the `fenix847mm.resourcePath` override to return that target to Standard.
+
+Price charts reserve space for measured Y-axis labels and footer font heights. The current-price footer is centered below the X-axis labels with a bottom inset proportional to the screen size.
+
+`source/charts/PriceChart.mc` separates price scaling, layout, interval projection, header, axes, step series, marker, and footer rendering. Chart-specific geometry and drawing constants are kept at the top of the class; shared colors remain in `Theme`. `source/tests/PriceChartTest.mc` covers layout baselines for both font profiles, axis ticks, series geometry, and footer positioning and font fallback.
 
 ## Project layout
 
