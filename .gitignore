@@ -23,3 +23,11 @@ source/config/Secrets.mc
 /external-mir/
 *.prg
 *.prg.debug.xml
+# Agent harness output and machine-local agent config
+/.cache/
+.agents/skills-local/*
+!.agents/skills-local/.gitkeep
+.claude/skills/local-*
+.claude/settings.local.json
+.claude/worktrees/
+.github/copilot/settings.local.json

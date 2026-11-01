@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(scripts/check.sh:*)",
+      "Bash(scripts/build.sh:*)",
+      "Bash(scripts/test.sh:*)",
+      "Bash(python3 .agents/scripts/validate.py)",
+      "Bash(python3 scripts/lint.py:*)",
+      "Bash(.agents/scripts/link-skills.sh:*)"
+    ],
+    "deny": [
+      "Read(./developer_key.*)",
+      "Read(./source/config/Secrets.mc)",
+      "Read(./.env)",
+      "Read(./.env.*)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PROJECT_DIR:-$(git rev-parse --show-toplevel)}/.agents/hooks/guard.py\" --agent claude",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

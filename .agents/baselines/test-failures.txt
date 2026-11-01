@@ -1,0 +1,5 @@
+testNetworkFeesRequireTaxes
+testNetworkToggleDoesNotDisableTaxes
+testPriceChartLayoutBaseline
+testPriceChartTicksAndFooter
+testSettingsSelectionCentered

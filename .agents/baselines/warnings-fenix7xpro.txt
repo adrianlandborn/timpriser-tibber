@@ -1,0 +1,72 @@
+WARNING: fenix7xpro: The launcher icon (80x80) isn't compatible with the specified launcher icon size of the device 'fenix7xpro' (40x40). The image will be scaled to the target size.
+WARNING: fenix7xpro: This is a 'watch-app' app type but no source code was annotated with (:glance). The entire application will be loaded as a glance process.
+WARNING: fenix7xpro: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
+WARNING: fenix7xpro: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
+WARNING: fenix7xpro: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
+WARNING: fenix7xpro: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
+WARNING: fenix7xpro: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
+WARNING: fenix7xpro: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
+WARNING: fenix7xpro: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
+WARNING: fenix7xpro: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
+WARNING: fenix7xpro: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
+WARNING: fenix7xpro: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
+WARNING: fenix7xpro: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
+WARNING: fenix7xpro: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
+WARNING: fenix7xpro: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
+WARNING: fenix7xpro: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
+WARNING: fenix7xpro: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
+WARNING: fenix7xpro: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
+WARNING: fenix7xpro: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
+WARNING: fenix7xpro: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
+WARNING: fenix7xpro: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
+WARNING: fenix7xpro: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
+WARNING: fenix7xpro: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
+WARNING: fenix7xpro: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
+WARNING: fenix7xpro: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
+WARNING: fenix7xpro: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
+WARNING: fenix7xpro: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
+WARNING: fenix7xpro: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
+WARNING: fenix7xpro: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
+WARNING: fenix7xpro: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
+WARNING: fenix7xpro: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
+WARNING: fenix7xpro: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
+WARNING: fenix7xpro: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
+WARNING: fenix7xpro: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
+WARNING: fenix7xpro: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
+WARNING: fenix7xpro: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
+WARNING: fenix7xpro: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
+WARNING: fenix7xpro: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
+WARNING: fenix7xpro: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
+WARNING: fenix7xpro: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
+WARNING: fenix7xpro: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
+WARNING: fenix7xpro: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
+WARNING: fenix7xpro: source/components/SegmentedControl.mc: Member variable 'SIDE_INSET' is not used.
+WARNING: fenix7xpro: source/network/ApiClient.mc: '$.Toybox.Communications.makeJsonRequest' is deprecated.
+WARNING: fenix7xpro: source/network/ApiClient.mc: Cannot determine if container access is using container type.
+WARNING: fenix7xpro: source/screens/GlanceView.mc: Cannot determine if container access is using container type.
+WARNING: fenix7xpro: source/screens/GlanceView.mc: Cannot determine if container access is using container type.
+WARNING: fenix7xpro: source/screens/GlanceView.mc: Cannot determine if container access is using container type.
+WARNING: fenix7xpro: source/screens/GlanceView.mc: Local variable 'rowSpacing' is not used.
+WARNING: fenix7xpro: source/screens/PriceGraphView.mc: Cannot determine if container access is using container type.
+WARNING: fenix7xpro: source/screens/PriceGraphView.mc: Cannot determine if container access is using container type.
+WARNING: fenix7xpro: source/screens/PriceGraphView.mc: Cannot determine if container access is using container type.
+WARNING: fenix7xpro: source/screens/PriceGraphView.mc: Cannot determine if container assignment is using container type.
+WARNING: fenix7xpro: source/screens/PriceGraphView.mc: Cannot determine if container assignment is using container type.
+WARNING: fenix7xpro: source/screens/WidgetSettingsView.mc: Cannot determine if container access is using container type.
+WARNING: fenix7xpro: source/screens/WidgetSettingsView.mc: Cannot determine if container access is using container type.
+WARNING: fenix7xpro: source/screens/WidgetSettingsView.mc: Member variable 'FEE_LABEL_X' is not used.
+WARNING: fenix7xpro: source/screens/WidgetSettingsView.mc: Member variable 'FEE_VALUE_RIGHT_INSET' is not used.
+WARNING: fenix7xpro: source/screens/WidgetView.mc: Cannot determine if container access is using container type.
+WARNING: fenix7xpro: source/screens/WidgetView.mc: Cannot determine if container access is using container type.
+WARNING: fenix7xpro: source/screens/WidgetView.mc: Cannot determine if container access is using container type.
+WARNING: fenix7xpro: source/screens/WidgetView.mc: Cannot determine if container access is using container type.
+WARNING: fenix7xpro: source/screens/WidgetView.mc: Cannot determine if container access is using container type.
+WARNING: fenix7xpro: source/screens/WidgetView.mc: Cannot determine if container access is using container type.
+WARNING: fenix7xpro: source/screens/WidgetView.mc: Cannot determine if container access is using container type.
+WARNING: fenix7xpro: source/screens/WidgetView.mc: Cannot determine if container access is using container type.
+WARNING: fenix7xpro: source/screens/WidgetView.mc: Cannot determine if container access is using container type.
+WARNING: fenix7xpro: source/screens/WidgetView.mc: Cannot determine if container access is using container type.
+WARNING: fenix7xpro: source/screens/WidgetView.mc: Cannot determine if container access is using container type.
+WARNING: fenix7xpro: source/screens/WidgetView.mc: Cannot determine if container assignment is using container type.
+WARNING: fenix7xpro: source/screens/WidgetView.mc: Cannot determine if container assignment is using container type.
+WARNING: manifest.xml: Invalid device id found in the application manifest: 'fenix7xpronowifi'.

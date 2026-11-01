@@ -55,21 +55,15 @@ Replace `fenix6` with a supported product ID below. If `monkeyc` is not on `PATH
 
 ## Run in the simulator
 
-On macOS, start the Connect IQ simulator in one terminal and leave it open:
+From the project root, compile for any product in `manifest.xml` and launch it in the simulator:
 
 ```sh
-connectiq
+./monkeyInstall fenix7xpro
 ```
 
-Once the simulator is open, run the local `tibber-sim` alias in a second terminal. It changes to this project, removes the old package, compiles for Fenix 7X Pro, verifies and timestamps the new package, then launches that package:
+The script reads the supported products from `manifest.xml` on each run; run it without an argument to list them. It locates the SDK and Java, checks that the device pack is installed, writes `bin/TibberWidget-<device>.prg`, starts the simulator if it isn't running, and launches the package. `monkeydo` stays attached and streams the app's log output; press Ctrl+C to detach.
 
-```sh
-tibber-sim
-```
-
-The alias is defined in `~/.zshrc`. After adding or changing it, reload it in an existing terminal with `source ~/.zshrc`; new terminals load it automatically. Its `cd` command should point to `<project_folder>`; update that path if your checkout is elsewhere.
-
-Without the alias, build and run manually from the project root. Removing the old package first ensures a failed compile cannot leave an older build to launch:
+To build and run manually instead, start the simulator with `connectiq`, then run these commands from the project root. Removing the old package first ensures a failed compile cannot leave an older build to launch:
 
 ```sh
 rm -f bin/TibberWidget-fenix7xpro.prg &&

@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# Installed by scripts/setup-agents.sh (git config core.hooksPath .githooks).
+# Fast gate only (~1s, no SDK): agent config, XML, scripts, staged secret scan.
+exec "$(git rev-parse --show-toplevel)/scripts/check.sh" fast --staged

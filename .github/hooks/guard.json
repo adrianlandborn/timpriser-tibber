@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "hooks": {
+    "PreToolUse": [
+      {
+        "type": "command",
+        "command": "python3 \"$(git rev-parse --show-toplevel)/.agents/hooks/guard.py\" --agent copilot"
+      }
+    ]
+  }
+}

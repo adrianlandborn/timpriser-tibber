@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "hooks": {
+    "preToolUse": [
+      { "command": "python3 .agents/hooks/guard.py --agent cursor", "timeout": 10 }
+    ],
+    "beforeReadFile": [
+      { "command": "python3 .agents/hooks/guard.py --agent cursor", "timeout": 10 }
+    ]
+  }
+}
