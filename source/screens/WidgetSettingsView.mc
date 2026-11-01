@@ -18,6 +18,7 @@ class TibberWidgetSettingsView extends WatchUi.View {
     private const OPTION_COUNT = 6;
 
     private var _widgetView;
+    private var _priceCache;
     private var _priceToggle;
     private var _resolutionControl;
     private var _fontCaption;
@@ -32,7 +33,8 @@ class TibberWidgetSettingsView extends WatchUi.View {
     function initialize(widgetView, tinyFont, smallFont, displayFont) {
         View.initialize();
         _widgetView = widgetView;
-        _priceToggle = new Toggle();
+        _priceCache = new TibberPriceCache();
+        _priceToggle = new TibberToggle();
         _resolutionControl = new TibberSegmentedControl();
         _fontCaption = tinyFont;
         _fontOption = smallFont;
@@ -54,7 +56,7 @@ class TibberWidgetSettingsView extends WatchUi.View {
         dc.clear();
 
         var titleY = VERTICAL_INSET + HEADER_TOP_INSET - _scrollOffset;
-        drawCenteredRow(dc, width, titleY, "INSTÄLLNINGAR", _fontOption);
+        drawCenteredRow(dc, width, titleY, str(Rez.Strings.SettingsTitle), _fontOption);
         var dividerY = titleY + TITLE_DIVIDER_OFFSET;
         dc.setColor(Theme.TEXT_SECONDARY, Theme.BACKGROUND);
         dc.drawLine(SELECTION_SIDE_INSET, dividerY, width - SELECTION_SIDE_INSET, dividerY);
@@ -62,22 +64,21 @@ class TibberWidgetSettingsView extends WatchUi.View {
         var taxesIncluded = _widgetView.getCurrentPriceType().equals("TOTAL");
         _priceToggle.setEnabled(true);
         _priceToggle.draw(dc, width, rowsTop + getOptionTop(0), OPTION_ROW_HEIGHT,
-            "Skatter & avgifter", taxesIncluded, _selectedOption == 0,
+            str(Rez.Strings.TaxesAndFees), taxesIncluded, _selectedOption == 0,
             _fontOption, _fontCaption);
 
         var networkFeesIncluded = getNetworkFeesIncluded();
         _priceToggle.setEnabled(taxesIncluded);
         _priceToggle.draw(dc, width, rowsTop + getOptionTop(1), OPTION_ROW_HEIGHT,
-            "Nätavgifter", networkFeesIncluded, _selectedOption == 1, _fontOption, _fontCaption);
+            str(Rez.Strings.NetworkFees), networkFeesIncluded, _selectedOption == 1, _fontOption, _fontCaption);
 
-        drawFeeOption(dc, width, rowsTop + getOptionTop(2), 2, "Fast nätavgift",
-            getFixedNetworkFee().format("%.0f") + " öre", networkFeesIncluded);
-        drawFeeOption(dc, width, rowsTop + getOptionTop(3), 3, "Rörlig nätavgift",
-            getVariableNetworkFee().format("%.0f") + "%", networkFeesIncluded);
+        drawFeeOption(dc, width, rowsTop + getOptionTop(2), 2, str(Rez.Strings.FixedNetworkFee),
+            _priceCache.getFixedNetworkFee().format("%.0f") + " " + str(Rez.Strings.PriceUnitOre), networkFeesIncluded);
+        drawFeeOption(dc, width, rowsTop + getOptionTop(3), 3, str(Rez.Strings.VariableNetworkFee),
+            _priceCache.getVariableNetworkFee().format("%.0f") + str(Rez.Strings.PercentUnit), networkFeesIncluded);
         drawResolutionControl(dc, width, rowsTop + getOptionTop(4));
-        var energyTax = new TibberPriceCache();
-        drawFeeOption(dc, width, rowsTop + getOptionTop(5), 5, "Energiskatt",
-            energyTax.getEnergyTax().format("%.0f") + " öre", networkFeesIncluded);
+        drawFeeOption(dc, width, rowsTop + getOptionTop(5), 5, str(Rez.Strings.EnergyTax),
+            _priceCache.getEnergyTax().format("%.0f") + " " + str(Rez.Strings.PriceUnitOre), networkFeesIncluded);
     }
 
     function moveSelection(direction) {
@@ -166,7 +167,7 @@ class TibberWidgetSettingsView extends WatchUi.View {
             return true;
         }
         if (feeOption == 2) {
-            var fixedFee = getFixedNetworkFee() + direction;
+            var fixedFee = _priceCache.getFixedNetworkFee() + direction;
             if (fixedFee < 0) {
                 fixedFee = 0;
             } else if (fixedFee > 1000) {
@@ -174,7 +175,7 @@ class TibberWidgetSettingsView extends WatchUi.View {
             }
             Storage.setValue("tibber_network_fixed_ore", fixedFee);
         } else if (feeOption == 3) {
-            var variableFee = getVariableNetworkFee() + direction;
+            var variableFee = _priceCache.getVariableNetworkFee() + direction;
             if (variableFee < 0) {
                 variableFee = 0;
             } else if (variableFee > 100) {
@@ -198,27 +199,17 @@ class TibberWidgetSettingsView extends WatchUi.View {
 
         var textColor = isEnabled ? Theme.TEXT_PRIMARY : Theme.TEXT_DISABLED;
         dc.setColor(textColor, Theme.BACKGROUND);
-        dc.drawText(SELECTION_SIDE_INSET + 8, top + FEE_ROW_HEIGHT / 2, _fontCaption, label, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
-        dc.drawText(width - SELECTION_SIDE_INSET - 8, top + FEE_ROW_HEIGHT / 2, _fontCaption, value + "  >", Graphics.TEXT_JUSTIFY_RIGHT | Graphics.TEXT_JUSTIFY_VCENTER);
+        dc.drawText(FEE_LABEL_X, top + FEE_ROW_HEIGHT / 2, _fontCaption, label, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+        dc.drawText(width - FEE_VALUE_RIGHT_INSET, top + FEE_ROW_HEIGHT / 2, _fontCaption, value + "  >", Graphics.TEXT_JUSTIFY_RIGHT | Graphics.TEXT_JUSTIFY_VCENTER);
     }
 
     private function getNetworkFeesIncluded() {
         return _widgetView.getCurrentPriceType().equals("TOTAL") && Storage.getValue("tibber_network_fees_enabled") == true;
     }
 
-    private function getFixedNetworkFee() {
-        var fee = Storage.getValue("tibber_network_fixed_ore");
-        return (fee instanceof Number || fee instanceof Float) ? fee : 20.0;
-    }
-
-    private function getVariableNetworkFee() {
-        var fee = Storage.getValue("tibber_network_variable_percent");
-        return (fee instanceof Number || fee instanceof Float) ? fee : 5.0;
-    }
-
     private function drawResolutionControl(dc, width, top) {
         dc.setColor(Theme.TEXT_SECONDARY, Theme.BACKGROUND);
-        dc.drawText(SELECTION_SIDE_INSET + 8, top - 10, _fontCaption, "PRISINTERVALL", Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+        dc.drawText(FEE_LABEL_X, top - 10, _fontCaption, str(Rez.Strings.PriceInterval), Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
         if (_selectedOption == 4) {
             drawFocusLine(dc, top + (RESOLUTION_ROW_HEIGHT - OPTION_ROW_HEIGHT) / 2, OPTION_ROW_HEIGHT);
         }
@@ -229,8 +220,8 @@ class TibberWidgetSettingsView extends WatchUi.View {
             top,
             width - SELECTION_SIDE_INSET * 2,
             RESOLUTION_ROW_HEIGHT,
-            "15 min",
-            "1 timme",
+            str(Rez.Strings.ResolutionQuarterHour),
+            str(Rez.Strings.ResolutionHour),
             selectedIndex,
             _fontOption
         );
@@ -292,8 +283,12 @@ class TibberWidgetSettingsView extends WatchUi.View {
         }
         if (_scrollOffset < 0) {
             _scrollOffset = 0;
-        } else if (_scrollOffset > maximumScroll) {
+        } else         if (_scrollOffset > maximumScroll) {
             _scrollOffset = maximumScroll;
         }
+    }
+
+    private function str(resource) {
+        return WatchUi.loadResource(resource) as String;
     }
 }

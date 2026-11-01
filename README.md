@@ -77,20 +77,23 @@ If `connectiq`, `monkeyc`, or `monkeydo` is not on `PATH`, invoke the command fr
 
 ## Supported products
 
-- Fenix 6: `fenix6`, `fenix6pro`
+- Fenix 6: `fenix6`, `fenix6pro`, `fenix6s`, `fenix6spro`, `fenix6xpro`
 - Fenix 7: `fenix7`, `fenix7s`, `fenix7x`
 - Fenix 7 Pro: `fenix7pro`, `fenix7spro`, `fenix7xpro`
 - Fenix 7 Pro Solar (no Wi-Fi): `fenix7pronowifi`, `fenix7xpronowifi`
+- Fenix 8: `fenix843mm`, `fenix847mm`, `fenix8pro47mm`, `fenix8solar47mm`, `fenix8solar51mm`
+- Fenix 9: `fenix943mm`, `fenix947mm`, `fenix9pro43mm`, `fenix9pro47mm`, `fenix9pro51mm`, `fenix9prosolar47mm`, `fenix9prosolar51mm`
 - Venu: `venu`
 - Forerunner 55: `fr55`
-- Vivoactive 4: `vivoactive4`
+- Vivoactive 4: `vivoactive4`, `vivoactive4s`
 - Vivoactive 5: `vivoactive5`
+- Vivoactive 6: `vivoactive6`
 
-The Fenix 7 products are declared in the manifest. A device pack must be installed to compile or simulate its specific target.
+Products are declared in `manifest.xml`. A device pack must be installed to compile or simulate a specific target. The SDK currently reports `fenix7xpronowifi` as an invalid device ID.
 
 ## Price intervals
 
-The main screen defaults to Tibber's `QUARTER_HOURLY` resolution. Its MENU button toggles between `QUARTER_HOURLY` and `HOURLY`. The graph pages use fixed resolutions: `QUARTER_HOURLY` for today, then `HOURLY` for today and tomorrow. If tomorrow's prices are not published yet, the second page shows today's hourly prices and an availability note. Both `getCurrentPrice(callback, resolution)` and `getDailyPrices(callback, resolution, includeTomorrow)` accept a resolution.
+The main screen defaults to Tibber's `QUARTER_HOURLY` resolution. MENU opens settings; the first settings row switches between `QUARTER_HOURLY` and `HOURLY`. The graph pages use fixed resolutions: `QUARTER_HOURLY` for today, then `HOURLY` for today and tomorrow. If tomorrow's prices are not published yet, the second page shows today's hourly prices and an availability note. Both `getCurrentPrice(callback, resolution)` and `getDailyPrices(callback, resolution, includeTomorrow)` accept a resolution.
 
 The graph plots Tibber's `today` series and appends `tomorrow` for its second page when available. Its compact interval data stores timestamp-based plot offsets and numeric price values, with resolution and currency kept once per series to limit memory use on smaller watches. A typical quarter-hour day contains 96 intervals, though daylight-saving transitions can change the count.
 

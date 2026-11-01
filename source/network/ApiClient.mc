@@ -1,3 +1,4 @@
+import Toybox.Application;
 import Toybox.Communications;
 import Toybox.Lang;
 import Toybox.System;
@@ -23,7 +24,7 @@ class TibberApiClient {
     /** Fetch the current price for the requested Tibber resolution. */
     function getCurrentPrice(responseCallback, priceResolution) {
         if (!isSupportedResolution(priceResolution)) {
-            responseCallback.invoke("Ogiltig prisupplösning");
+            responseCallback.invoke(loadString(Rez.Strings.ErrorInvalidResolution));
             return;
         }
 
@@ -39,7 +40,7 @@ class TibberApiClient {
     /** Fetch the current price while bypassing cached values. */
     function refreshCurrentPrice(responseCallback, priceResolution) {
         if (!isSupportedResolution(priceResolution)) {
-            responseCallback.invoke("Ogiltig prisupplösning");
+            responseCallback.invoke(loadString(Rez.Strings.ErrorInvalidResolution));
             return;
         }
         requestCurrentPrice(responseCallback, priceResolution);
@@ -59,7 +60,7 @@ class TibberApiClient {
      */
     function getDailyPrices(responseCallback, priceResolution, includeTomorrow) {
         if (!isSupportedResolution(priceResolution)) {
-            responseCallback.invoke("Ogiltig prisupplösning");
+            responseCallback.invoke(loadString(Rez.Strings.ErrorInvalidResolution));
             return;
         }
 
@@ -75,7 +76,7 @@ class TibberApiClient {
     /** Fetch daily prices while bypassing cached values. */
     function refreshDailyPrices(responseCallback, priceResolution, includeTomorrow) {
         if (!isSupportedResolution(priceResolution)) {
-            responseCallback.invoke("Ogiltig prisupplösning");
+            responseCallback.invoke(loadString(Rez.Strings.ErrorInvalidResolution));
             return;
         }
         requestDailyPrices(responseCallback, priceResolution, includeTomorrow);
@@ -109,13 +110,13 @@ class TibberApiClient {
     /** Send one authenticated GraphQL request and remember its response context. */
     private function makeRequest(graphQlRequest, requestKind, priceResolution, includeTomorrow, responseCallback) {
         if (_responseCallback != null) {
-            responseCallback.invoke("En Tibber-förfrågan pågår redan");
+            responseCallback.invoke(loadString(Rez.Strings.ErrorRequestInProgress));
             return;
         }
 
         var accessToken = TibberSecrets.getApiToken();
         if (accessToken.length() == 0) {
-            responseCallback.invoke("Tibber-token saknas");
+            responseCallback.invoke(loadString(Rez.Strings.ErrorTokenMissing));
             return;
         }
 
@@ -148,7 +149,7 @@ class TibberApiClient {
             _requestType = null;
             _requestResolution = null;
             _requestIncludeTomorrow = false;
-            responseCallback.invoke("Kunde inte starta Tibber-förfrågan");
+            responseCallback.invoke(loadString(Rez.Strings.ErrorRequestStart));
         }
     }
 
@@ -195,18 +196,18 @@ class TibberApiClient {
                     }
                 }
             } else {
-                parsedResult = "Tibber returnerade ett ogiltigt svar";
+                parsedResult = loadString(Rez.Strings.ErrorInvalidResponse);
             }
         } else {
-            parsedResult = "Tibber HTTP-fel " + responseCode.toString();
+            parsedResult = loadString(Rez.Strings.ErrorHttpPrefix) + responseCode.toString();
             if (responseCode == 401) {
-                parsedResult = "Tibber avvisade API-token";
+                parsedResult = loadString(Rez.Strings.ErrorTokenRejected);
             } else if (responseCode == 403) {
-                parsedResult = "Åtkomst nekad. Kontrollera tokenens behörighet.";
+                parsedResult = loadString(Rez.Strings.ErrorAccessDenied);
             } else if (responseCode == 429) {
-                parsedResult = "Tibbers anropsgräns nåddes. Försök senare.";
+                parsedResult = loadString(Rez.Strings.ErrorRateLimited);
             } else if (responseCode < 0) {
-                parsedResult = "Ingen kontakt med Tibber. Kontrollera klockans anslutning.";
+                parsedResult = loadString(Rez.Strings.ErrorNoConnection);
             }
         }
 
@@ -221,10 +222,10 @@ class TibberApiClient {
             if (firstError instanceof Dictionary) {
                 var message = (firstError as Dictionary).get("message");
                 if (message instanceof String) {
-                    return "Tibber-förfrågan misslyckades";
+                    return loadString(Rez.Strings.ErrorRequestFailed);
                 }
             }
-            return "Tibber-förfrågan misslyckades";
+            return loadString(Rez.Strings.ErrorRequestFailed);
         }
         return null;
     }
@@ -234,37 +235,37 @@ class TibberApiClient {
         try {
             var responseBody = responseData.get("data");
             if (responseBody == null) {
-                return "Ingen data hämtades";
+                return loadString(Rez.Strings.ErrorNoData);
             }
 
             var viewerData = (responseBody as Dictionary).get("viewer");
             if (viewerData == null) {
-                return "Ogiltigt svarsformat";
+                return loadString(Rez.Strings.ErrorInvalidFormat);
             }
 
             var userHomes = (viewerData as Dictionary).get("homes");
             if (userHomes == null || !(userHomes instanceof Array) || (userHomes as Array).size() == 0) {
-                return "Inget Tibber-hem hittades";
+                return loadString(Rez.Strings.ErrorNoHome);
             }
 
             var selectedHome = (userHomes as Array)[0];
             if (!(selectedHome instanceof Dictionary)) {
-                return "Ogiltiga hemuppgifter";
+                return loadString(Rez.Strings.ErrorInvalidHome);
             }
 
             var subscription = (selectedHome as Dictionary).get("currentSubscription");
             if (subscription == null) {
-                return "Inget aktivt elavtal hittades";
+                return loadString(Rez.Strings.ErrorNoSubscription);
             }
 
             var priceInfo = (subscription as Dictionary).get("priceInfo");
             if (priceInfo == null) {
-                return "Prisdata saknas";
+                return loadString(Rez.Strings.ErrorPriceDataMissing);
             }
 
             var current = (priceInfo as Dictionary).get("current");
             if (current == null) {
-                return "Aktuellt pris saknas";
+                return loadString(Rez.Strings.ErrorCurrentPriceMissing);
             }
 
             var currentDict = current as Dictionary;
@@ -275,7 +276,7 @@ class TibberApiClient {
             var startsAt = currentDict.get("startsAt");
 
             if (total == null || energy == null) {
-                return "Ogiltiga prisuppgifter";
+                return loadString(Rez.Strings.ErrorInvalidPriceFields);
             }
 
             var price = total as Float;
@@ -299,11 +300,11 @@ class TibberApiClient {
             };
 
         } catch (ex) {
-            return "Ogiltigt prissvar från Tibber";
+            return loadString(Rez.Strings.ErrorInvalidPriceResponse);
         }
     }
 
-    /** Format a Tibber ISO timestamp as local HH:mm, falling back to watch time. */
+    /** Use the HH:mm clock fields from a Tibber ISO timestamp (not timezone-converted). */
     private function getCurrentTimeString(startsAt) {
         if (startsAt instanceof String && (startsAt as String).length() >= 16) {
             return (startsAt as String).substring(11, 16);
@@ -318,37 +319,37 @@ class TibberApiClient {
         try {
             var responseBody = responseData.get("data");
             if (responseBody == null) {
-                return "Ingen data hämtades";
+                return loadString(Rez.Strings.ErrorNoData);
             }
 
             var viewerData = (responseBody as Dictionary).get("viewer");
             if (viewerData == null) {
-                return "Ogiltigt svarsformat";
+                return loadString(Rez.Strings.ErrorInvalidFormat);
             }
 
             var userHomes = (viewerData as Dictionary).get("homes");
             if (userHomes == null || !(userHomes instanceof Array) || (userHomes as Array).size() == 0) {
-                return "Inget Tibber-hem hittades";
+                return loadString(Rez.Strings.ErrorNoHome);
             }
 
             var selectedHome = (userHomes as Array)[0];
             if (!(selectedHome instanceof Dictionary)) {
-                return "Ogiltiga hemuppgifter";
+                return loadString(Rez.Strings.ErrorInvalidHome);
             }
 
             var subscription = (selectedHome as Dictionary).get("currentSubscription");
             if (subscription == null) {
-                return "Inget aktivt elavtal hittades";
+                return loadString(Rez.Strings.ErrorNoSubscription);
             }
 
             var priceInfo = (subscription as Dictionary).get("priceInfo");
             if (priceInfo == null) {
-                return "Prisdata saknas";
+                return loadString(Rez.Strings.ErrorPriceDataMissing);
             }
 
             var todayPrices = (priceInfo as Dictionary).get("today");
             if (todayPrices == null || !(todayPrices instanceof Array)) {
-                return "Dagens priser saknas";
+                return loadString(Rez.Strings.ErrorTodayPricesMissing);
             }
 
             var currency = null;
@@ -378,7 +379,7 @@ class TibberApiClient {
             };
 
         } catch (ex) {
-            return "Kunde inte läsa dagspriser";
+            return loadString(Rez.Strings.ErrorDailyPrices);
         }
     }
 
@@ -424,7 +425,7 @@ class TibberApiClient {
         return 0;
     }
 
-    /** Extract local minutes since midnight from an ISO 8601 price timestamp. */
+    /** Extract HH:mm clock fields from an ISO 8601 timestamp (not timezone-converted). */
     private function getMinuteOfDay(startsAt) {
         if (!(startsAt instanceof String) || (startsAt as String).length() < 16) {
             return null;
@@ -444,5 +445,9 @@ class TibberApiClient {
         }
 
         return hourNumber * 60 + minuteNumber;
+    }
+
+    private function loadString(resource) {
+        return Application.loadResource(resource) as String;
     }
 }

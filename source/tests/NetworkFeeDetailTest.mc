@@ -2,6 +2,56 @@ import Toybox.Application.Storage;
 import Toybox.Time;
 
 (:test)
+class TibberFeeDetailLayoutTestDc {
+    var textBounds;
+    private var _size;
+
+    function initialize(size) { _size = size; }
+    function getWidth() { return _size; }
+    function getHeight() { return _size; }
+    function clear() { textBounds = []; }
+    function setColor(foreground, background) {}
+    function setPenWidth(width) {}
+    function fillCircle(centerX, centerY, radius) {}
+    function drawLine(startX, startY, endX, endY) {}
+    function getTextWidthInPixels(text, font) { return text.length() * font / 2; }
+    function getTextDimensions(text, font) { return [getTextWidthInPixels(text, font), font]; }
+    function drawText(centerX, centerY, font, text, justification) {
+        var textWidth = getTextWidthInPixels(text, font);
+        textBounds.add([centerX - textWidth / 2, centerY - font / 2, textWidth, font]);
+    }
+}
+
+(:test, :typecheck(false))
+function testNetworkFeeDetailTextLayout(logger) {
+    var profiles = [[208, 12, 18, 40], [280, 14, 22, 60], [454, 20, 30, 84]];
+    var options = [2, 3, 5];
+    for (var profileIndex = 0; profileIndex < profiles.size(); profileIndex += 1) {
+        var profile = profiles[profileIndex];
+        for (var optionIndex = 0; optionIndex < options.size(); optionIndex += 1) {
+            var view = new TibberNetworkFeeDetailView(options[optionIndex], profile[1], profile[2], profile[3]);
+            var dc = new TibberFeeDetailLayoutTestDc(profile[0]);
+            view.onUpdate(dc);
+            if (dc.textBounds.size() != 5) {
+                logger.debug("Fee detail did not draw all five text rows");
+                return false;
+            }
+            var previousBottom = 0;
+            for (var rowIndex = 0; rowIndex < dc.textBounds.size(); rowIndex += 1) {
+                var bounds = dc.textBounds[rowIndex];
+                if (bounds[0] < 0 || bounds[0] + bounds[2] > profile[0] ||
+                    bounds[1] < previousBottom || bounds[1] + bounds[3] > profile[0]) {
+                    logger.debug("Fee detail text overlaps or exceeds screen bounds");
+                    return false;
+                }
+                previousBottom = bounds[1] + bounds[3];
+            }
+        }
+    }
+    return true;
+}
+
+(:test)
 function testNetworkFeeButtonAdjustments(logger) {
     var passed = true;
     var options = [2, 3, 5];
@@ -77,8 +127,8 @@ function testCurrentPriceNetworkFees(logger) {
 (:test)
 function testCachedQuarterHourNetworkFees(logger) {
     var keys = ["tibber_network_fees_enabled", "tibber_network_fixed_ore", "tibber_network_variable_percent", "tibber_energy_tax_ore"];
-    var prefixes = ["pd3qd", "pc3q"];
-    var suffixes = ["r", "d", "i", "s", "m", "c", "t", "n", "p", "e"];
+    var prefixes = ["pd5qd", "pc5q"];
+    var suffixes = ["r", "d", "i", "s", "m", "c", "t", "n", "p", "e", "l"];
     for (var prefixIndex = 0; prefixIndex < prefixes.size(); prefixIndex += 1) {
         for (var suffixIndex = 0; suffixIndex < suffixes.size(); suffixIndex += 1) {
             keys.add(prefixes[prefixIndex] + suffixes[suffixIndex]);

@@ -4,9 +4,19 @@ import Toybox.Time;
 
 class TibberPriceCache {
     private const STANDARD_ENERGY_TAX_ORE = 45.0;
+    private const STANDARD_FIXED_FEE_ORE = 20.0;
+    private const STANDARD_VARIABLE_PERCENT = 5.0;
 
     function getEnergyTax() {
         return getStoredFee("tibber_energy_tax_ore", STANDARD_ENERGY_TAX_ORE);
+    }
+
+    function getFixedNetworkFee() {
+        return getStoredFee("tibber_network_fixed_ore", STANDARD_FIXED_FEE_ORE);
+    }
+
+    function getVariableNetworkFee() {
+        return getStoredFee("tibber_network_variable_percent", STANDARD_VARIABLE_PERCENT);
     }
 
     function getPriceWithNetworkFees(tibberTotal, spotAverageExcludingVat) {
@@ -14,14 +24,16 @@ class TibberPriceCache {
     }
 
     function getDisplayPrice(priceData, priceType) {
-        var priceKey = priceType.equals("SPOT") ? "current_spot_price" : "current_price";
-        var priceText = priceData.get(priceKey);
-        if (!(priceText instanceof String) || !priceType.equals("TOTAL")) {
+        if (!(priceType instanceof String) || !(priceType as String).equals("TOTAL")) {
+            return priceData.get("current_spot_price");
+        }
+
+        var priceText = priceData.get("current_price");
+        if (!(priceText instanceof String)) {
             return priceText;
         }
 
-        var valueKey = priceType.equals("SPOT") ? "current_spot_value" : "current_price_value";
-        var price = priceData.get(valueKey);
+        var price = priceData.get("current_price_value");
         if (!(price instanceof Number || price instanceof Float)) {
             price = priceText.toFloat();
         }
@@ -40,8 +52,8 @@ class TibberPriceCache {
     }
 
     function getNetworkFee(spotAverageExcludingVat) {
-        var fixedFee = getStoredFee("tibber_network_fixed_ore", 20.0);
-        var variablePercent = getStoredFee("tibber_network_variable_percent", 5.0);
+        var fixedFee = getFixedNetworkFee();
+        var variablePercent = getVariableNetworkFee();
         var spotIncludingVat = spotAverageExcludingVat * 1.25;
         return fixedFee + spotIncludingVat * variablePercent / 100 + getEnergyTax();
     }
@@ -336,6 +348,27 @@ class TibberPriceCache {
     private function getCurrentMinuteOfDay() {
         var timeInfo = Time.Gregorian.info(Time.now(), Time.FORMAT_SHORT);
         return timeInfo.hour * 60 + timeInfo.min;
+    }
+
+    function formatIntervalRange(startTime, intervalMinutes) {
+        if (!(startTime instanceof String) || intervalMinutes == null || (startTime as String).length() < 5) {
+            return null;
+        }
+
+        var startHour = (startTime as String).substring(0, 2).toNumber();
+        var startMinute = (startTime as String).substring(3, 5).toNumber();
+        if (startHour == null || startMinute == null) {
+            return null;
+        }
+
+        return formatMinuteOfDay(startHour * 60 + startMinute) + "-" +
+            formatMinuteOfDay((startHour * 60 + startMinute + intervalMinutes) % 1440);
+    }
+
+    function formatMinuteRange(startMinute, durationMinutes) {
+        var intervalStartMinute = startMinute % 1440;
+        return formatMinuteOfDay(intervalStartMinute) + "-" +
+            formatMinuteOfDay((intervalStartMinute + durationMinutes) % 1440);
     }
 
     private function formatMinuteOfDay(minuteOfDay) {

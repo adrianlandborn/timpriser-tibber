@@ -1,4 +1,6 @@
+import Toybox.Application;
 import Toybox.Graphics;
+import Toybox.Lang;
 import Toybox.Math;
 import Toybox.Time;
 
@@ -49,6 +51,7 @@ class TibberPriceChart {
     private var _poppinsSmallFont;
     private var _poppinsMediumFont;
     private var _levelColors;
+    private var _priceCache;
 
     /**
      * Use font resources supplied by the parent graph view.
@@ -60,7 +63,8 @@ class TibberPriceChart {
         _poppinsTinyFont = poppinsTinyFont;
         _poppinsSmallFont = poppinsSmallFont;
         _poppinsMediumFont = poppinsMediumFont;
-        _levelColors = new HourLevelBar();
+        _levelColors = new TibberHourLevelBar();
+        _priceCache = new TibberPriceCache();
     }
 
     /**
@@ -335,7 +339,7 @@ class TibberPriceChart {
             return;
         }
 
-        var priceUnit = currency.equals("SEK") ? "öre" : currency;
+        var priceUnit = currency.equals("SEK") ? Application.loadResource(Rez.Strings.PriceUnitOre) as String : currency;
         var priceFont = selectFooterPriceFont(deviceContext, formattedPrice, priceUnit);
         var unitFont = _poppinsTinyFont;
         var priceWidth = deviceContext.getTextWidthInPixels(formattedPrice, priceFont);
@@ -400,18 +404,7 @@ class TibberPriceChart {
      * @return Start and end time joined by a hyphen, without a date.
      */
     private function formatIntervalRange(startMinute, durationMinutes) {
-        var intervalStartMinute = startMinute % MINUTES_PER_DAY;
-        var intervalEndMinute = (intervalStartMinute + durationMinutes) % MINUTES_PER_DAY;
-        return formatTime(intervalStartMinute) + "-" + formatTime(intervalEndMinute);
-    }
-
-    /**
-     * Format an already day-normalized minute value as a zero-padded time.
-     * @param minuteOfDay Whole minute in the range 0 through 1439.
-     * @return Time in HH:mm format.
-     */
-    private function formatTime(minuteOfDay) {
-        return (minuteOfDay / MINUTES_PER_HOUR).format("%02d") + ":" + (minuteOfDay % MINUTES_PER_HOUR).format("%02d");
+        return _priceCache.formatMinuteRange(startMinute, durationMinutes);
     }
 
     /**

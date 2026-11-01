@@ -54,11 +54,11 @@ class TibberPriceGraphView extends WatchUi.View {
         var displayWidth = deviceContext.getWidth();
         var displayHeight = deviceContext.getHeight();
         if (_isLoading) {
-            drawCenteredText(deviceContext, displayWidth, displayHeight, "Laddar priser...");
+            drawCenteredText(deviceContext, displayWidth, displayHeight, str(Rez.Strings.LoadingPrices));
         } else if (_errorMessage != null) {
             drawCenteredText(deviceContext, displayWidth, displayHeight, _errorMessage);
         } else if (_priceIntervals == null || _priceIntervals.size() == 0) {
-            drawCenteredText(deviceContext, displayWidth, displayHeight, "Priser saknas");
+            drawCenteredText(deviceContext, displayWidth, displayHeight, str(Rez.Strings.PricesMissing));
         } else {
             _chart.draw(deviceContext, _priceIntervals, _chartSpanMinutes, _intervalDurationMinutes, _currency, getPageTitle(), getPageNote());
         }
@@ -68,11 +68,11 @@ class TibberPriceGraphView extends WatchUi.View {
     function getPageTitle() {
         var title;
         if (_selectedPage == 0) {
-            title = "IDAG | 15 MIN";
+            title = str(Rez.Strings.GraphTitleQuarterHour);
         } else if (_hasTomorrowPrices) {
-            title = "2 DAGAR | TIMPRIS";
+            title = str(Rez.Strings.GraphTitleTwoDayHourly);
         } else {
-            title = "IDAG | TIMPRIS";
+            title = str(Rez.Strings.GraphTitleTodayHourly);
         }
         return title;
     }
@@ -80,7 +80,7 @@ class TibberPriceGraphView extends WatchUi.View {
     /** Return a note when hourly tomorrow prices have not been published. */
     function getPageNote() {
         if (_selectedPage == 1 && !_hasTomorrowPrices) {
-            return "Imorgon saknas";
+            return str(Rez.Strings.TomorrowMissing);
         }
         return null;
     }
@@ -125,7 +125,14 @@ class TibberPriceGraphView extends WatchUi.View {
                         var displayPrice = (sourceInterval as Array)[selectedPriceIndex] as Float;
                         if (includeNetworkFees) {
                             var hourBucket = plotMinute / 60;
-                            var spotAverage = (hourlySpotTotals as Array)[hourBucket] / (hourlySpotCounts as Array)[hourBucket];
+                            if (hourBucket < 0 || hourBucket >= (hourlySpotCounts as Array).size()) {
+                                continue;
+                            }
+                            var spotCount = (hourlySpotCounts as Array)[hourBucket];
+                            if (spotCount == 0) {
+                                continue;
+                            }
+                            var spotAverage = (hourlySpotTotals as Array)[hourBucket] / spotCount;
                             displayPrice = priceCalculator.getPriceWithNetworkFees(displayPrice, spotAverage);
                         }
                         var levelCode = (sourceInterval as Array).size() > 3 ? (sourceInterval as Array)[3] : 0;
@@ -139,14 +146,14 @@ class TibberPriceGraphView extends WatchUi.View {
                 _errorMessage = null;
             } else {
                 _priceIntervals = null;
-                _errorMessage = "Ogiltiga prisdata";
+                _errorMessage = str(Rez.Strings.InvalidPriceData);
             }
         } else if (apiResponse instanceof String) {
             _priceIntervals = null;
             _errorMessage = apiResponse as String;
         } else {
             _priceIntervals = null;
-            _errorMessage = "Kunde inte läsa priser";
+            _errorMessage = str(Rez.Strings.CouldNotReadPrices);
         }
         WatchUi.requestUpdate();
     }
@@ -213,5 +220,9 @@ class TibberPriceGraphView extends WatchUi.View {
             message = message.substring(0, message.length() - 1);
         }
         deviceContext.drawText(displayWidth / 2, displayHeight / 2, selectedFont, message, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+    }
+
+    private function str(resource) {
+        return WatchUi.loadResource(resource) as String;
     }
 }

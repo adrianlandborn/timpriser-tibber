@@ -7,6 +7,7 @@ class TibberNetworkFeeDetailView extends WatchUi.View {
     private const BUTTON_RADIUS = 20;
     private const BUTTON_LEFT_INSET = 28;
     private var _feeOption;
+    private var _priceCache;
     private var _fontCaption;
     private var _fontBody;
     private var _fontDisplay;
@@ -18,6 +19,7 @@ class TibberNetworkFeeDetailView extends WatchUi.View {
     function initialize(feeOption, captionFont, bodyFont, displayFont) {
         View.initialize();
         _feeOption = feeOption;
+        _priceCache = new TibberPriceCache();
         _fontCaption = captionFont;
         _fontBody = bodyFont;
         _fontDisplay = displayFont;
@@ -31,19 +33,19 @@ class TibberNetworkFeeDetailView extends WatchUi.View {
 
         var isFixedFee = _feeOption == 2;
         var isEnergyTax = _feeOption == 5;
-        var title = isEnergyTax ? "Energiskatt" : (isFixedFee ? "Fast nätavgift" : "Rörlig nätavgift");
-        drawCentered(dc, width, 28, title, _fontBody, Theme.TEXT_PRIMARY);
+        var title = isEnergyTax ? str(Rez.Strings.EnergyTax) : (isFixedFee ? str(Rez.Strings.FixedNetworkFee) : str(Rez.Strings.VariableNetworkFee));
+        var caption1 = isEnergyTax ? str(Rez.Strings.EnergyTaxCaption1) : (isFixedFee ? str(Rez.Strings.FixedFeeCaption1) : str(Rez.Strings.VariableFeeCaption1));
+        var caption2 = isEnergyTax ? str(Rez.Strings.EnergyTaxCaption2) : (isFixedFee ? str(Rez.Strings.FixedFeeCaption2) : str(Rez.Strings.VariableFeeCaption2));
 
-        if (isEnergyTax) {
-            drawCentered(dc, width, 58, "Statlig skatt per kWh", _fontCaption, Theme.TEXT_SECONDARY);
-            drawCentered(dc, width, 73, "Inklusive 25% moms", _fontCaption, Theme.TEXT_SECONDARY);
-        } else if (isFixedFee) {
-            drawCentered(dc, width, 58, "Fast avgift från nätägaren", _fontCaption, Theme.TEXT_SECONDARY);
-            drawCentered(dc, width, 73, "Inklusive moms per kWh", _fontCaption, Theme.TEXT_SECONDARY);
-        } else {
-            drawCentered(dc, width, 58, "Timmens snittspotpris", _fontCaption, Theme.TEXT_SECONDARY);
-            drawCentered(dc, width, 73, "inklusive moms", _fontCaption, Theme.TEXT_SECONDARY);
-        }
+        var titleHeight = dc.getTextDimensions(title, _fontBody)[1];
+        var captionHeight = dc.getTextDimensions(caption1, _fontCaption)[1];
+        var topInset = height / 12;
+        var titleY = topInset + titleHeight / 2;
+        var caption1Y = titleY + titleHeight / 2 + captionHeight / 2 + captionHeight / 4;
+        var caption2Y = caption1Y + captionHeight;
+        drawCentered(dc, width, titleY, title, _fontBody, Theme.TEXT_PRIMARY);
+        drawCentered(dc, width, caption1Y, caption1, _fontCaption, Theme.TEXT_SECONDARY);
+        drawCentered(dc, width, caption2Y, caption2, _fontCaption, Theme.TEXT_SECONDARY);
 
         var numericValue = getFeeValue();
         var valueText = numericValue.format("%.0f");
@@ -52,8 +54,9 @@ class TibberNetworkFeeDetailView extends WatchUi.View {
         dc.setColor(Theme.TEXT_PRIMARY, Theme.BACKGROUND);
         dc.drawText(width / 2, valueCenterY, displayFont, valueText, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
-        var unit = isFixedFee || isEnergyTax ? "öre/kWh" : "%";
-        drawCentered(dc, width, valueCenterY + dc.getTextDimensions(valueText, displayFont)[1] / 2 + 12, unit, _fontCaption, Theme.TEXT_SECONDARY);
+        var unit = isFixedFee || isEnergyTax ? str(Rez.Strings.PriceUnitOrePerKwh) : str(Rez.Strings.PercentUnit);
+        var valueHeight = dc.getTextDimensions(valueText, displayFont)[1];
+        drawCentered(dc, width, valueCenterY + valueHeight / 2 + captionHeight / 2, unit, _fontCaption, Theme.TEXT_SECONDARY);
 
         _plusCenterX = BUTTON_LEFT_INSET;
         _plusCenterY = height / 2;
@@ -97,10 +100,13 @@ class TibberNetworkFeeDetailView extends WatchUi.View {
     }
 
     private function getFeeValue() {
-        var key = _feeOption == 5 ? "tibber_energy_tax_ore" : (_feeOption == 2 ? "tibber_network_fixed_ore" : "tibber_network_variable_percent");
-        var defaultValue = _feeOption == 5 ? 45.0 : (_feeOption == 2 ? 20.0 : 5.0);
-        var value = Storage.getValue(key);
-        return (value instanceof Number || value instanceof Float) ? value : defaultValue;
+        if (_feeOption == 5) {
+            return _priceCache.getEnergyTax();
+        }
+        if (_feeOption == 2) {
+            return _priceCache.getFixedNetworkFee();
+        }
+        return _priceCache.getVariableNetworkFee();
     }
 
     private function fitDisplayFont(dc, text, availableWidth) {
@@ -125,6 +131,10 @@ class TibberNetworkFeeDetailView extends WatchUi.View {
             dc.drawLine(centerX, centerY - 8, centerX, centerY + 8);
         }
         dc.setPenWidth(1);
+    }
+
+    private function str(resource) {
+        return WatchUi.loadResource(resource) as String;
     }
 
 }

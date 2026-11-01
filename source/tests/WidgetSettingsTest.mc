@@ -34,7 +34,7 @@ class SettingsScrollTestDc {
     function fillRectangle(left, top, width, height) {}
     function fillCircle(centerX, centerY, radius) {}
     function drawText(left, top, font, text, justification) {
-        if (text.equals("Nätavgifter (beta)")) {
+        if (text.equals("Nätavgifter")) {
             networkLabelColor = _foreground;
         } else if (text.equals("Energiskatt")) {
             energyTaxLabelColor = _foreground;

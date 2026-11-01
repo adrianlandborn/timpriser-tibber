@@ -1,5 +1,7 @@
 {
     "chat.tools.terminal.autoApprove": {
-        "printf": true
+        "printf": true,
+        "scripts/test.sh": true,
+        "scripts/check.sh": true
     }
 }

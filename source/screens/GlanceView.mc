@@ -17,7 +17,7 @@ class TibberGlanceView extends WatchUi.GlanceView {
         GlanceView.initialize();
         _priceCache = new TibberPriceCache();
         _priceData = null;
-        _hourBar = new HourLevelBar();
+        _hourBar = new TibberHourLevelBar();
         _microFont = WatchUi.loadResource(Rez.Fonts.PoppinsMicro) as WatchUi.FontResource;
         _tinyFont = WatchUi.loadResource(Rez.Fonts.PoppinsTiny) as WatchUi.FontResource;
         _smallFont = WatchUi.loadResource(Rez.Fonts.PoppinsSmall) as WatchUi.FontResource;
@@ -35,7 +35,6 @@ class TibberGlanceView extends WatchUi.GlanceView {
         var currentPriceData = _priceCache.getCurrentPrice(priceResolution);
         if (currentPriceData instanceof Dictionary) {
             _priceData = currentPriceData;
-            storeGlancePriceData(currentPriceData as Dictionary);
         } else {
             _priceData = null;
         }
@@ -51,7 +50,7 @@ class TibberGlanceView extends WatchUi.GlanceView {
         var textX = 12;
         var availableWidth = width - textX - 12;
         var metadataLine = "";
-        var priceLine = "Öppna Tibber";
+        var priceLine = str(Rez.Strings.OpenTibber);
         var selectedPriceFont = _largeFont;
         var rowSpacing = 2;
         var priceType = Storage.getValue("tibber_price_type");
@@ -63,11 +62,12 @@ class TibberGlanceView extends WatchUi.GlanceView {
             var price = _priceCache.getDisplayPrice(_priceData, priceType);
             var currency = _priceData.get("currency");
             if (price instanceof String) {
-                var unit = currency != null && !currency.equals("SEK") ? currency : "öre";
+                var unit = currency != null && !currency.equals("SEK") ? currency : str(Rez.Strings.PriceUnitOre);
                 priceLine = (price as String) + " " + unit;
                 var startTime = _priceData.get("current_time");
                 var intervalMinutes = _priceData.get("interval_minutes");
-                metadataLine = formatIntervalRange(startTime, intervalMinutes);
+                var intervalRange = _priceCache.formatIntervalRange(startTime, intervalMinutes);
+                metadataLine = intervalRange instanceof String ? intervalRange as String : "";
             }
         }
 
@@ -109,16 +109,6 @@ class TibberGlanceView extends WatchUi.GlanceView {
         }
     }
 
-    private function drawRow(dc, x, top, text, font, rowHeight) {
-        dc.drawText(
-            x,
-            top + rowHeight / 2,
-            font,
-            text,
-            Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER
-        );
-    }
-
     private function fitPriceFont(dc, text, availableWidth, availableHeight) {
         var largeHeight = dc.getTextDimensions(text, _largeFont)[1];
         if (dc.getTextWidthInPixels(text, _largeFont) <= availableWidth && largeHeight <= availableHeight) {
@@ -149,32 +139,7 @@ class TibberGlanceView extends WatchUi.GlanceView {
         return shortened.length() > 3 ? shortened + "..." : shortened;
     }
 
-    private function formatIntervalRange(startTime, intervalMinutes) {
-        if (!(startTime instanceof String) || intervalMinutes == null || startTime.length() < 5) {
-            return "";
-        }
-
-        var startHour = startTime.substring(0, 2).toNumber();
-        var startMinute = startTime.substring(3, 5).toNumber();
-        if (startHour == null || startMinute == null) {
-            return "";
-        }
-
-        var endMinuteOfDay = (startHour * 60 + startMinute + intervalMinutes) % 1440;
-        var endTime = (endMinuteOfDay / 60).format("%02d") + ":" + (endMinuteOfDay % 60).format("%02d");
-        return startTime.substring(0, 5) + "-" + endTime;
-    }
-
-    private function storeGlancePriceData(priceData as Dictionary) {
-        try {
-            Storage.setValue("tibber_glance_ready", false);
-            Storage.setValue("tibber_glance_price", priceData.get("current_price"));
-            Storage.setValue("tibber_glance_spot_price", priceData.get("current_spot_price"));
-            Storage.setValue("tibber_glance_currency", priceData.get("currency"));
-            Storage.setValue("tibber_glance_time", priceData.get("current_time"));
-            Storage.setValue("tibber_glance_interval", priceData.get("interval_minutes"));
-            Storage.setValue("tibber_glance_ready", true);
-        } catch (ex) {
-        }
+    private function str(resource) {
+        return WatchUi.loadResource(resource) as String;
     }
 }

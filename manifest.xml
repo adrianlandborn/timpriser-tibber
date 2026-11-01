@@ -38,7 +38,7 @@
             <iq:uses-permission id="Communications"/>
         </iq:permissions>
         <iq:languages>
-            <iq:language>eng</iq:language>
+            <iq:language>swe</iq:language>
         </iq:languages>
         <iq:barrels/>
     </iq:application>

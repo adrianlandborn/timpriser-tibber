@@ -1,7 +1,7 @@
 import Toybox.Graphics;
 import Toybox.Lang;
 
-class Toggle {
+class TibberToggle {
     private const LABEL_X = Theme.SPACE_LABEL_X;
     private const LABEL_GAP = 8;
     private const RIGHT_INSET = Theme.SPACE_SIDE_INSET;

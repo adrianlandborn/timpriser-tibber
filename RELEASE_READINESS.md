@@ -30,8 +30,8 @@ Garmin Connect IQ settings are appropriate for non-secret preferences such as pr
 
 ## P1: Product and Reliability Checks
 
-- [ ] **Manifest and language:** decide the release language set and align `manifest.xml`, localized strings, UI copy, and store metadata. The current manifest declares English while much of the interface is Swedish.
-- [ ] **Device support:** confirm each product in `manifest.xml` against installed SDK device packs and actual runtime behavior. Current declared products are Fenix 6/7 variants, Venu, Forerunner 55, and Vivoactive 4.
+- [ ] **Manifest and language:** keep `manifest.xml`, `resources/strings/strings.xml`, on-watch copy, and store metadata aligned. The manifest language is Swedish (`swe`); UI strings live in `strings.xml`.
+- [ ] **Device support:** confirm each product in `manifest.xml` against installed SDK device packs and actual runtime behavior. Current declared products include Fenix 6/7/8/9 variants, Venu, Forerunner 55, and Vivoactive 4/5/6.
 - [ ] **Small-device layout:** visually verify every screen and glance on FR55 and Fenix 7S as well as Fenix 7X Pro. Check clipping, scroll selection, switch/segment focus, chart labels, and cache/error states.
 - [ ] **Input/navigation:** verify UP/DOWN cycles among main widget and graph pages as documented; START/STOP refreshes the active screen; BACK returns/exits; touch actions match the same behavior where supported.
 - [ ] **Price correctness:** verify total vs spot selection, currency conversion (including SEK to öre), tax/moms and network-fee labels, quarter-hour/hourly intervals, and chart footer/legend match the selected mode.

@@ -54,8 +54,6 @@ WARNING: fenix7xpro: source/screens/PriceGraphView.mc: Cannot determine if conta
 WARNING: fenix7xpro: source/screens/PriceGraphView.mc: Cannot determine if container assignment is using container type.
 WARNING: fenix7xpro: source/screens/WidgetSettingsView.mc: Cannot determine if container access is using container type.
 WARNING: fenix7xpro: source/screens/WidgetSettingsView.mc: Cannot determine if container access is using container type.
-WARNING: fenix7xpro: source/screens/WidgetSettingsView.mc: Member variable 'FEE_LABEL_X' is not used.
-WARNING: fenix7xpro: source/screens/WidgetSettingsView.mc: Member variable 'FEE_VALUE_RIGHT_INSET' is not used.
 WARNING: fenix7xpro: source/screens/WidgetView.mc: Cannot determine if container access is using container type.
 WARNING: fenix7xpro: source/screens/WidgetView.mc: Cannot determine if container access is using container type.
 WARNING: fenix7xpro: source/screens/WidgetView.mc: Cannot determine if container access is using container type.

@@ -8,6 +8,7 @@ class TibberWidgetView extends WatchUi.View {
     var _isPriceLoading;
     var _priceErrorMessage;
     var _priceApiClient;
+    var _priceCache;
     var _currentPriceResolution;
     var _currentPriceType;
     var _poppinsTinyFont;
@@ -21,11 +22,12 @@ class TibberWidgetView extends WatchUi.View {
     /** Initialize the price screen and its API client. */
     function initialize() {
         View.initialize();
-        _hourBar = new HourLevelBar();
+        _hourBar = new TibberHourLevelBar();
         _currentPriceData = null;
         _isPriceLoading = false;
         _priceErrorMessage = null;
         _priceApiClient = new TibberApiClient();
+        _priceCache = new TibberPriceCache();
         _currentPriceResolution = Storage.getValue("tibber_price_resolution");
         if (!(_currentPriceResolution instanceof String) ||
             (!_currentPriceResolution.equals("HOURLY") && !_currentPriceResolution.equals("QUARTER_HOURLY"))) {
@@ -76,31 +78,30 @@ class TibberWidgetView extends WatchUi.View {
     /** Draw the waiting state while the Tibber request is in flight. */
     function drawLoadingScreen(dc, width, height) {
         drawTextStack(dc, width, height, [
-            ["Laddar...", _poppinsSmallFont],
-            ["Tibber elpris", _poppinsTinyFont]
+            [str(Rez.Strings.Loading), _poppinsSmallFont],
+            [str(Rez.Strings.AppSubtitle), _poppinsTinyFont]
         ], null);
     }
 
     /** Draw an API or parsing error for the current-price request. */
     function drawErrorScreen(dc, width, height) {
         drawTextStack(dc, width, height, [
-            ["Fel", _poppinsSmallFont],
+            [str(Rez.Strings.ErrorTitle), _poppinsSmallFont],
             [_priceErrorMessage, _poppinsTinyFont],
-            ["Tibber elpris", _poppinsTinyFont]
+            [str(Rez.Strings.AppSubtitle), _poppinsTinyFont]
         ], null);
     }
 
     /** Draw the current price, currency, timestamp, and selected resolution. */
     function drawCurrentPriceScreen(dc, width, height) {
         if (_currentPriceData != null) {
-            var priceCache = new TibberPriceCache();
-            var currentPriceText = priceCache.getDisplayPrice(_currentPriceData, _currentPriceType);
+            var currentPriceText = _priceCache.getDisplayPrice(_currentPriceData, _currentPriceType);
             var currentIntervalTime = _currentPriceData.get("current_time");
             var currentIntervalMinutes = _currentPriceData.get("interval_minutes");
 
             if (currentPriceText != null) {
                 var currency = _currentPriceData.get("currency");
-                var priceUnit = "öre";
+                var priceUnit = str(Rez.Strings.PriceUnitOre);
                 if (currency != null && !currency.equals("SEK")) {
                     priceUnit = currency;
                 }
@@ -108,8 +109,8 @@ class TibberWidgetView extends WatchUi.View {
                 var priceRows = [
                     [currentPriceText + " " + priceUnit, _poppinsPriceFont]
                 ];
-                priceRows.add([_currentPriceType.equals("SPOT") ? "Spotpris" : "Totalpris", _poppinsTinyFont, Theme.TEXT_SECONDARY, null, -4]);
-                var currentIntervalRange = formatIntervalRange(currentIntervalTime, currentIntervalMinutes);
+                priceRows.add([_currentPriceType.equals("SPOT") ? str(Rez.Strings.SpotPrice) : str(Rez.Strings.TotalPrice), _poppinsTinyFont, Theme.TEXT_SECONDARY, null, -4]);
+                var currentIntervalRange = _priceCache.formatIntervalRange(currentIntervalTime, currentIntervalMinutes);
                 if (currentIntervalRange != null) {
                     priceRows.add([currentIntervalRange, _poppinsSmallFont, Theme.TEXT_PRIMARY, null, 8]);
                 }
@@ -119,35 +120,23 @@ class TibberWidgetView extends WatchUi.View {
                 }
                 var tradingTaxesIncluded = _currentPriceType.equals("TOTAL");
                 var networkFeesIncluded = tradingTaxesIncluded && Storage.getValue("tibber_network_fees_enabled") == true;
-                priceRows.add([(tradingTaxesIncluded ? "Skatter inkl." : "Skatter exkl.") + " | " + (networkFeesIncluded ? "Nät inkl." : "Nät exkl."), _poppinsTinyFont, Theme.TEXT_SECONDARY, null, 12]);
+                priceRows.add([
+                    (tradingTaxesIncluded ? str(Rez.Strings.TaxesIncluded) : str(Rez.Strings.TaxesExcluded)) +
+                    str(Rez.Strings.StatusSeparator) +
+                    (networkFeesIncluded ? str(Rez.Strings.NetworkIncluded) : str(Rez.Strings.NetworkExcluded)),
+                    _poppinsTinyFont, Theme.TEXT_SECONDARY, null, 12
+                ]);
                 drawTextStack(dc, width, height, priceRows, _widgetLogo);
             } else {
                 drawTextStack(dc, width, height, [
-                    ["Prisdata saknas", _poppinsSmallFont]
+                    [str(Rez.Strings.PriceDataMissing), _poppinsSmallFont]
                 ], null);
             }
         } else {
             drawTextStack(dc, width, height, [
-                ["Laddar...", _poppinsTinyFont]
+                [str(Rez.Strings.Loading), _poppinsTinyFont]
             ], _widgetLogo);
         }
-    }
-
-    /** Format an interval start and duration as an HH:mm-HH:mm range. */
-    function formatIntervalRange(startTime, intervalMinutes) {
-        if (!(startTime instanceof String) || intervalMinutes == null || startTime.length() < 5) {
-            return null;
-        }
-
-        var startHour = startTime.substring(0, 2).toNumber();
-        var startMinute = startTime.substring(3, 5).toNumber();
-        if (startHour == null || startMinute == null) {
-            return null;
-        }
-
-        var endMinuteOfDay = (startHour * 60 + startMinute + intervalMinutes) % 1440;
-        var endTime = (endMinuteOfDay / 60).format("%02d") + ":" + (endMinuteOfDay % 60).format("%02d");
-        return startTime.substring(0, 5) + "-" + endTime;
     }
 
     /** Spacing above a row: optional 5th element of the row, otherwise the default. */
@@ -335,31 +324,19 @@ class TibberWidgetView extends WatchUi.View {
         if (responseData instanceof Dictionary) {
             _currentPriceData = responseData;
             _priceErrorMessage = null;
-            cacheGlancePrice(responseData);
         } else if (responseData instanceof String) {
             _priceErrorMessage = responseData;
             _currentPriceData = null;
         } else {
-            _priceErrorMessage = "Okänt fel";
+            _priceErrorMessage = str(Rez.Strings.ErrorUnknown);
             _currentPriceData = null;
         }
 
         WatchUi.requestUpdate();
     }
 
-    /** Persist the small price fields used by the glance preview. */
-    private function cacheGlancePrice(priceData) {
-        try {
-            Storage.setValue("tibber_glance_ready", false);
-            Storage.setValue("tibber_glance_price", priceData.get("current_price"));
-            Storage.setValue("tibber_glance_spot_price", priceData.get("current_spot_price"));
-            Storage.setValue("tibber_glance_currency", priceData.get("currency"));
-            Storage.setValue("tibber_glance_time", priceData.get("current_time"));
-            Storage.setValue("tibber_glance_interval", priceData.get("interval_minutes"));
-            Storage.setValue("tibber_glance_price_type", _currentPriceType);
-            Storage.setValue("tibber_glance_ready", true);
-        } catch (ex) {
-        }
+    private function str(resource) {
+        return WatchUi.loadResource(resource) as String;
     }
 
 }
