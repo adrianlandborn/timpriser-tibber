@@ -30,7 +30,7 @@ Always use these scripts. They locate the SDK/Java/signing key, keep full logs i
 - Monkey C with `import Toybox.*`; classes prefixed `Tibber` (e.g. `TibberPriceCache`); `Application.Storage` keys prefixed `tibber_`.
 - Minimum API 3.2.0 and devices down to `fr55`/`vivoactive4`: check `has`/API level before newer APIs, keep allocations small, avoid large dictionaries/arrays.
 - Colors in `Theme`; chart geometry constants at the top of `PriceChart`. No hard-coded per-device pixel values — derive from `dc` size and font heights.
-- User-visible text goes in `resources/strings/strings.xml` (Swedish UI).
+- User-visible text goes in `resources/strings/strings.xml` (Swedish, default) and `resources-eng/strings/strings.xml` (English). Both files must define the same IDs (enforced by lint).
 - Tests: top-level `(:test) function testXxx(logger)`; fakes are `(:test)` classes. Tests must restore any `Storage` values they change and never call the network.
 - Keep changes surgical; update [README.md](README.md) when behavior, controls, devices, or pricing math change.
 
@@ -48,6 +48,7 @@ Located in [.agents/skills/](.agents/skills/). Load the matching one instead of 
 - `connectiq-build-test` — build/test failures, simulator issues, baselines, device matrix
 - `pricing-change` — anything touching prices, VAT, network fees, energy tax, cache
 - `ui-layout-change` — screens, charts, fonts, layout on round/small/large displays
+- `localization` — adding/changing translated strings or languages (use a cheap model)
 - `add-device-target` — adding or removing products in `manifest.xml`
 
 ## Definition of done

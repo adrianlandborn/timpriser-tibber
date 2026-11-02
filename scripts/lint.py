@@ -4,6 +4,7 @@
 Usage: python3 scripts/lint.py [--staged]
 
 - XML well-formedness for the manifest and resource XML files
+- Every language's strings.xml defines the same string IDs
 - Syntax of shell and Python helper scripts
 - Secret scan: forbidden paths, private keys, and token-like literals.
   --staged scans the git index (pre-commit); default scans tracked and
@@ -85,6 +86,23 @@ def xml_check():
     return errors
 
 
+def strings_check():
+    ids = {}
+    for path in ROOT.glob("resources*/strings/strings.xml"):
+        try:
+            ids[path.parent.parent.name] = {e.get("id") for e in ET.parse(path).getroot().iter("string")}
+        except ET.ParseError:
+            return []  # reported by xml_check
+    errors = []
+    base = ids.get("resources", set())
+    for name, found in sorted(ids.items()):
+        for missing in sorted(base - found):
+            errors.append(f"{name}/strings/strings.xml: missing string id '{missing}'")
+        for extra in sorted(found - base):
+            errors.append(f"{name}/strings/strings.xml: id '{extra}' not in resources/strings/strings.xml")
+    return errors
+
+
 def script_check():
     errors = []
     shell = list((ROOT / "scripts").glob("*.sh")) + list((ROOT / ".agents/scripts").glob("*.sh"))
@@ -105,13 +123,16 @@ def script_check():
 
 def main():
     staged = "--staged" in sys.argv[1:]
-    errors = secret_scan(staged) + xml_check() + script_check()
+    errors = secret_scan(staged) + xml_check() + strings_check() + script_check()
     if errors:
         print(f"FAIL lint — {len(errors)} problem(s):")
         for err in errors[:40]:
             print(f"  - {err}")
         return 1
-    print("OK   lint (secrets, XML, scripts)")
+    hooks = subprocess.run(["git", "config", "core.hooksPath"], cwd=ROOT, capture_output=True, text=True).stdout.strip()
+    if hooks != ".githooks":
+        print("WARN pre-commit hook not installed: run scripts/setup-agents.sh")
+    print("OK   lint (secrets, XML, strings, scripts)")
     return 0
 
 

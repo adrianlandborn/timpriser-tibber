@@ -1,5 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "model": "sonnet",
   "permissions": {
     "allow": [
       "Bash(scripts/check.sh:*)",
@@ -7,13 +8,25 @@
       "Bash(scripts/test.sh:*)",
       "Bash(python3 .agents/scripts/validate.py)",
       "Bash(python3 scripts/lint.py:*)",
-      "Bash(.agents/scripts/link-skills.sh:*)"
+      "Bash(.agents/scripts/link-skills.sh:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)"
     ],
     "deny": [
       "Read(./developer_key.*)",
       "Read(./source/config/Secrets.mc)",
       "Read(./.env)",
-      "Read(./.env.*)"
+      "Read(./.env.*)",
+      "Read(./bin/**)",
+      "Read(./gen/**)",
+      "Read(./mir/**)",
+      "Read(./internal-mir/**)",
+      "Read(./external-mir/**)",
+      "Read(./.cache/**)",
+      "Read(./resources/fonts/Poppins*)",
+      "Read(./resources-large/fonts/Poppins*)"
     ]
   },
   "hooks": {
