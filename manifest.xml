@@ -39,6 +39,7 @@
         </iq:permissions>
         <iq:languages>
             <iq:language>swe</iq:language>
+            <iq:language>eng</iq:language>
         </iq:languages>
         <iq:barrels/>
     </iq:application>

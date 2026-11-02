@@ -16,7 +16,7 @@ A Garmin Connect IQ widget for displaying current Tibber electricity prices usin
 | :---: | :---: |
 | <img src="docs/screenshots/quarter-hour-prices.png" alt="Today's quarter-hour price chart with the selected interval and price" width="240"> | <img src="docs/screenshots/hourly-prices.png" alt="Two-day hourly price chart including tomorrow's prices" width="240"> |
 
-Screenshots show the app in Swedish (which is also the only supported language).
+Screenshots show the app in Swedish. Swedish (default) and English are supported; the watch language selects the strings (`resources/strings` for Swedish, `resources-eng/strings` for English). Keep both files in sync when adding strings.
 
 ## Controls
 
