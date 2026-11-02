@@ -79,6 +79,6 @@ Then, per tool:
 ## Suggested next steps
 
 1. Fix the 5 baselined test errors (`abs` symbol missing in `PriceChartTest`, null colour in `WidgetSettingsTest`), then shrink the baseline.
-2. Review the `fr55` baseline: the glance exceeds that device's memory limit, and `fenix7xpronowifi` is an invalid product ID.
+2. Review the `fr55` baseline: the glance exceeds that device's memory limit.
 3. Add a `release-check` skill that walks through `RELEASE_READINESS.md` when you approach Store submission.
 4. Optionally add a `Stop` hook that reminds the agent to run `scripts/check.sh` if `.mc` files changed. It's left out for now to keep the setup simple and portable.

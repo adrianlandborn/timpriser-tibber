@@ -41,7 +41,8 @@
     <string id="VariableFeeCaption2">including VAT</string>
     <string id="ErrorInvalidResolution">Invalid price resolution</string>
     <string id="ErrorRequestInProgress">A Tibber request is already in progress</string>
-    <string id="ErrorTokenMissing">Tibber token missing</string>
+    <string id="ErrorTokenMissing">Enter Tibber token in app settings</string>
+    <string id="SettingTokenTitle">Tibber API token</string>
     <string id="ErrorRequestStart">Could not start Tibber request</string>
     <string id="ErrorInvalidResponse">Tibber returned an invalid response</string>
     <string id="ErrorHttpPrefix">Tibber HTTP error </string>

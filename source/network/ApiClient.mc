@@ -114,7 +114,7 @@ class TibberApiClient {
             return;
         }
 
-        var accessToken = TibberSecrets.getApiToken();
+        var accessToken = TibberTokenStore.getApiToken();
         if (accessToken.length() == 0) {
             responseCallback.invoke(loadString(Rez.Strings.ErrorTokenMissing));
             return;

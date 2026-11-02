@@ -43,6 +43,14 @@ cp source/config/Secrets.mc.example source/config/Secrets.mc
 
 Set your token as the return value of `TibberSecrets.getApiToken()` in `source/config/Secrets.mc`. That local file is ignored. Never put a real token in the template or commit it. The app sends authenticated HTTPS POST requests to Tibber and requests current price data when opened; refresh is available from the watch controls.
 
+### Tibber token for users
+
+Store users create a personal token at [developer.tibber.com](https://developer.tibber.com) and paste it into the app's **Tibber API token** setting in the Garmin Connect app (the watch shows "Enter Tibber token in app settings" until one is set). Changing the setting refreshes prices. The app uses the settings token first and falls back to the local `Secrets.mc` token described above, which is for development only.
+
+### Store release build
+
+`scripts/release.sh` builds the `.iq` from `monkey-release.jungle`, which swaps the local token class for the empty stub in `release/config/ReleaseSecrets.mc`, then checks that your local token is not in the package. `scripts/release.sh <device>` builds one `.prg` for a quick check. The full `.iq` needs every product in `manifest.xml` to be known to the installed SDK.
+
 ## Build
 
 From the project root, compile a target with the installed SDK's Monkey C compiler:
@@ -89,7 +97,7 @@ If `connectiq`, `monkeyc`, or `monkeydo` is not on `PATH`, invoke the command fr
 - Vivoactive 5: `vivoactive5`
 - Vivoactive 6: `vivoactive6`
 
-Products are declared in `manifest.xml`. A device pack must be installed to compile or simulate a specific target. The SDK currently reports `fenix7xpronowifi` as an invalid device ID.
+Products are declared in `manifest.xml`. A device pack must be installed to compile or simulate a specific target.
 
 ## Price intervals
 

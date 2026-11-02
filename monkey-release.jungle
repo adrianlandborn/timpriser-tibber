@@ -1,0 +1,7 @@
+project.manifest = manifest.xml
+
+# Store build: same sources as monkey.jungle, but source/config (local token) and
+# source/tests are replaced by a token-less stub. Build with scripts/release.sh.
+base.sourcePath = source/app;source/charts;source/components;source/delegates;source/network;source/screens;source/theme;release/config
+base.resourcePath = resources
+fenix847mm.resourcePath = $(base.resourcePath);resources-large

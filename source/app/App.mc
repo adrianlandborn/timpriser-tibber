@@ -3,6 +3,7 @@ import Toybox.Lang;
 import Toybox.WatchUi;
 
 class TibberApp extends Application.AppBase {
+    private var _priceView;
 
     /** Initialize the base Connect IQ application. */
     function initialize() {
@@ -20,8 +21,17 @@ class TibberApp extends Application.AppBase {
     /** Create the initial price view and its input delegate. */
     function getInitialView() {
         var priceView = new TibberWidgetView();
+        _priceView = priceView;
         var inputDelegate = new TibberWidgetDelegate(priceView);
         return [priceView, inputDelegate];
+    }
+
+    /** Refetch prices when the user edits the token in Garmin Connect settings. */
+    function onSettingsChanged() as Void {
+        if (_priceView != null) {
+            _priceView.refreshPriceData();
+        }
+        WatchUi.requestUpdate();
     }
 
     /** Provide a compact current-price preview in the widget glance list. */

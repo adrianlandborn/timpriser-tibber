@@ -1,0 +1,5 @@
+<settings>
+    <setting propertyKey="@Properties.tibberToken" title="@Strings.SettingTokenTitle">
+        <settingConfig type="alphaNumeric" />
+    </setting>
+</settings>

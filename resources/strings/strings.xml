@@ -41,7 +41,8 @@
     <string id="VariableFeeCaption2">inklusive moms</string>
     <string id="ErrorInvalidResolution">Ogiltig prisupplösning</string>
     <string id="ErrorRequestInProgress">En Tibber-förfrågan pågår redan</string>
-    <string id="ErrorTokenMissing">Tibber-token saknas</string>
+    <string id="ErrorTokenMissing">Ange Tibber-token i appinställningarna</string>
+    <string id="SettingTokenTitle">Tibber API-token</string>
     <string id="ErrorRequestStart">Kunde inte starta Tibber-förfrågan</string>
     <string id="ErrorInvalidResponse">Tibber returnerade ett ogiltigt svar</string>
     <string id="ErrorHttpPrefix">Tibber HTTP-fel </string>

@@ -14,7 +14,3 @@ description: "Add, remove or validate supported Garmin products. Use when: editi
 5. `scripts/build.sh <id>`. For a first build of a new device, run `scripts/build.sh --update-baseline <id>`, then review the baseline file before committing. Look especially for glance memory and launcher icon warnings.
 6. Update the README "Supported products" list.
 7. `scripts/check.sh build`.
-
-## Known issue
-
-The SDK reports `fenix7xpronowifi` as an invalid device ID. Ask the user before removing it from the manifest or README.

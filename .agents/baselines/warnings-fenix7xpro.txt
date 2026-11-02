@@ -67,4 +67,3 @@ WARNING: fenix7xpro: source/screens/WidgetView.mc: Cannot determine if container
 WARNING: fenix7xpro: source/screens/WidgetView.mc: Cannot determine if container access is using container type.
 WARNING: fenix7xpro: source/screens/WidgetView.mc: Cannot determine if container assignment is using container type.
 WARNING: fenix7xpro: source/screens/WidgetView.mc: Cannot determine if container assignment is using container type.
-WARNING: manifest.xml: Invalid device id found in the application manifest: 'fenix7xpronowifi'.
