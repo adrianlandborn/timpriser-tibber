@@ -6,12 +6,16 @@
 #   instead of the full .iq (which needs every manifest product known to the SDK).
 #   Uses monkey-release.jungle (token-less stub instead of the local ignored token class),
 #   then unpacks the .iq and fails if the local token appears anywhere in it.
-#   Output: .cache/ciq/TibberWidget.iq (upload this in the Connect IQ developer dashboard).
+#   Output: .cache/ciq/TibberWidget.iq plus a versioned copy TibberWidget-<version>.iq
+#   (upload it in the Connect IQ developer dashboard; see docs/RELEASING.md).
 
 source "$(dirname "$0")/lib.sh"
 
 setup_toolchain
 cd "$REPO_ROOT"
+
+version="$(sed -n '/<iq:application /s/.* version="\([0-9.]*\)".*/\1/p' manifest.xml | head -1)"
+[ -n "$version" ] || die "Could not read application version from manifest.xml"
 
 device="${1:-}"
 if [ -n "$device" ]; then
@@ -52,4 +56,8 @@ else
     echo "WARN no local token found to check against"
 fi
 
-echo "OK   release package: ${out#$REPO_ROOT/} ($(wc -c < "$out" | tr -d ' ') bytes)"
+echo "OK   release package: ${out#$REPO_ROOT/} ($(wc -c < "$out" | tr -d ' ') bytes), version $version"
+if [ -z "$device" ]; then
+    cp "$out" "$CACHE_DIR/TibberWidget-$version.iq"
+    echo "OK   versioned copy: .cache/ciq/TibberWidget-$version.iq (sha256 $(shasum -a 256 "$out" | cut -d' ' -f1))"
+fi

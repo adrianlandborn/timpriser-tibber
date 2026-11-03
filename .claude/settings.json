@@ -1,8 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
-  "model": "sonnet",
   "permissions": {
-    "defaultMode": "default",
     "allow": [
       "Bash(scripts/check.sh:*)",
       "Bash(scripts/build.sh:*)",
@@ -13,7 +11,11 @@
       "Bash(git status:*)",
       "Bash(git diff:*)",
       "Bash(git log:*)",
-      "Bash(git show:*)"
+      "Bash(git show:*)",
+      "Bash(python3 -)",
+      "Bash(git add *)",
+      "Bash(git commit -q -m 'Document local release process, add release-prepare script and changelog *)",
+      "Bash(git push *)"
     ],
     "deny": [
       "Read(./developer_key.*)",
@@ -28,8 +30,10 @@
       "Read(./.cache/**)",
       "Read(./resources/fonts/Poppins*)",
       "Read(./resources-large/fonts/Poppins*)"
-    ]
+    ],
+    "defaultMode": "default"
   },
+  "model": "sonnet",
   "hooks": {
     "PreToolUse": [
       {

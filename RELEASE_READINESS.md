@@ -1,62 +1,42 @@
 # Connect IQ Store Release Readiness
 
-Status snapshot: 2026-10-24. This checklist reflects the current repository and the published Garmin and Tibber documentation. Store requirements can change; recheck the linked official guidance before submission.
+Status snapshot: 2026-11-03. Version 1.0.0 has been submitted to the Connect IQ Store and is awaiting review. Store requirements can change; recheck the linked official guidance if review feedback arrives.
 
-## Release Decision: Authentication
+## Authentication Decision (open risk)
 
-The current app reads a local token from `TibberSecrets.getApiToken()` in `source/config/Secrets.mc`. That is suitable for local development only; the developer's personal token must never be included in a Store package.
+Store users create a personal Tibber token at developer.tibber.com and paste it into the **Tibber API token** app setting in Garmin Connect (`resources/settings/settings.xml`). The watch shows a prompt until a token is set. Release builds (`monkey-release.jungle`, `scripts/release.sh`) swap the local token class for an empty stub and check that the developer's token is not in the package.
 
-Tibber explicitly distinguishes personal access tokens from distributed applications: a personal token accesses only its owner's data, while a distributed third-party app should register a Tibber OAuth client. Therefore, **do not plan to ship a settings field that asks every customer to paste a personal token unless Tibber confirms that distribution model is acceptable**. Do not ask for Tibber usernames or passwords.
+Tibber distinguishes personal access tokens from distributed apps, which should register an OAuth client. Whether the personal-token model is acceptable for a distributed app has **not been confirmed with Tibber**. This is the main remaining risk: if Garmin or Tibber objects during review, the fallback is the OAuth path:
 
-Recommended implementation path:
+1. Register a Tibber OAuth client; confirm redirect URI, scopes, token lifetime, refresh flow and PKCE/public-client support.
+2. If a client secret is required, add a small backend for code exchange and refresh (secrets and refresh tokens stay server-side).
+3. Use `Communications.makeOAuthRequest()` for a **Connect Tibber** flow with connect/reconnect/disconnect and clear error states.
+4. Never ask for Tibber usernames or passwords.
 
-1. Register a Tibber OAuth client for the app and confirm its allowed redirect URI, scopes, token lifetime, refresh flow, and whether a public client/PKCE flow is supported.
-2. Confirm with Tibber whether its token exchange can be completed securely from a Connect IQ app. Garmin's `Communications.makeOAuthRequest()` can initiate phone-assisted OAuth, but it does not make it safe to embed a confidential client secret in the watch binary.
-3. If Tibber requires a confidential client secret, implement a small backend for the authorization-code exchange and token refresh. Keep the secret and refresh tokens server-side; define hosting, availability, privacy, and support responsibilities before release.
-4. Add a user-facing **Connect Tibber** flow, connection state, reconnect/disconnect controls, and clear messages for cancellation, expired/revoked access, missing home scope, and network failure.
-5. Replace the local-only `TibberSecrets` implementation with the production token provider. Verify that no developer token or client secret is present in exported `.iq` files or logs.
+## Done
 
-Garmin Connect IQ settings are appropriate for non-secret preferences such as price mode or interval. They are not the recommended production substitute for Tibber's OAuth authorization. If Tibber explicitly approves a personal-token onboarding model, use a clearly labelled Connect IQ app setting, explain how users create/revoke the token, store it only as necessary, and never log it. Do not add this fallback before confirming Tibber's policy.
+- [x] Release build that excludes the developer token (`scripts/release.sh`, `release/config/ReleaseSecrets.mc`).
+- [x] User token setting and "enter token" prompt.
+- [x] Manifest languages: `swe` and `eng` shipped in 1.0.0. `nob`, `deu` and `dut` are in the repo for the next release.
+- [x] Store assets: cover, hero, icons and screenshots in `docs/store/`.
+- [x] Non-affiliation disclaimer, MIT license, Poppins OFL license (`resources/fonts/OFL.txt`).
+- [x] Request logging does not print real tokens (only endpoint/request kind; the mock path prints a fake token).
+- [x] Submitted v1.0.0 for review.
 
-## P0: Required Before Submission
+## Open Items
 
-- [ ] **Production authentication:** complete the OAuth decision above; no local `Secrets.mc`, personal developer token, client secret, or placeholder token in the release package.
-- [ ] **OAuth failure and lifecycle:** test user cancellation, denied scopes, invalid/revoked access, refresh or reauthorization, disconnect, and app restart. Remove user tokens and cached user price data on disconnect.
-- [ ] **Data-access scope:** request only the Tibber home-reading scopes required by the GraphQL queries. Verify behavior for no homes, multiple homes, no active subscription, and missing price data.
-- [ ] **Privacy notice and support:** publish a privacy notice and support contact. Describe data read, where tokens and cached prices are stored, whether a backend receives data, retention/deletion behavior, and how users disconnect. Garmin says developers must provide their own privacy notice for data they process.
-- [ ] **Asset rights:** verify the license/permission for `resources/lightning.svg` and the derived launcher/widget artwork; retain proof or replace the asset before submission. Also verify all bundled font assets and retain their license notices.
-- [ ] **Store listing:** prepare accurate app name, Swedish/English descriptions, supported-device list, screenshots, setup/auth instructions, limitations, and support contact. Do not imply Garmin or Tibber endorsement.
-- [ ] **Export and signing:** export the Connect IQ `.iq` package using Garmin's Monkey C extension/export workflow for every declared product. Confirm the package uses the release version and contains no signing key, local secrets, debug files, or development-only data.
+- [ ] **Privacy notice and support contact:** Garmin expects developers to provide their own privacy notice. The README "Data and privacy" section is developer-oriented. Publish a user-facing page (data read, token stored in Connect IQ settings on device/phone, cached prices on the watch, no backend, how to revoke the token) and link it with a support contact from the store listing.
+- [ ] **Asset rights:** confirm the license/permission for `resources/lightning.svg` and the derived launcher/store artwork, and keep proof.
+- [ ] **FR55 / small-device retest:** FR55 had historical daily-price failures; verify cold start, graph, glance and memory on FR55, Fenix 7S and Vivoactive 4.
+- [ ] **Clean-install test:** install via the normal Connect IQ path with a non-developer Tibber account and verify onboarding, wrong/empty token and revoked-token messages.
+- [ ] **Edge cases:** no homes, multiple homes, no active subscription, unavailable tomorrow prices, midnight and DST boundaries, offline and rate-limit behavior.
+- [ ] **Tibber policy:** ask Tibber whether the personal-token model is acceptable for a distributed app (see above).
+- [ ] **Release record:** note the submitted package version and product list, and the support/rollback plan.
+- [ ] **No CI:** there is no CI or release workflow; releases are prepared locally via `scripts/release-prepare.sh` (see `docs/RELEASING.md`), by design, so the signing key stays on this machine.
 
-## P1: Product and Reliability Checks
+## If Review Feedback Arrives
 
-- [ ] **Manifest and language:** keep `manifest.xml`, `resources/strings/strings.xml`, on-watch copy, and store metadata aligned. The manifest language is Swedish (`swe`); UI strings live in `strings.xml`.
-- [ ] **Device support:** confirm each product in `manifest.xml` against installed SDK device packs and actual runtime behavior. Current declared products include Fenix 6/7/8/9 variants, Venu, Forerunner 55, and Vivoactive 4/5/6.
-- [ ] **Small-device layout:** visually verify every screen and glance on FR55 and Fenix 7S as well as Fenix 7X Pro. Check clipping, scroll selection, switch/segment focus, chart labels, and cache/error states.
-- [ ] **Input/navigation:** verify UP/DOWN cycles among main widget and graph pages as documented; START/STOP refreshes the active screen; BACK returns/exits; touch actions match the same behavior where supported.
-- [ ] **Price correctness:** verify total vs spot selection, currency conversion (including SEK to öre), tax/moms and network-fee labels, quarter-hour/hourly intervals, and chart footer/legend match the selected mode.
-- [ ] **Time boundaries:** test cache reuse across interval boundaries, midnight, daylight-saving changes, unavailable tomorrow prices, and changes to selected price mode/resolution. Never show a prior interval as current when the needed cache entry is absent.
-- [ ] **API resilience:** test HTTP and GraphQL errors, malformed/empty payloads, offline behavior, rate limits, and repeated opens. Tibber asks clients to set a descriptive User-Agent and use jitter/exponential backoff for retries; avoid repeatedly fetching prices that are already cached.
-- [ ] **Memory/runtime:** measure peak memory and launch stability on the lowest-memory supported device, especially FR55. Confirm no crashes when opening the graph or glance after a cold start.
-- [ ] **No debug output:** keep only intentional endpoint/request diagnostics for development; remove verbose traces and ensure authorization headers/tokens are never logged in a release build.
-
-## P2: Release Process
-
-- [ ] Set the release version and verify the manifest application ID/name/product list.
-- [ ] Run clean builds for every declared product, not just representative devices.
-- [ ] Install the exported `.iq` package through the normal Connect IQ distribution path and test onboarding on a clean install with a non-developer Tibber account.
-- [ ] Capture final screenshots from supported watch profiles and review them at store size.
-- [ ] Complete Garmin's current app review/submission workflow and respond to review feedback.
-- [ ] Record the submitted package version, supported products, OAuth client configuration owner, and rollback/support plan.
-
-## Current Repository Gaps
-
-- `source/config/Secrets.mc` is local and ignored; production authentication is not implemented.
-- No Connect IQ settings XML or OAuth onboarding UI is present.
-- The manifest currently declares `eng`, despite Swedish UI strings.
-- No CI/release workflow or store-export checklist is present in the repository.
-- Runtime coverage is not yet equivalent to the full declared-device matrix; FR55 has had historical daily-price failures that must be retested.
-- The lightning artwork's license has not been verified.
+Fix, bump `version` in `manifest.xml`, run `scripts/check.sh full` and `scripts/release.sh`, then resubmit.
 
 ## Official References
 

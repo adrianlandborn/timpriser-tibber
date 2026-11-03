@@ -53,7 +53,7 @@ Store users create a personal token at [developer.tibber.com](https://developer.
 
 ### Store release build
 
-`scripts/release.sh` builds the `.iq` from `monkey-release.jungle`, which swaps the local token class for the empty stub in `release/config/ReleaseSecrets.mc`, then checks that your local token is not in the package. `scripts/release.sh <device>` builds one `.prg` for a quick check. The full `.iq` needs every product in `manifest.xml` to be known to the installed SDK.
+`scripts/release.sh` builds the `.iq` from `monkey-release.jungle`, which swaps the local token class for the empty stub in `release/config/ReleaseSecrets.mc`, then checks that your local token is not in the package. `scripts/release.sh <device>` builds one `.prg` for a quick check. The full `.iq` needs every product in `manifest.xml` to be known to the installed SDK. For a complete release (version bump, changelog, tag), use `scripts/release-prepare.sh <version>`; see [docs/RELEASING.md](docs/RELEASING.md).
 
 ## Build
 
