@@ -37,7 +37,7 @@ class TibberPriceCache {
         if (!(price instanceof Number || price instanceof Float)) {
             price = priceText.toFloat();
         }
-        if (Storage.getValue("tibber_network_fees_enabled") != true) {
+        if (!TibberCurrency.feesActive(priceData.get("currency"))) {
             return price.format("%.0f");
         }
         var spotAverage = priceData.get("hourly_spot_average");
@@ -74,7 +74,7 @@ class TibberPriceCache {
             var priceType = Storage.getValue("tibber_price_type");
             var spotOnly = priceType instanceof String && priceType.equals("SPOT");
             if (currentPrice != null && isCurrentPriceValid(currentPrice) &&
-                (spotOnly || Storage.getValue("tibber_network_fees_enabled") != true || priceResolution.equals("HOURLY"))) {
+                (spotOnly || !TibberCurrency.feesActive(currentPrice.get("currency")) || priceResolution.equals("HOURLY"))) {
                 return currentPrice;
             }
             return null;

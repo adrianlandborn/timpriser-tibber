@@ -16,7 +16,11 @@ A Garmin Connect IQ widget for displaying current Tibber electricity prices usin
 | :---: | :---: |
 | <img src="docs/screenshots/quarter-hour-prices.png" alt="Today's quarter-hour price chart with the selected interval and price" width="240"> | <img src="docs/screenshots/hourly-prices.png" alt="Two-day hourly price chart including tomorrow's prices" width="240"> |
 
-Screenshots show the app in Swedish. Swedish (default) and English are supported; the watch language selects the strings (`resources/strings` for Swedish, `resources-eng/strings` for English). Keep both files in sync when adding strings.
+Screenshots show the app in Swedish. Swedish (default), English, Norwegian Bokmål, German and Dutch are supported; the watch language selects the strings (`resources/strings` for Swedish, `resources-eng|nob|deu|dut/strings` for the others). Keep all files in sync when adding strings.
+
+To try Norwegian, German or Dutch contracts without an account, use the built-in mock data: see [docs/mock-data.md](docs/mock-data.md).
+
+Prices are shown in the minor unit of the currency Tibber returns: SEK as öre, NOK as øre, EUR as cent. The unit and the fee logic depend only on that API currency; the watch language only selects UI text (a Swedish contract on a German watch still shows öre). Grid fees and energy tax (Swedish tariff model) are only available for SEK; for NOK/EUR the widget shows Tibber's own spot or total price and labels it "as per Tibber" without adding fees.
 
 ## Controls
 

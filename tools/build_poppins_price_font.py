@@ -27,8 +27,8 @@ LARGE_FONT_SIZES = {
     "PoppinsLarge": 46,
     "PoppinsPrice": 62,
 }
-UI_GLYPHS = "".join(chr(codepoint) for codepoint in range(32, 127)) + "ÅÄÖåäö€"
-PRICE_GLYPHS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ- .,€£$¥ÅÄÖåäöre"
+UI_GLYPHS = "".join(chr(codepoint) for codepoint in range(32, 127)) + "ÅÄÖåäöØøÆæÜüßé€"
+PRICE_GLYPHS = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ- .,€£$¥ÅÄÖåäöØøÆæÜüßcentr"
 GLYPHS_BY_RESOURCE = {
     "PoppinsMicro": UI_GLYPHS,
     "PoppinsTiny": UI_GLYPHS,

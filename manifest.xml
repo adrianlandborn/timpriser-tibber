@@ -40,6 +40,9 @@
         <iq:languages>
             <iq:language>swe</iq:language>
             <iq:language>eng</iq:language>
+            <iq:language>nob</iq:language>
+            <iq:language>deu</iq:language>
+            <iq:language>dut</iq:language>
         </iq:languages>
         <iq:barrels/>
     </iq:application>

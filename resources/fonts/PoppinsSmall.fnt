@@ -1,7 +1,7 @@
 info face="Poppins SemiBold" size=-16 bold=0 italic=0 charset="" unicode=1 stretchH=100 smooth=1 aa=1 padding=0,0,0,0 spacing=1,1 outline=0
 common lineHeight=23 base=17 scaleW=512 scaleH=73 pages=1 packed=0 alphaChnl=1 redChnl=0 greenChnl=0 blueChnl=0
 page id=0 file="PoppinsSmall_0.png"
-chars count=102
+chars count=110
 char id=32 x=2 y=2 width=4 height=0 xoffset=0 yoffset=17 xadvance=4 page=0 chnl=15
 char id=33 x=8 y=2 width=5 height=11 xoffset=0 yoffset=6 xadvance=5 page=0 chnl=15
 char id=34 x=15 y=2 width=7 height=12 xoffset=0 yoffset=5 xadvance=7 page=0 chnl=15
@@ -103,5 +103,13 @@ char id=214 x=118 y=48 width=13 height=14 xoffset=0 yoffset=3 xadvance=13 page=0
 char id=229 x=133 y=48 width=11 height=13 xoffset=0 yoffset=4 xadvance=11 page=0 chnl=15
 char id=228 x=146 y=48 width=11 height=12 xoffset=0 yoffset=5 xadvance=11 page=0 chnl=15
 char id=246 x=159 y=48 width=11 height=12 xoffset=0 yoffset=5 xadvance=11 page=0 chnl=15
-char id=8364 x=172 y=48 width=14 height=11 xoffset=0 yoffset=6 xadvance=14 page=0 chnl=15
+char id=216 x=172 y=48 width=13 height=11 xoffset=0 yoffset=6 xadvance=13 page=0 chnl=15
+char id=248 x=187 y=48 width=11 height=9 xoffset=0 yoffset=8 xadvance=11 page=0 chnl=15
+char id=198 x=200 y=48 width=15 height=11 xoffset=0 yoffset=6 xadvance=15 page=0 chnl=15
+char id=230 x=217 y=48 width=18 height=9 xoffset=0 yoffset=8 xadvance=18 page=0 chnl=15
+char id=220 x=237 y=48 width=11 height=14 xoffset=0 yoffset=3 xadvance=11 page=0 chnl=15
+char id=252 x=250 y=48 width=10 height=12 xoffset=0 yoffset=5 xadvance=10 page=0 chnl=15
+char id=223 x=262 y=48 width=12 height=13 xoffset=0 yoffset=4 xadvance=12 page=0 chnl=15
+char id=233 x=276 y=48 width=10 height=13 xoffset=0 yoffset=4 xadvance=10 page=0 chnl=15
+char id=8364 x=288 y=48 width=14 height=11 xoffset=0 yoffset=6 xadvance=14 page=0 chnl=15
 kernings count=0

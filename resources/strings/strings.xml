@@ -1,7 +1,6 @@
 <strings>
     <string id="AppName">Tibber Energy</string>
-    <string id="PriceUnitOre">öre</string>
-    <string id="PriceUnitOrePerKwh">öre/kWh</string>
+    <string id="TotalPerTibber">Enligt Tibber</string>
     <string id="PercentUnit">%</string>
     <string id="Loading">Laddar...</string>
     <string id="LoadingPrices">Laddar priser...</string>
