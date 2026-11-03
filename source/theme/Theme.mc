@@ -11,7 +11,7 @@ module Theme {
     const PALETTE_GRAY_LIGHT = Graphics.COLOR_LT_GRAY;
     const PALETTE_GRAY_DARK = Graphics.COLOR_DK_GRAY;
     const PALETTE_BLUE = Graphics.COLOR_BLUE;
-    const PALETTE_BLUE_MUTED = 0x2A55AA;
+    const PALETTE_BLUE_MUTED = 0x0C61A6;
     const PALETTE_ORANGE = Graphics.COLOR_ORANGE;
     const PALETTE_ORANGE_MUTED = 0xAA5500;
 

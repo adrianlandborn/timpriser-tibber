@@ -349,7 +349,10 @@ class TibberPriceChart {
 
         deviceContext.setColor(Theme.TEXT_PRIMARY, Theme.BACKGROUND);
         deviceContext.drawText(footerStartX, footer[:priceY], priceFont, formattedPrice, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
-        deviceContext.drawText(footerStartX + priceWidth + FOOTER_UNIT_GAP, footer[:priceY], unitFont, priceUnit, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+        // Align the unit's baseline with the price's baseline instead of centering both.
+        var priceTop = footer[:priceY] - deviceContext.getFontHeight(priceFont) / 2;
+        var unitY = priceTop + Graphics.getFontAscent(priceFont) - Graphics.getFontAscent(unitFont) + deviceContext.getFontHeight(unitFont) / 2;
+        deviceContext.drawText(footerStartX + priceWidth + FOOTER_UNIT_GAP, unitY, unitFont, priceUnit, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
         deviceContext.drawText(deviceContext.getWidth() / 2, footer[:timeY], _poppinsTinyFont, formatIntervalRange(activeGraphPoint[POINT_MINUTE], intervalDurationMinutes), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
     }
 
