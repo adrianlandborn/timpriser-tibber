@@ -6,6 +6,7 @@ class SettingsScrollTestWidget {
     var resolution = "QUARTER_HOURLY";
     var priceType = "TOTAL";
 
+    function getCurrentCurrency() { return "SEK"; }
     function getCurrentPriceType() { return priceType; }
     function setCurrentPriceType(value) { priceType = value; }
     function getCurrentPriceResolution() { return resolution; }
@@ -149,7 +150,8 @@ function testNetworkFeesRequireTaxes(logger) {
         taxBlockedWithoutNetwork && enabled && switchedOff;
 }
 
-(:test)
+// The fake Dc is duck-typed; the compiler's Dc check is inconsistent across test files, so skip it here.
+(:test, :typecheck(false))
 function testNetworkToggleDoesNotDisableTaxes(logger) {
     var key = "tibber_network_fees_enabled";
     var originalValue = Storage.getValue(key);

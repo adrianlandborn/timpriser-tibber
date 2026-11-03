@@ -3,6 +3,7 @@ import Toybox.Communications;
 import Toybox.Lang;
 import Toybox.System;
 import Toybox.Time;
+import Toybox.Timer;
 
 class TibberApiClient {
     private const TIBBER_API_URL = "https://api.tibber.com/v1-beta/gql";
@@ -11,6 +12,8 @@ class TibberApiClient {
     private var _requestResolution;
     private var _requestIncludeTomorrow;
     private var _priceCache;
+    private var _mockTimer;
+    private var _mockToken;
 
     /** Initialize the HTTP request state for this client instance. */
     function initialize() {
@@ -19,6 +22,8 @@ class TibberApiClient {
         _requestResolution = null;
         _requestIncludeTomorrow = false;
         _priceCache = new TibberPriceCache();
+        _mockTimer = null;
+        _mockToken = null;
     }
 
     /** Fetch the current price for the requested Tibber resolution. */
@@ -28,7 +33,7 @@ class TibberApiClient {
             return;
         }
 
-        var cachedPrice = _priceCache.getCurrentPrice(priceResolution);
+        var cachedPrice = TibberMock.bypassCache() ? null : _priceCache.getCurrentPrice(priceResolution);
         if (cachedPrice != null) {
             responseCallback.invoke(cachedPrice);
             return;
@@ -64,7 +69,7 @@ class TibberApiClient {
             return;
         }
 
-        var cachedPrices = _priceCache.getDailyPrices(priceResolution, includeTomorrow, false);
+        var cachedPrices = TibberMock.bypassCache() ? null : _priceCache.getDailyPrices(priceResolution, includeTomorrow, false);
         if (cachedPrices != null) {
             responseCallback.invoke(cachedPrices);
             return;
@@ -120,6 +125,20 @@ class TibberApiClient {
             return;
         }
 
+        _responseCallback = responseCallback;
+        _requestType = requestKind;
+        _requestResolution = priceResolution;
+        _requestIncludeTomorrow = includeTomorrow;
+
+        if (TibberMock.isMockToken(accessToken)) {
+            // Development only: answer from TibberMock instead of the network (see docs/mock-data.md).
+            System.println("Tibber MOCK " + accessToken + " " + requestKind + " " + priceResolution);
+            _mockToken = accessToken;
+            _mockTimer = new Timer.Timer();
+            _mockTimer.start(method(:onMockResponse), 50, false);
+            return;
+        }
+
         System.println("Tibber POST " + TIBBER_API_URL + " " + requestKind + " " + priceResolution);
 
         var requestOptions = {
@@ -131,11 +150,6 @@ class TibberApiClient {
                 "User-Agent" => "Garmin Connect IQ/9.3.0 TibberWidget/1.0.0"
             }
         };
-
-        _responseCallback = responseCallback;
-        _requestType = requestKind;
-        _requestResolution = priceResolution;
-        _requestIncludeTomorrow = includeTomorrow;
 
         try {
             Communications.makeJsonRequest(
@@ -151,6 +165,13 @@ class TibberApiClient {
             _requestIncludeTomorrow = false;
             responseCallback.invoke(loadString(Rez.Strings.ErrorRequestStart));
         }
+    }
+
+    /** Deliver the mock answer asynchronously, like a real HTTP response. */
+    function onMockResponse() as Void {
+        _mockTimer = null;
+        var body = TibberMock.buildResponse(_mockToken, _requestType, _requestResolution, _requestIncludeTomorrow);
+        onApiResponse(200, body);
     }
 
     /** Route an HTTP response through the matching parser and invoke its callback. */
@@ -230,7 +251,7 @@ class TibberApiClient {
         return null;
     }
 
-    /** Parse current-price fields and convert SEK values to the displayed öre unit. */
+    /** Parse current-price fields and convert SEK/NOK/EUR values to the displayed minor unit (öre/øre/cent). */
     private function parseCurrentPriceData(responseData, priceResolution) {
         try {
             var responseBody = responseData.get("data");
@@ -281,7 +302,7 @@ class TibberApiClient {
 
             var price = total as Float;
             var spotPrice = energy as Float;
-            if (currency != null && currency.equals("SEK")) {
+            if (TibberCurrency.isMinorUnit(currency)) {
                 price = price * 100;
                 spotPrice = spotPrice * 100;
             }
@@ -400,7 +421,7 @@ class TibberApiClient {
 
                     var displayPrice = total as Float;
                     var spotPrice = energy as Float;
-                    if (currency != null && currency.equals("SEK")) {
+                    if (TibberCurrency.isMinorUnit(currency)) {
                         displayPrice = displayPrice * 100;
                         spotPrice = spotPrice * 100;
                     }

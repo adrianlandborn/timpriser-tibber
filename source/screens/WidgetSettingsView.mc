@@ -25,7 +25,7 @@ class TibberWidgetSettingsView extends WatchUi.View {
     private var _fontOption;
     private var _fontDisplay;
     private var _selectedOption;
-    private var _optionOrder;
+    private var _optionOrder as Array<Number>;
     private var _screenHeight;
     private var _screenWidth;
     private var _scrollOffset;
@@ -39,7 +39,7 @@ class TibberWidgetSettingsView extends WatchUi.View {
         _fontCaption = tinyFont;
         _fontOption = smallFont;
         _fontDisplay = displayFont;
-        _optionOrder = [4, 0, 1, 2, 3, 5];
+        _optionOrder = getOptionOrder();
         _selectedOption = _optionOrder[0];
         _screenHeight = 0;
         _screenWidth = 0;
@@ -51,6 +51,10 @@ class TibberWidgetSettingsView extends WatchUi.View {
         var height = dc.getHeight();
         _screenHeight = height;
         _screenWidth = width;
+        _optionOrder = getOptionOrder();
+        if (_optionOrder.indexOf(_selectedOption) < 0) {
+            _selectedOption = _optionOrder[0];
+        }
         scrollSelectionIntoView();
         dc.setColor(Theme.TEXT_PRIMARY, Theme.BACKGROUND);
         dc.clear();
@@ -67,24 +71,35 @@ class TibberWidgetSettingsView extends WatchUi.View {
             str(Rez.Strings.TaxesAndFees), taxesIncluded, _selectedOption == 0,
             _fontOption, _fontCaption);
 
+        if (!feesSupported()) {
+            // Grid fees and energy tax are Swedish tariffs; elsewhere the price is Tibber's own figure.
+            dc.setColor(Theme.TEXT_SECONDARY, Theme.BACKGROUND);
+            dc.drawText(width / 2, rowsTop + getOptionTop(1) + OPTION_ROW_HEIGHT / 2, _fontCaption,
+                str(taxesIncluded ? Rez.Strings.TotalPerTibber : Rez.Strings.TaxesExcluded),
+                Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+            drawResolutionControl(dc, width, rowsTop + getOptionTop(4));
+            return;
+        }
+
         var networkFeesIncluded = getNetworkFeesIncluded();
         _priceToggle.setEnabled(taxesIncluded);
         _priceToggle.draw(dc, width, rowsTop + getOptionTop(1), OPTION_ROW_HEIGHT,
             str(Rez.Strings.NetworkFees), networkFeesIncluded, _selectedOption == 1, _fontOption, _fontCaption);
 
         drawFeeOption(dc, width, rowsTop + getOptionTop(2), 2, str(Rez.Strings.FixedNetworkFee),
-            _priceCache.getFixedNetworkFee().format("%.0f") + " " + str(Rez.Strings.PriceUnitOre), networkFeesIncluded);
+            _priceCache.getFixedNetworkFee().format("%.0f") + " " + TibberCurrency.unitLabel("SEK"), networkFeesIncluded);
         drawFeeOption(dc, width, rowsTop + getOptionTop(3), 3, str(Rez.Strings.VariableNetworkFee),
             _priceCache.getVariableNetworkFee().format("%.0f") + str(Rez.Strings.PercentUnit), networkFeesIncluded);
         drawResolutionControl(dc, width, rowsTop + getOptionTop(4));
         drawFeeOption(dc, width, rowsTop + getOptionTop(5), 5, str(Rez.Strings.EnergyTax),
-            _priceCache.getEnergyTax().format("%.0f") + " " + str(Rez.Strings.PriceUnitOre), networkFeesIncluded);
+            _priceCache.getEnergyTax().format("%.0f") + " " + TibberCurrency.unitLabel("SEK"), networkFeesIncluded);
     }
 
     function moveSelection(direction) {
-        for (var index = 0; index < OPTION_COUNT; index += 1) {
+        var optionCount = _optionOrder.size();
+        for (var index = 0; index < optionCount; index += 1) {
             if (_optionOrder[index] == _selectedOption) {
-                _selectedOption = _optionOrder[(index + direction + OPTION_COUNT) % OPTION_COUNT];
+                _selectedOption = _optionOrder[(index + direction + optionCount) % optionCount];
                 break;
             }
         }
@@ -105,6 +120,9 @@ class TibberWidgetSettingsView extends WatchUi.View {
         }
         var bodyY = y - getListTop() + _scrollOffset;
         for (var option = 0; option < OPTION_COUNT; option++) {
+            if (_optionOrder.indexOf(option) < 0) {
+                continue;
+            }
             var optionTop = getOptionTop(option);
             if (bodyY >= optionTop && bodyY < optionTop + getOptionHeight(option)) {
                 _selectedOption = option;
@@ -204,7 +222,15 @@ class TibberWidgetSettingsView extends WatchUi.View {
     }
 
     private function getNetworkFeesIncluded() {
-        return _widgetView.getCurrentPriceType().equals("TOTAL") && Storage.getValue("tibber_network_fees_enabled") == true;
+        return _widgetView.getCurrentPriceType().equals("TOTAL") && TibberCurrency.feesActive(_widgetView.getCurrentCurrency());
+    }
+
+    private function feesSupported() {
+        return TibberCurrency.feesSupported(_widgetView.getCurrentCurrency());
+    }
+
+    private function getOptionOrder() as Array<Number> {
+        return feesSupported() ? [4, 0, 1, 2, 3, 5] : [4, 0];
     }
 
     private function drawResolutionControl(dc, width, top) {
@@ -240,7 +266,7 @@ class TibberWidgetSettingsView extends WatchUi.View {
     }
 
     private function getContentHeight() {
-        var lastOption = OPTION_COUNT - 1;
+        var lastOption = _optionOrder[_optionOrder.size() - 1] == 5 ? 5 : 0;
         var lastHeight = getOptionHeight(lastOption);
         var bottomPadding = (_screenHeight - lastHeight) / 2;
         return getListTop() + getOptionTop(lastOption) + lastHeight + bottomPadding;

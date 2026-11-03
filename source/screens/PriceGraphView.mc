@@ -109,7 +109,7 @@ class TibberPriceGraphView extends WatchUi.View {
             if (sourceIntervals instanceof Array && chartSpanMinutes != null) {
                 _priceIntervals = [];
                 var selectedPriceIndex = _priceType.equals("SPOT") ? 2 : 1;
-                var includeNetworkFees = _priceType.equals("TOTAL") && Storage.getValue("tibber_network_fees_enabled") == true;
+                var includeNetworkFees = _priceType.equals("TOTAL") && TibberCurrency.feesActive(apiResponse.get("currency"));
                 var priceCalculator = new TibberPriceCache();
                 var hourlySpotTotals = [];
                 var hourlySpotCounts = [];

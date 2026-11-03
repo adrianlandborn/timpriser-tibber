@@ -54,7 +54,7 @@ class TibberNetworkFeeDetailView extends WatchUi.View {
         dc.setColor(Theme.TEXT_PRIMARY, Theme.BACKGROUND);
         dc.drawText(width / 2, valueCenterY, displayFont, valueText, Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
 
-        var unit = isFixedFee || isEnergyTax ? str(Rez.Strings.PriceUnitOrePerKwh) : str(Rez.Strings.PercentUnit);
+        var unit = isFixedFee || isEnergyTax ? TibberCurrency.unitLabel("SEK") + "/kWh" : str(Rez.Strings.PercentUnit);
         var valueHeight = dc.getTextDimensions(valueText, displayFont)[1];
         drawCentered(dc, width, valueCenterY + valueHeight / 2 + captionHeight / 2, unit, _fontCaption, Theme.TEXT_SECONDARY);
 

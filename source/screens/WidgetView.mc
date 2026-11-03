@@ -101,10 +101,7 @@ class TibberWidgetView extends WatchUi.View {
 
             if (currentPriceText != null) {
                 var currency = _currentPriceData.get("currency");
-                var priceUnit = str(Rez.Strings.PriceUnitOre);
-                if (currency != null && !currency.equals("SEK")) {
-                    priceUnit = currency;
-                }
+                var priceUnit = TibberCurrency.unitLabel(currency);
 
                 var priceRows = [
                     [currentPriceText + " " + priceUnit, _poppinsPriceFont]
@@ -119,13 +116,17 @@ class TibberWidgetView extends WatchUi.View {
                     priceRows.add([null, null, null, hourLevels]);
                 }
                 var tradingTaxesIncluded = _currentPriceType.equals("TOTAL");
-                var networkFeesIncluded = tradingTaxesIncluded && Storage.getValue("tibber_network_fees_enabled") == true;
-                priceRows.add([
-                    (tradingTaxesIncluded ? str(Rez.Strings.TaxesIncluded) : str(Rez.Strings.TaxesExcluded)) +
-                    str(Rez.Strings.StatusSeparator) +
-                    (networkFeesIncluded ? str(Rez.Strings.NetworkIncluded) : str(Rez.Strings.NetworkExcluded)),
-                    _poppinsTinyFont, Theme.TEXT_SECONDARY, null, 12
-                ]);
+                var statusText;
+                if (TibberCurrency.feesSupported(currency)) {
+                    var networkFeesIncluded = tradingTaxesIncluded && TibberCurrency.feesActive(currency);
+                    statusText = (tradingTaxesIncluded ? str(Rez.Strings.TaxesIncluded) : str(Rez.Strings.TaxesExcluded)) +
+                        str(Rez.Strings.StatusSeparator) +
+                        (networkFeesIncluded ? str(Rez.Strings.NetworkIncluded) : str(Rez.Strings.NetworkExcluded));
+                } else {
+                    // Outside Sweden only Tibber's own figures are shown; do not claim what they include.
+                    statusText = tradingTaxesIncluded ? str(Rez.Strings.TotalPerTibber) : str(Rez.Strings.TaxesExcluded);
+                }
+                priceRows.add([statusText, _poppinsTinyFont, Theme.TEXT_SECONDARY, null, 12]);
                 drawTextStack(dc, width, height, priceRows, _widgetLogo);
             } else {
                 drawTextStack(dc, width, height, [
@@ -260,6 +261,11 @@ class TibberWidgetView extends WatchUi.View {
 
     function getCurrentPriceType() {
         return _currentPriceType;
+    }
+
+    /** Currency of the loaded price data, or null before the first successful load. */
+    function getCurrentCurrency() {
+        return _currentPriceData != null ? _currentPriceData.get("currency") : null;
     }
 
     function getCurrentPriceResolution() {

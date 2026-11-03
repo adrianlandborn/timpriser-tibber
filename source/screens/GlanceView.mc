@@ -62,7 +62,7 @@ class TibberGlanceView extends WatchUi.GlanceView {
             var price = _priceCache.getDisplayPrice(_priceData, priceType);
             var currency = _priceData.get("currency");
             if (price instanceof String) {
-                var unit = currency != null && !currency.equals("SEK") ? currency : str(Rez.Strings.PriceUnitOre);
+                var unit = TibberCurrency.unitLabel(currency);
                 priceLine = (price as String) + " " + unit;
                 var startTime = _priceData.get("current_time");
                 var intervalMinutes = _priceData.get("interval_minutes");

@@ -5,6 +5,8 @@ description: "Add or change translated UI strings. Use when: editing resources*/
 
 # Localization
 
+Currency units (öre/øre/cent) are not translated: they come from the API currency via `TibberCurrency.unitLabel` (`source/network/Currency.mc`), never from `strings.xml`, so the watch language cannot change them.
+
 Swedish is the default (`resources/strings/strings.xml`); English lives in `resources-eng/strings/strings.xml`. Other languages follow the same `resources-<iso3>/strings/` pattern plus an `iq:language` entry in `manifest.xml`.
 
 ## Procedure

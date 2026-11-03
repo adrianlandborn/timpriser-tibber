@@ -330,7 +330,7 @@ class TibberPriceChart {
      * @param deviceContext Target drawing surface.
      * @param activeGraphPoint Projected point containing interval minute and price.
      * @param intervalDurationMinutes Interval length used to compute its end time.
-     * @param currency Currency code; SEK displays as ore, null omits the footer.
+     * @param currency Currency code; SEK/NOK/EUR display as minor unit, null omits the footer.
      * @param plotBottom Plot baseline Y coordinate, before X-axis labels.
      */
     private function drawCurrentIntervalFooter(deviceContext, activeGraphPoint, intervalDurationMinutes, currency, plotBottom) {
@@ -339,7 +339,7 @@ class TibberPriceChart {
             return;
         }
 
-        var priceUnit = currency.equals("SEK") ? Application.loadResource(Rez.Strings.PriceUnitOre) as String : currency;
+        var priceUnit = TibberCurrency.unitLabel(currency);
         var priceFont = selectFooterPriceFont(deviceContext, formattedPrice, priceUnit);
         var unitFont = _poppinsTinyFont;
         var priceWidth = deviceContext.getTextWidthInPixels(formattedPrice, priceFont);
