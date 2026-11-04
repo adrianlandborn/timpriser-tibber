@@ -1,3 +1,9 @@
 <properties>
     <property id="tibberToken" type="string"></property>
+    <property id="priceType" type="number">0</property>
+    <property id="priceResolution" type="number">0</property>
+    <property id="networkFeesEnabled" type="boolean">false</property>
+    <property id="networkFixedFeeOre" type="number">20</property>
+    <property id="networkVariablePercent" type="number">5</property>
+    <property id="energyTaxOre" type="number">45</property>
 </properties>

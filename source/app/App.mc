@@ -2,6 +2,7 @@ import Toybox.Application;
 import Toybox.Lang;
 import Toybox.WatchUi;
 
+(:glance)
 class TibberApp extends Application.AppBase {
     private var _priceView;
 
@@ -20,16 +21,18 @@ class TibberApp extends Application.AppBase {
 
     /** Create the initial price view and its input delegate. */
     function getInitialView() {
+        TibberPhoneSettings.apply();
         var priceView = new TibberWidgetView();
         _priceView = priceView;
         var inputDelegate = new TibberWidgetDelegate(priceView);
         return [priceView, inputDelegate];
     }
 
-    /** Refetch prices when the user edits the token in Garmin Connect settings. */
+    /** Apply phone settings and refetch prices when the user edits settings in Garmin Connect. */
     function onSettingsChanged() as Void {
+        TibberPhoneSettings.apply();
         if (_priceView != null) {
-            _priceView.refreshPriceData();
+            _priceView.reloadSettings();
         }
         WatchUi.requestUpdate();
     }

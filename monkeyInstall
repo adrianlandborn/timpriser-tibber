@@ -41,5 +41,13 @@ echo "Compiling $device..."
 stat -f "Compiled: %Sm %N" "$prg"
 
 ensure_simulator
+# The simulator's App Settings Editor only sees settings pushed with monkeydo -a; monkeyc writes
+# the file next to the .prg. Extra arguments (for example -n or another -a) are passed through.
+settings="bin/TibberWidget-$device-settings.json"
+extra=()
+if [ -s "$settings" ]; then
+    extra=(-a "$settings:GARMIN/Settings/TibberWidget-$device-settings.json")
+fi
+
 echo "Launching $prg on $device..."
-exec "$CIQ_HOME/bin/monkeydo" "$prg" "$device"
+exec "$CIQ_HOME/bin/monkeydo" "$prg" "$device" ${extra[@]+"${extra[@]}"} "${@:2}"

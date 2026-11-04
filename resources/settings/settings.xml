@@ -2,4 +2,28 @@
     <setting propertyKey="@Properties.tibberToken" title="@Strings.SettingTokenTitle">
         <settingConfig type="alphaNumeric" />
     </setting>
+    <setting propertyKey="@Properties.priceType" title="@Strings.SettingPriceTypeTitle">
+        <settingConfig type="list">
+            <listEntry value="0">@Strings.TotalPrice</listEntry>
+            <listEntry value="1">@Strings.SpotPrice</listEntry>
+        </settingConfig>
+    </setting>
+    <setting propertyKey="@Properties.priceResolution" title="@Strings.SettingIntervalTitle">
+        <settingConfig type="list">
+            <listEntry value="0">@Strings.ResolutionQuarterHour</listEntry>
+            <listEntry value="1">@Strings.ResolutionHour</listEntry>
+        </settingConfig>
+    </setting>
+    <setting propertyKey="@Properties.networkFeesEnabled" title="@Strings.SettingNetworkFeesTitle">
+        <settingConfig type="boolean" />
+    </setting>
+    <setting propertyKey="@Properties.networkFixedFeeOre" title="@Strings.SettingFixedFeeTitle">
+        <settingConfig type="numeric" min="0" max="1000" />
+    </setting>
+    <setting propertyKey="@Properties.networkVariablePercent" title="@Strings.SettingVariableFeeTitle">
+        <settingConfig type="numeric" min="0" max="100" />
+    </setting>
+    <setting propertyKey="@Properties.energyTaxOre" title="@Strings.SettingEnergyTaxTitle">
+        <settingConfig type="numeric" min="0" max="1000" />
+    </setting>
 </settings>
