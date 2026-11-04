@@ -28,7 +28,7 @@ Always use these scripts. They locate the SDK/Java/signing key, keep full logs i
 ## Conventions
 
 - Monkey C with `import Toybox.*`; classes prefixed `Tibber` (e.g. `TibberPriceCache`); `Application.Storage` keys prefixed `tibber_`.
-- Minimum API 3.2.0 and devices down to `fr55`/`vivoactive4`: check `has`/API level before newer APIs, keep allocations small, avoid large dictionaries/arrays.
+- Minimum API 3.2.0 and devices down to `vivoactive4`: check `has`/API level before newer APIs, keep allocations small, avoid large dictionaries/arrays.
 - Colors in `Theme`; chart geometry constants at the top of `PriceChart`. No hard-coded per-device pixel values — derive from `dc` size and font heights.
 - User-visible text goes in `resources/strings/strings.xml` (Swedish, default) and `resources-eng/strings/strings.xml` (English). Both files must define the same IDs (enforced by lint).
 - Tests: top-level `(:test) function testXxx(logger)`; fakes are `(:test)` classes. Tests must restore any `Storage` values they change and never call the network.

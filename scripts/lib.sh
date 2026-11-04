@@ -10,7 +10,7 @@ LOG_DIR="$CACHE_DIR/logs"
 BASELINE_DIR="$REPO_ROOT/.agents/baselines"
 DEFAULT_DEVICE="fenix7xpro"
 # Standard fonts, large-font profile, small screen / tight memory.
-DEFAULT_CHECK_DEVICES="fenix7xpro fenix847mm fr55"
+DEFAULT_CHECK_DEVICES="fenix7xpro fenix847mm vivoactive4"
 
 mkdir -p "$LOG_DIR"
 

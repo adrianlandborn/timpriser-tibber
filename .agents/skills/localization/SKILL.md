@@ -14,11 +14,11 @@ Swedish is the default (`resources/strings/strings.xml`); English lives in `reso
 1. Add the string to `resources/strings/strings.xml` first, then to every other language file with the same `id`. `scripts/check.sh fast` fails if IDs differ.
 2. Translation is mechanical work: use the cheapest model available. In Claude Code, delegate it to a subagent with `model: haiku` and pass only the XML file(s) and the rules below; do not translate with the main model.
 3. Review the result yourself for placeholders, `&amp;` escapes and meaning, then run `scripts/check.sh fast`.
-4. Run `scripts/build.sh fr55 fenix7xpro` after adding long strings.
+4. Run `scripts/build.sh vivoactive4 fenix7xpro` after adding long strings.
 
 ## Rules for translators
 
 - Keep IDs, `&amp;`, leading/trailing spaces (e.g. `StatusSeparator`, `ErrorHttpPrefix`) and units (`öre`, `kWh`, `%`) unchanged.
-- Match the original's length or shorter: small displays (`fr55`, `vivoactive4`) clip long text.
+- Match the original's length or shorter: small displays (`vivoactive4`) clip long text.
 - Keep Tibber and Swedish grid/tax terms accurate (nätavgift = grid fee, energiskatt = energy tax).
 - Poppins bitmap fonts only cover the characters already used; check `tools/build_poppins_price_font.py` before adding new glyphs (e.g. other accents).

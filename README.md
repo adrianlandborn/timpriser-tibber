@@ -26,6 +26,8 @@ Prices are shown in the minor unit of the currency Tibber returns: SEK as öre, 
 
 START/STOP refreshes prices, MENU opens settings, and BACK returns from graph or settings screens. From the main screen, UP opens the hourly graph and DOWN opens the quarter-hour graph. Within the graph, UP moves from hourly to quarter-hour prices and then back to the main screen; DOWN moves from quarter-hour to hourly prices and then back to the main screen. The hourly graph includes tomorrow's prices when they are available.
 
+On older touch-only devices (vivoactive 4, venu), where a tap carries no position and vertical swipes exit the widget, a tap scrolls through the screens: main screen, quarter-hour graph, hourly graph, then back to the main screen. Tap no longer refreshes there; the price refreshes when the main screen is shown.
+
 ## Requirements
 
 - Garmin Connect IQ SDK 9.3.0 or newer, with device packs for the selected target
@@ -60,10 +62,10 @@ Store users create a personal token at [developer.tibber.com](https://developer.
 From the project root, compile a target with the installed SDK's Monkey C compiler:
 
 ```sh
-monkeyc -f monkey.jungle -o /tmp/TibberWidget.prg -y developer_key.der -d fenix6
+monkeyc -f monkey.jungle -o /tmp/TibberWidget.prg -y developer_key.der -d fenix7xpro
 ```
 
-Replace `fenix6` with a supported product ID below. If `monkeyc` is not on `PATH`, invoke it by its full path under the installed SDK's `bin/` directory. The Garmin Monkey C extension can also build the project and launch it in the Connect IQ simulator. Keep build output outside the repository or in ignored generated-output directories.
+Replace `fenix7xpro` with a supported product ID below. If `monkeyc` is not on `PATH`, invoke it by its full path under the installed SDK's `bin/` directory. The Garmin Monkey C extension can also build the project and launch it in the Connect IQ simulator. Keep build output outside the repository or in ignored generated-output directories.
 
 ## Run in the simulator
 
@@ -87,16 +89,19 @@ monkeydo bin/TibberWidget-fenix7xpro.prg fenix7xpro
 
 If `connectiq`, `monkeyc`, or `monkeydo` is not on `PATH`, invoke the command from the installed SDK's `bin/` directory. Keep the simulator open while launching the package.
 
+`./monkeyInstall <device>` compiles, launches, and also pushes the app's settings file (`bin/TibberWidget-<device>-settings.json`) with `monkeydo -a`, which the simulator's **Settings → App Settings Editor** needs; a plain `monkeydo` launch shows "No settings file found". Extra arguments are passed through to `monkeydo`. If the editor is empty after running the unit tests, use **File → Delete All Apps** and launch again: the tests install the same app id under a `-TESTS-` file name, which hides the settings of the normal build.
+
 ## Supported products
 
-- Fenix 6: `fenix6`, `fenix6pro`, `fenix6s`, `fenix6spro`, `fenix6xpro`
+Devices are grouped into tiers by available memory, and support is rolled out from the newest, highest-memory devices backwards. See [docs/device-tiers.md](docs/device-tiers.md) for the tiers, test devices and current status.
+
+- Fenix 6: `fenix6pro`, `fenix6spro`, `fenix6xpro`
 - Fenix 7: `fenix7`, `fenix7s`, `fenix7x`
 - Fenix 7 Pro: `fenix7pro`, `fenix7spro`, `fenix7xpro`
 - Fenix 7 Pro Solar (no Wi-Fi): `fenix7pronowifi`, `fenix7xpronowifi`
 - Fenix 8: `fenix843mm`, `fenix847mm`, `fenix8pro47mm`, `fenix8solar47mm`, `fenix8solar51mm`
 - Fenix 9: `fenix943mm`, `fenix947mm`, `fenix9pro43mm`, `fenix9pro47mm`, `fenix9pro51mm`, `fenix9prosolar47mm`, `fenix9prosolar51mm`
 - Venu: `venu`
-- Forerunner 55: `fr55`
 - Vivoactive 4: `vivoactive4`, `vivoactive4s`
 - Vivoactive 5: `vivoactive5`
 - Vivoactive 6: `vivoactive6`
@@ -108,6 +113,12 @@ Products are declared in `manifest.xml`. A device pack must be installed to comp
 The main screen defaults to Tibber's `QUARTER_HOURLY` resolution. MENU opens settings; the first settings row switches between `QUARTER_HOURLY` and `HOURLY`. The graph pages use fixed resolutions: `QUARTER_HOURLY` for today, then `HOURLY` for today and tomorrow. If tomorrow's prices are not published yet, the second page shows today's hourly prices and an availability note. Both `getCurrentPrice(callback, resolution)` and `getDailyPrices(callback, resolution, includeTomorrow)` accept a resolution.
 
 The graph plots Tibber's `today` series and appends `tomorrow` for its second page when available. Its compact interval data stores timestamp-based plot offsets and numeric price values, with resolution and currency kept once per series to limit memory use on smaller watches. A typical quarter-hour day contains 96 intervals, though daylight-saving transitions can change the count.
+
+## Settings in the Garmin Connect app
+
+Besides the Tibber token, the defaults can be changed from the phone (Garmin Connect, the app's settings): price type (total or spot), price interval (15 min or 1 hour), grid fees on or off, fixed grid fee (ore/kWh), variable grid fee (%), and energy tax (ore/kWh). Grid fees and energy tax apply to Swedish (SEK) contracts only; for other currencies they are ignored, and their titles say "Sweden only". Changes reach the watch the next time it syncs with the phone.
+
+The phone and the watch's own settings screen share the same stored values, and the last change wins. A phone value is applied only when it differs from the phone value applied last time, so changing one setting on the phone does not overwrite a different choice made on the watch. To make the phone's value win again for a setting, change it on the phone. The settings are defined in `resources/settings/settings.xml` and `resources/properties.xml` (defaults must match `source/app/PhoneSettings.mc`).
 
 ## Energy tax and network fees
 

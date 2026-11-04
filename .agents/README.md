@@ -39,7 +39,7 @@ An agent is a model running in a loop: **instructions → act → observe feedba
 ### Why this saves credits
 
 - **Small always-on context.** `AGENTS.md` is read on every request, so it holds only routing and rules (validated to stay under ~150 lines). Pricing, UI and device knowledge are skills that cost about 50 tokens each until needed.
-- **Summaries instead of logs.** A raw `monkeyc -w` build prints 70+ warnings for `fr55`. The harness prints one line, plus only *new* warnings. Logs stay on disk for targeted `grep`.
+- **Summaries instead of logs.** A raw `monkeyc -w` build prints 70+ warnings for small devices. The harness prints one line, plus only *new* warnings. Logs stay on disk for targeted `grep`.
 - **No rediscovery.** SDK, Java and key resolution are scripted, so agents don't spend turns finding `monkeyc` or fixing `Unable to locate a Java Runtime`.
 - **No wild-goose chases.** Five existing test errors and existing warnings are baselined. Agents are told they are not their task, and are alerted when they get fixed.
 - **Tiered checks.** `fast` takes about 1 s and needs no SDK (docs/config edits); `build` takes ~15 s; `full` takes ~30 s with tests.
@@ -79,6 +79,5 @@ Then, per tool:
 ## Suggested next steps
 
 1. Fix the 5 baselined test errors (`abs` symbol missing in `PriceChartTest`, null colour in `WidgetSettingsTest`), then shrink the baseline.
-2. Review the `fr55` baseline: the glance exceeds that device's memory limit.
 3. Add a `release-check` skill that walks through `RELEASE_READINESS.md` when you approach Store submission.
 4. Optionally add a `Stop` hook that reminds the agent to run `scripts/check.sh` if `.mc` files changed. It's left out for now to keep the setup simple and portable.

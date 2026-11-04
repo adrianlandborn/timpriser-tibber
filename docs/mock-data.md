@@ -51,7 +51,7 @@ version) to `Deutsch`, `Norsk bokmål` or `Nederlands`. Anything else falls back
 ## 3. Run
 
 Run the widget in the simulator as usual (VS Code: *Run Without Debugging* on a device, e.g. `fenix7xpro`;
-check `fr55` and `fenix847mm` too, since German labels are the longest). The console prints
+check `vivoactive4` and `fenix847mm` too, since German labels are the longest). The console prints
 `Tibber MOCK <token> <kind> <resolution>` for each simulated request.
 
 ## What to look for

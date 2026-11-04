@@ -1,5 +1,4 @@
 WARNING: fenix847mm: The launcher icon (80x80) isn't compatible with the specified launcher icon size of the device 'fenix847mm' (65x65). The image will be scaled to the target size.
-WARNING: fenix847mm: This is a 'watch-app' app type but no source code was annotated with (:glance). The entire application will be loaded as a glance process.
 WARNING: fenix847mm: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
 WARNING: fenix847mm: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
 WARNING: fenix847mm: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
@@ -43,8 +42,6 @@ WARNING: fenix847mm: source/charts/PriceChart.mc: Cannot determine if container 
 WARNING: fenix847mm: source/components/SegmentedControl.mc: Member variable 'SIDE_INSET' is not used.
 WARNING: fenix847mm: source/network/ApiClient.mc: '$.Toybox.Communications.makeJsonRequest' is deprecated.
 WARNING: fenix847mm: source/network/ApiClient.mc: Cannot determine if container access is using container type.
-WARNING: fenix847mm: source/screens/GlanceView.mc: Cannot determine if container access is using container type.
-WARNING: fenix847mm: source/screens/GlanceView.mc: Cannot determine if container access is using container type.
 WARNING: fenix847mm: source/screens/GlanceView.mc: Cannot determine if container access is using container type.
 WARNING: fenix847mm: source/screens/GlanceView.mc: Local variable 'rowSpacing' is not used.
 WARNING: fenix847mm: source/screens/PriceGraphView.mc: Cannot determine if container access is using container type.

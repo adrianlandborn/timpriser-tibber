@@ -25,7 +25,7 @@ The harness lives in `scripts/` and is the only supported way to compile and tes
 
 ## Device matrix
 
-`scripts/check.sh build|full` compiles `fenix7xpro` (standard fonts), `fenix847mm` (large-font profile via `monkey.jungle`) and `fr55` (small screen, tight memory/glance limit). Override with `CHECK_DEVICES="venu vivoactive5" scripts/check.sh build`. Each device needs its device pack installed in the SDK Manager.
+`scripts/check.sh build|full` compiles `fenix7xpro` (standard fonts), `fenix847mm` (large-font profile via `monkey.jungle`) and `vivoactive4` (small screen, tight memory/glance limit). Override with `CHECK_DEVICES="venu vivoactive5" scripts/check.sh build`. Each device needs its device pack installed in the SDK Manager.
 
 ## Troubleshooting
 
