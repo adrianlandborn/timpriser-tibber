@@ -1,10 +1,10 @@
 <resources>
     <fonts>
-        <font id="PoppinsMicro" filename="fonts/PoppinsMicro.fnt" antialias="true" />
-        <font id="PoppinsTiny" filename="fonts/PoppinsTiny.fnt" antialias="true" />
-        <font id="PoppinsSmall" filename="fonts/PoppinsSmall.fnt" antialias="true" />
-        <font id="PoppinsMedium" filename="fonts/PoppinsMedium.fnt" antialias="true" />
-        <font id="PoppinsLarge" filename="fonts/PoppinsLarge.fnt" antialias="true" />
+        <font id="PoppinsMicro" filename="fonts/PoppinsMicro.fnt" antialias="true" scope="glance" />
+        <font id="PoppinsTiny" filename="fonts/PoppinsTiny.fnt" antialias="true" scope="glance" />
+        <font id="PoppinsSmall" filename="fonts/PoppinsSmall.fnt" antialias="true" scope="glance" />
+        <font id="PoppinsMedium" filename="fonts/PoppinsMedium.fnt" antialias="true" scope="glance" />
+        <font id="PoppinsLarge" filename="fonts/PoppinsLarge.fnt" antialias="true" scope="glance" />
         <font id="PoppinsPrice" filename="fonts/PoppinsPrice.fnt" antialias="true" />
     </fonts>
 </resources>

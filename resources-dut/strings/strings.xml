@@ -15,7 +15,7 @@
     <string id="NetworkExcluded">Net excl.</string>
     <string id="StatusSeparator"> | </string>
     <string id="PriceDataMissing">Prijsdata ontbr.</string>
-    <string id="OpenTibber">Open Tibber</string>
+    <string id="OpenTibber" scope="glance">Open Tibber</string>
     <string id="PricesMissing">Geen prijzen</string>
     <string id="InvalidPriceData">Ongeldige data</string>
     <string id="CouldNotReadPrices">Prijzen niet lezen</string>
@@ -42,6 +42,12 @@
     <string id="ErrorRequestInProgress">Een Tibber-verzoek is al bezig</string>
     <string id="ErrorTokenMissing">Voer Tibber-token in instell.</string>
     <string id="SettingTokenTitle">Tibber API-token</string>
+    <string id="SettingPriceTypeTitle">Getoonde prijs</string>
+    <string id="SettingIntervalTitle">Prijsinterval</string>
+    <string id="SettingNetworkFeesTitle">Netkosten (alleen Zweden)</string>
+    <string id="SettingFixedFeeTitle">Vaste netkosten, öre/kWh (alleen Zweden)</string>
+    <string id="SettingVariableFeeTitle">Variabele netkosten, % (alleen Zweden)</string>
+    <string id="SettingEnergyTaxTitle">Energiebelasting, öre/kWh (alleen Zweden)</string>
     <string id="ErrorRequestStart">Kan verzoek niet starten</string>
     <string id="ErrorInvalidResponse">Tibber gaf ongeldig antwoord</string>
     <string id="ErrorHttpPrefix">Tibber HTTP-fout </string>

@@ -6,6 +6,7 @@ import Toybox.System;
  * Horizontal 24-hour bar colored by price level with a marker for the current time.
  * Levels are a 24-character string of digits "1" (very cheap) to "5" (very expensive).
  */
+(:glance)
 class TibberHourLevelBar {
     private const BAR_HEIGHT = 6;
     private const MARKER_HEIGHT = 14;

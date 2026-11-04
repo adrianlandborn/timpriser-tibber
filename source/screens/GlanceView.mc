@@ -1,28 +1,43 @@
 import Toybox.Graphics;
 import Toybox.Lang;
+import Toybox.System;
 import Toybox.WatchUi;
 import Toybox.Application.Storage;
 
+(:glance)
 class TibberGlanceView extends WatchUi.GlanceView {
     var _priceCache;
     var _priceData;
-    var _microFont;
-    var _tinyFont;
-    var _smallFont;
-    var _mediumFont;
-    var _largeFont;
     var _hourBar;
+    var _microFont;
+    var _priceFonts;
+
+    /** Free glance heap (bytes) required before the Poppins bitmap fonts are loaded; below it system fonts are used. */
+    private const POPPINS_MIN_FREE_BYTES = 40000;
 
     function initialize() {
         GlanceView.initialize();
         _priceCache = new TibberPriceCache();
         _priceData = null;
         _hourBar = new TibberHourLevelBar();
+        loadFonts();
+    }
+
+    /** Use Poppins where the glance heap has room, otherwise system fonts (small-memory devices). */
+    private function loadFonts() {
+        _microFont = Graphics.FONT_XTINY;
+        _priceFonts = [Graphics.FONT_LARGE, Graphics.FONT_MEDIUM, Graphics.FONT_SMALL, Graphics.FONT_TINY];
+        var stats = System.getSystemStats();
+        if (stats.freeMemory < POPPINS_MIN_FREE_BYTES) {
+            return;
+        }
         _microFont = WatchUi.loadResource(Rez.Fonts.PoppinsMicro) as WatchUi.FontResource;
-        _tinyFont = WatchUi.loadResource(Rez.Fonts.PoppinsTiny) as WatchUi.FontResource;
-        _smallFont = WatchUi.loadResource(Rez.Fonts.PoppinsSmall) as WatchUi.FontResource;
-        _mediumFont = WatchUi.loadResource(Rez.Fonts.PoppinsMedium) as WatchUi.FontResource;
-        _largeFont = WatchUi.loadResource(Rez.Fonts.PoppinsLarge) as WatchUi.FontResource;
+        _priceFonts = [
+            WatchUi.loadResource(Rez.Fonts.PoppinsLarge) as WatchUi.FontResource,
+            WatchUi.loadResource(Rez.Fonts.PoppinsMedium) as WatchUi.FontResource,
+            WatchUi.loadResource(Rez.Fonts.PoppinsSmall) as WatchUi.FontResource,
+            WatchUi.loadResource(Rez.Fonts.PoppinsTiny) as WatchUi.FontResource
+        ];
     }
 
     function onShow() {
@@ -51,7 +66,7 @@ class TibberGlanceView extends WatchUi.GlanceView {
         var availableWidth = width - textX - 12;
         var metadataLine = "";
         var priceLine = str(Rez.Strings.OpenTibber);
-        var selectedPriceFont = _largeFont;
+        var selectedPriceFont = null;
         var rowSpacing = 2;
         var priceType = Storage.getValue("tibber_price_type");
         if (!(priceType instanceof String) || !((priceType as String).equals("TOTAL") || (priceType as String).equals("SPOT"))) {
@@ -80,7 +95,9 @@ class TibberGlanceView extends WatchUi.GlanceView {
         var intervalGap = 8;
         var intervalWidth = metadataLine.length() > 0 ? dc.getTextWidthInPixels(metadataLine, _microFont) : 0;
         var priceAvailableWidth = availableWidth - (intervalWidth > 0 ? intervalWidth + intervalGap : 0);
-        if (priceAvailableWidth < availableWidth / 2) {
+        // Keep the interval unless the price cannot fit beside it even in the smallest font;
+        // otherwise the price font shrinks first (fitPriceFont).
+        if (intervalWidth > 0 && dc.getTextWidthInPixels(priceLine, (_priceFonts as Array)[3] as Graphics.FontType) > priceAvailableWidth) {
             metadataLine = "";
             intervalWidth = 0;
             priceAvailableWidth = availableWidth;
@@ -109,22 +126,15 @@ class TibberGlanceView extends WatchUi.GlanceView {
         }
     }
 
+    /** Pick the largest font whose text fits the given width and height. */
     private function fitPriceFont(dc, text, availableWidth, availableHeight) {
-        var largeHeight = dc.getTextDimensions(text, _largeFont)[1];
-        if (dc.getTextWidthInPixels(text, _largeFont) <= availableWidth && largeHeight <= availableHeight) {
-            return _largeFont;
+        for (var i = 0; i < 3; i++) {
+            var font = (_priceFonts as Array)[i] as Graphics.FontType;
+            if (dc.getTextWidthInPixels(text, font) <= availableWidth && dc.getTextDimensions(text, font)[1] <= availableHeight) {
+                return font;
+            }
         }
-
-        var mediumHeight = dc.getTextDimensions(text, _mediumFont)[1];
-        if (dc.getTextWidthInPixels(text, _mediumFont) <= availableWidth && mediumHeight <= availableHeight) {
-            return _mediumFont;
-        }
-
-        var smallHeight = dc.getTextDimensions(text, _smallFont)[1];
-        if (dc.getTextWidthInPixels(text, _smallFont) <= availableWidth && smallHeight <= availableHeight) {
-            return _smallFont;
-        }
-        return _tinyFont;
+        return (_priceFonts as Array)[3] as Graphics.FontType;
     }
 
     private function fitText(dc, text, font, availableWidth) {

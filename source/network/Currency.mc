@@ -2,6 +2,7 @@ import Toybox.Application.Storage;
 import Toybox.Lang;
 
 /** Currency rules: minor-unit display (SEK/NOK/EUR x100) and Sweden-only grid fee support. */
+(:glance)
 module TibberCurrency {
     function isMinorUnit(currency) {
         return currency != null && (currency.equals("SEK") || currency.equals("NOK") || currency.equals("EUR"));

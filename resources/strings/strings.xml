@@ -15,7 +15,7 @@
     <string id="NetworkExcluded">Nät exkl.</string>
     <string id="StatusSeparator"> | </string>
     <string id="PriceDataMissing">Prisdata saknas</string>
-    <string id="OpenTibber">Öppna Tibber</string>
+    <string id="OpenTibber" scope="glance">Öppna Tibber</string>
     <string id="PricesMissing">Priser saknas</string>
     <string id="InvalidPriceData">Ogiltiga prisdata</string>
     <string id="CouldNotReadPrices">Kunde inte läsa priser</string>
@@ -42,6 +42,12 @@
     <string id="ErrorRequestInProgress">En Tibber-förfrågan pågår redan</string>
     <string id="ErrorTokenMissing">Ange Tibber-token i appinställningarna</string>
     <string id="SettingTokenTitle">Tibber API-token</string>
+    <string id="SettingPriceTypeTitle">Visat pris</string>
+    <string id="SettingIntervalTitle">Prisintervall</string>
+    <string id="SettingNetworkFeesTitle">Nätavgifter (endast Sverige)</string>
+    <string id="SettingFixedFeeTitle">Fast nätavgift, öre/kWh (endast Sverige)</string>
+    <string id="SettingVariableFeeTitle">Rörlig nätavgift, % (endast Sverige)</string>
+    <string id="SettingEnergyTaxTitle">Energiskatt, öre/kWh (endast Sverige)</string>
     <string id="ErrorRequestStart">Kunde inte starta Tibber-förfrågan</string>
     <string id="ErrorInvalidResponse">Tibber returnerade ett ogiltigt svar</string>
     <string id="ErrorHttpPrefix">Tibber HTTP-fel </string>

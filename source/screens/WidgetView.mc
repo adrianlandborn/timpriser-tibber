@@ -1,6 +1,7 @@
 import Toybox.Graphics;
 import Toybox.WatchUi;
 import Toybox.Lang;
+import Toybox.System;
 import Toybox.Application.Storage;
 
 class TibberWidgetView extends WatchUi.View {
@@ -28,6 +29,29 @@ class TibberWidgetView extends WatchUi.View {
         _priceErrorMessage = null;
         _priceApiClient = new TibberApiClient();
         _priceCache = new TibberPriceCache();
+        loadStoredSettings();
+        _poppinsTinyFont = WatchUi.loadResource(Rez.Fonts.PoppinsTiny) as WatchUi.FontResource;
+        _poppinsSmallFont = WatchUi.loadResource(Rez.Fonts.PoppinsSmall) as WatchUi.FontResource;
+        // Medium and Large are loaded on first use (getMediumFont/getLargeFont): loading
+        // every font up front runs out of memory on small devices such as fr55.
+        _poppinsMediumFont = null;
+        _poppinsLargeFont = null;
+        _poppinsPriceFont = WatchUi.loadResource(Rez.Fonts.PoppinsPrice) as WatchUi.FontResource;
+        _widgetLogo = loadWidgetLogo();
+    }
+
+    /** The logo is decoration: on a device that rejects the bitmap, draw without it instead of crashing. */
+    private function loadWidgetLogo() {
+        try {
+            return WatchUi.loadResource(Rez.Drawables.WidgetLogo) as WatchUi.BitmapResource;
+        } catch (ex) {
+            System.println("Widget logo not loaded: " + ex.getErrorMessage());
+            return null;
+        }
+    }
+
+    /** Read the price type and interval from Storage, falling back to the defaults. */
+    function loadStoredSettings() {
         _currentPriceResolution = Storage.getValue("tibber_price_resolution");
         if (!(_currentPriceResolution instanceof String) ||
             (!_currentPriceResolution.equals("HOURLY") && !_currentPriceResolution.equals("QUARTER_HOURLY"))) {
@@ -38,12 +62,14 @@ class TibberWidgetView extends WatchUi.View {
             (!_currentPriceType.equals("TOTAL") && !_currentPriceType.equals("SPOT"))) {
             _currentPriceType = "TOTAL";
         }
-        _poppinsTinyFont = WatchUi.loadResource(Rez.Fonts.PoppinsTiny) as WatchUi.FontResource;
-        _poppinsSmallFont = WatchUi.loadResource(Rez.Fonts.PoppinsSmall) as WatchUi.FontResource;
-        _poppinsMediumFont = WatchUi.loadResource(Rez.Fonts.PoppinsMedium) as WatchUi.FontResource;
-        _poppinsLargeFont = WatchUi.loadResource(Rez.Fonts.PoppinsLarge) as WatchUi.FontResource;
-        _poppinsPriceFont = WatchUi.loadResource(Rez.Fonts.PoppinsPrice) as WatchUi.FontResource;
-        _widgetLogo = WatchUi.loadResource(Rez.Drawables.WidgetLogo) as WatchUi.BitmapResource;
+    }
+
+    /** Pick up values changed from the phone and refetch with them. */
+    function reloadSettings() {
+        loadStoredSettings();
+        _currentPriceData = null;
+        _priceErrorMessage = null;
+        fetchPriceData(true);
     }
 
     /** Lay out the price screen; drawing is sized from the device context. */
@@ -214,9 +240,9 @@ class TibberWidgetView extends WatchUi.View {
         var selectedFont = preferredFont;
         while (dc.getTextWidthInPixels(candidateText, selectedFont) > availableTextWidth && selectedFont != _poppinsTinyFont) {
             if (selectedFont == _poppinsPriceFont) {
-                selectedFont = _poppinsLargeFont;
+                selectedFont = getLargeFont();
             } else if (selectedFont == _poppinsLargeFont) {
-                selectedFont = _poppinsMediumFont;
+                selectedFont = getMediumFont();
             } else if (selectedFont == _poppinsMediumFont) {
                 selectedFont = _poppinsSmallFont;
             } else {
@@ -277,11 +303,21 @@ class TibberWidgetView extends WatchUi.View {
     }
 
     function getLargeFont() {
+        if (_poppinsLargeFont == null) {
+            _poppinsLargeFont = WatchUi.loadResource(Rez.Fonts.PoppinsLarge) as WatchUi.FontResource;
+        }
         return _poppinsLargeFont;
     }
 
+    function getMediumFont() {
+        if (_poppinsMediumFont == null) {
+            _poppinsMediumFont = WatchUi.loadResource(Rez.Fonts.PoppinsMedium) as WatchUi.FontResource;
+        }
+        return _poppinsMediumFont;
+    }
+
     function showSettings() {
-        var settingsView = new TibberWidgetSettingsView(self, _poppinsTinyFont, _poppinsSmallFont, _poppinsLargeFont);
+        var settingsView = new TibberWidgetSettingsView(self, _poppinsTinyFont, _poppinsSmallFont, getLargeFont());
         var settingsDelegate = new TibberWidgetSettingsDelegate(settingsView);
         WatchUi.pushView(settingsView, settingsDelegate, WatchUi.SLIDE_UP);
     }
@@ -312,7 +348,7 @@ class TibberWidgetView extends WatchUi.View {
 
     /** Push the graph detail view above the current-price screen. */
     function showPriceGraph(initialPage) {
-        var graphView = new TibberPriceGraphView(_poppinsTinyFont, _poppinsSmallFont, _poppinsMediumFont, _currentPriceType, initialPage);
+        var graphView = new TibberPriceGraphView(_poppinsTinyFont, _poppinsSmallFont, getMediumFont(), _currentPriceType, initialPage);
         var graphDelegate = new TibberPriceGraphDelegate(graphView, self);
         WatchUi.pushView(graphView, graphDelegate, WatchUi.SLIDE_UP);
     }

@@ -4,6 +4,7 @@ import Toybox.Graphics;
  * Design tokens for the app. Raw palette values come first; screens and
  * components should only use the semantic tokens below them.
  */
+(:glance)
 module Theme {
     // Palette
     const PALETTE_BLACK = Graphics.COLOR_BLACK;

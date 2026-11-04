@@ -15,7 +15,7 @@
     <string id="NetworkExcluded">Nett eks.</string>
     <string id="StatusSeparator"> | </string>
     <string id="PriceDataMissing">Mangler prisdata</string>
-    <string id="OpenTibber">Åpne Tibber</string>
+    <string id="OpenTibber" scope="glance">Åpne Tibber</string>
     <string id="PricesMissing">Mangler priser</string>
     <string id="InvalidPriceData">Ugyldige prisdata</string>
     <string id="CouldNotReadPrices">Kan ikke lese priser</string>
@@ -42,6 +42,12 @@
     <string id="ErrorRequestInProgress">Tibber-forespørsel pågår allerede</string>
     <string id="ErrorTokenMissing">Angi Tibber-token i appinnst.</string>
     <string id="SettingTokenTitle">Tibber API-token</string>
+    <string id="SettingPriceTypeTitle">Vist pris</string>
+    <string id="SettingIntervalTitle">Prisintervall</string>
+    <string id="SettingNetworkFeesTitle">Nettleie (kun Sverige)</string>
+    <string id="SettingFixedFeeTitle">Fast nettleie, öre/kWh (kun Sverige)</string>
+    <string id="SettingVariableFeeTitle">Variabel nettleie, % (kun Sverige)</string>
+    <string id="SettingEnergyTaxTitle">Energiavgift, öre/kWh (kun Sverige)</string>
     <string id="ErrorRequestStart">Kunne ikke starte forespørsel</string>
     <string id="ErrorInvalidResponse">Tibber ga ugyldig svar</string>
     <string id="ErrorHttpPrefix">Tibber HTTP-feil </string>

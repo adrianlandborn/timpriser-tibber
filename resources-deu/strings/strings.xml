@@ -15,7 +15,7 @@
     <string id="NetworkExcluded">Netz exkl.</string>
     <string id="StatusSeparator"> | </string>
     <string id="PriceDataMissing">Preisdaten fehlen</string>
-    <string id="OpenTibber">Öffnen</string>
+    <string id="OpenTibber" scope="glance">Öffnen</string>
     <string id="PricesMissing">Preise fehlen</string>
     <string id="InvalidPriceData">Ungültige Daten</string>
     <string id="CouldNotReadPrices">Preise nicht lesbar</string>
@@ -42,6 +42,12 @@
     <string id="ErrorRequestInProgress">Eine Tibber-Anfrage läuft bereits</string>
     <string id="ErrorTokenMissing">Tibber-Token in App eingeben</string>
     <string id="SettingTokenTitle">Tibber API-Token</string>
+    <string id="SettingPriceTypeTitle">Angezeigter Preis</string>
+    <string id="SettingIntervalTitle">Preisintervall</string>
+    <string id="SettingNetworkFeesTitle">Netzentgelte (nur Schweden)</string>
+    <string id="SettingFixedFeeTitle">Festes Netzentgelt, öre/kWh (nur Schweden)</string>
+    <string id="SettingVariableFeeTitle">Variables Netzentgelt, % (nur Schweden)</string>
+    <string id="SettingEnergyTaxTitle">Energiesteuer, öre/kWh (nur Schweden)</string>
     <string id="ErrorRequestStart">Anfrage konnte nicht starten</string>
     <string id="ErrorInvalidResponse">Tibber sendete ungültige Antwort</string>
     <string id="ErrorHttpPrefix">Tibber HTTP: </string>
