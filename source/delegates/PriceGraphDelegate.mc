@@ -11,8 +11,11 @@ class TibberPriceGraphDelegate extends WatchUi.BehaviorDelegate {
         _widgetView = widgetView;
     }
 
-    /** Refresh the graph page when START/SELECT is pressed. */
+    /** Refresh the graph page when START/SELECT is pressed; on older touch devices a tap scrolls to the next screen. */
     function onSelect() {
+        if (TibberTouchScroll.isEnabled()) {
+            return onNextPage();
+        }
         _graphView.refreshPriceData();
         return true;
     }
