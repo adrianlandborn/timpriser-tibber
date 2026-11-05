@@ -13,5 +13,10 @@ description: "Add, remove or validate supported Garmin products. Use when: editi
 3. Add `<iq:product id="..."/>` to `manifest.xml`, keeping the list alphabetical.
 4. If the device needs the large-font profile, add `<id>.resourcePath = $(base.resourcePath);resources-large` to `monkey.jungle`, and only after visual validation.
 5. `scripts/build.sh <id>`. For a first build of a new device, run `scripts/build.sh --update-baseline <id>`, then review the baseline file before committing. Look especially for glance memory and launcher icon warnings.
-6. Update the README "Supported products" list.
-7. `scripts/check.sh build`.
+6. Update the README "Supported products" list and the tier table in [docs/device-tiers.md](../../../docs/device-tiers.md).
+7. Add the new (or removed) devices to the unreleased section of [CHANGELOG.md](../../../CHANGELOG.md), one line per batch, with the marketing name and the product ids.
+8. `scripts/check.sh build`.
+
+## Trying many devices at once
+
+`scripts/device-smoke.sh [--candidates | device ...]` adds each device to `manifest.xml`, builds, launches it in the simulator, presses DOWN + SELECT to open the widget from its glance, screenshots only the simulator window (`.cache/ciq/smoke/shots/`), and keeps the devices that start without an error. Devices that fail are removed again and recorded with the reason in [docs/device-smoke-failures.md](../../../docs/device-smoke-failures.md). Use `--dry-run` to change nothing, `--list` to see the candidates. It needs the simulator GUI and screen-recording and accessibility permission for the terminal. Passing only means "no crash"; look at the screenshots, then do steps 6 and 7 for the kept devices.

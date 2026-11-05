@@ -33,6 +33,7 @@ Always use these scripts. They locate the SDK/Java/signing key, keep full logs i
 - User-visible text goes in `resources/strings/strings.xml` (Swedish, default) and `resources-eng/strings/strings.xml` (English). Both files must define the same IDs (enforced by lint).
 - Tests: top-level `(:test) function testXxx(logger)`; fakes are `(:test)` classes. Tests must restore any `Storage` values they change and never call the network.
 - Keep changes surgical; update [README.md](README.md) when behavior, controls, devices, or pricing math change.
+- Add a line to the unreleased section of [CHANGELOG.md](CHANGELOG.md) for user-visible changes, and always when devices are added or removed. The changelog is public: describe what users get, not how it was done (no script names, tooling or internal docs).
 
 ## Guardrails (enforced by hooks in every agent)
 
