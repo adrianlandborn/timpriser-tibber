@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <iq:manifest version="3" xmlns:iq="http://www.garmin.com/xml/connectiq">
-    <iq:application id="5A0109E6CD1CFE31F1495653783684FF" type="widget" name="@Strings.AppName" entry="TibberApp" minSdkVersion="3.2.0" version="1.0.0" launcherIcon="@Drawables.LauncherIcon">
+    <iq:application id="5A0109E6CD1CFE31F1495653783684FF" type="widget" name="@Strings.AppName" entry="TibberApp" minSdkVersion="3.2.0" version="1.1.0" launcherIcon="@Drawables.LauncherIcon">
         <iq:products>
             <iq:product id="approachs50"/>
             <iq:product id="approachs7042mm"/>
