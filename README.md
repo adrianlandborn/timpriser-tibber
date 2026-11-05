@@ -95,16 +95,27 @@ If `connectiq`, `monkeyc`, or `monkeydo` is not on `PATH`, invoke the command fr
 
 Devices are grouped into tiers by available memory, and support is rolled out from the newest, highest-memory devices backwards. See [docs/device-tiers.md](docs/device-tiers.md) for the tiers, test devices and current status.
 
+- Approach: `approachs50`, `approachs7042mm`, `approachs7047mm`
+- Descent: `descentg2`, `descentmk2`, `descentmk2s`, `descentmk343mm`, `descentmk351mm`
+- Enduro: `enduro3`
+- Epix: `epix2pro51mm`
+- Fenix 5: `fenix5plus`, `fenix5splus`, `fenix5xplus`
 - Fenix 6: `fenix6pro`, `fenix6spro`, `fenix6xpro`
-- Fenix 7: `fenix7`, `fenix7s`, `fenix7x`
-- Fenix 7 Pro: `fenix7pro`, `fenix7spro`, `fenix7xpro`
-- Fenix 7 Pro Solar (no Wi-Fi): `fenix7pronowifi`, `fenix7xpronowifi`
+- Fenix 7: `fenix7`, `fenix7pro`, `fenix7pronowifi`, `fenix7s`, `fenix7spro`, `fenix7x`, `fenix7xpro`, `fenix7xpronowifi`
 - Fenix 8: `fenix843mm`, `fenix847mm`, `fenix8pro47mm`, `fenix8solar47mm`, `fenix8solar51mm`
 - Fenix 9: `fenix943mm`, `fenix947mm`, `fenix9pro43mm`, `fenix9pro47mm`, `fenix9pro51mm`, `fenix9prosolar47mm`, `fenix9prosolar51mm`
-- Venu: `venu`
-- Vivoactive 4: `vivoactive4`, `vivoactive4s`
-- Vivoactive 5: `vivoactive5`
-- Vivoactive 6: `vivoactive6`
+- Fenix E: `fenixe`
+- Forerunner 2xx: `fr245m`, `fr255`
+- Forerunner 5xx: `fr57042mm`, `fr57047mm`
+- Forerunner 6xx: `fr645m`
+- Forerunner 7xx: `fr745`
+- Forerunner 9xx: `fr945`, `fr945lte`, `fr955`, `fr965`, `fr970`
+- Instinct: `instinct3amoled45mm`, `instinct3amoled50mm`, `instinctcrossoveramoled`
+- Legacy (Marvel / Star Wars): `legacyherocaptainmarvel`, `legacyherofirstavenger`, `legacysagadarthvader`, `legacysagarey`
+- Marq: `marqadventurer`, `marqathlete`, `marqaviator`, `marqcaptain`, `marqcommander`, `marqdriver`, `marqexpedition`, `marqgolfer`
+- Other: `d2airx10`
+- Venu: `venu`, `venu2`, `venu2plus`, `venu2s`, `venu441mm`, `venu445mm`, `venusq2`, `venusq2m`, `venusqm`, `venux1`
+- Vivoactive: `vivoactive3m`, `vivoactive4`, `vivoactive4s`, `vivoactive5`, `vivoactive6`
 
 Products are declared in `manifest.xml`. A device pack must be installed to compile or simulate a specific target.
 
