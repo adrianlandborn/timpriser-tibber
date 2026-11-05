@@ -73,11 +73,13 @@ class TibberGlanceView extends WatchUi.GlanceView {
             priceType = "TOTAL";
         }
 
+        var hasPrice = false;
         if (_priceData != null) {
             var price = _priceCache.getDisplayPrice(_priceData, priceType);
             var currency = _priceData.get("currency");
             if (price instanceof String) {
                 var unit = TibberCurrency.unitLabel(currency);
+                hasPrice = true;
                 priceLine = (price as String) + " " + unit;
                 var startTime = _priceData.get("current_time");
                 var intervalMinutes = _priceData.get("interval_minutes");
@@ -103,7 +105,17 @@ class TibberGlanceView extends WatchUi.GlanceView {
             priceAvailableWidth = availableWidth;
         }
 
-        selectedPriceFont = fitPriceFont(dc, priceLine, priceAvailableWidth, height - reservedBarHeight - 4);
+        if (hasPrice) {
+            selectedPriceFont = fitPriceFont(dc, priceLine, priceAvailableWidth, height - reservedBarHeight - 4);
+        } else {
+            // Large/Medium Poppins hold only price glyphs (no lowercase p, i, b...), so the text message
+            // uses the largest system font that fits.
+            selectedPriceFont = fitFont(
+                dc, priceLine,
+                [Graphics.FONT_LARGE, Graphics.FONT_MEDIUM, Graphics.FONT_SMALL, Graphics.FONT_TINY],
+                priceAvailableWidth, height - 4
+            );
+        }
         priceLine = fitText(dc, priceLine, selectedPriceFont, priceAvailableWidth);
         var priceHeight = dc.getTextDimensions(priceLine, selectedPriceFont)[1];
         var contentHeight = priceHeight + reservedBarHeight;
@@ -128,13 +140,19 @@ class TibberGlanceView extends WatchUi.GlanceView {
 
     /** Pick the largest font whose text fits the given width and height. */
     private function fitPriceFont(dc, text, availableWidth, availableHeight) {
-        for (var i = 0; i < 3; i++) {
-            var font = (_priceFonts as Array)[i] as Graphics.FontType;
+        return fitFont(dc, text, _priceFonts as Array, availableWidth, availableHeight);
+    }
+
+    /** First font in the list (largest first) that fits; the last one if none does. */
+    private function fitFont(dc, text, fontList, availableWidth, availableHeight) {
+        var fonts = fontList as Array;
+        for (var i = 0; i < fonts.size() - 1; i++) {
+            var font = fonts[i] as Graphics.FontType;
             if (dc.getTextWidthInPixels(text, font) <= availableWidth && dc.getTextDimensions(text, font)[1] <= availableHeight) {
                 return font;
             }
         }
-        return (_priceFonts as Array)[3] as Graphics.FontType;
+        return fonts[fonts.size() - 1] as Graphics.FontType;
     }
 
     private function fitText(dc, text, font, availableWidth) {
