@@ -1,6 +1,6 @@
 # Agent setup guide
 
-This repo works with any AI coding agent (GitHub Copilot, Claude Code, Codex, Cursor, Gemini CLI) without duplicating instructions. It is adapted from [the agent-agnostic repository guide](https://gist.github.com/davidgibsonp/337be9b80b3f03eccd188235c287bb05), with a build/test **harness** added so agents can verify their own work cheaply.
+This repo works with GitHub Copilot and Claude Code without duplicating instructions. It is adapted from [the agent-agnostic repository guide](https://gist.github.com/davidgibsonp/337be9b80b3f03eccd188235c287bb05), with a build/test **harness** added so agents can verify their own work cheaply.
 
 ## Mental model
 
@@ -9,7 +9,7 @@ Every piece of agent configuration is one of:
 | Category | Strategy here |
 | --- | --- |
 | **Portable**: the same file works for every agent | Stored once: `AGENTS.md`, `.agents/skills/` |
-| **Adapter**: same intent, different format per agent | Thin per-agent files that only point to `.agents/`: `CLAUDE.md`, `.gemini/settings.json`, and the hook JSON files |
+| **Adapter**: same intent, different format per agent | Thin per-agent files that only point to `.agents/`: `CLAUDE.md` and the hook JSON files |
 | **Agent-specific**: no equivalent elsewhere | Left in the agent's folder, for example Claude `permissions` in `.claude/settings.json` |
 
 ### What each agent reads
@@ -18,9 +18,6 @@ Every piece of agent configuration is one of:
 | --- | --- | --- | --- |
 | Copilot (VS Code / CLI / cloud) | `AGENTS.md` | `.agents/skills/` | `.github/hooks/guard.json` (also reads `.claude/settings.json`) |
 | Claude Code | `CLAUDE.md` → `@AGENTS.md` | `.claude/skills/` → symlinks | `.claude/settings.json` |
-| Codex | `AGENTS.md` | `.agents/skills/` | `.codex/hooks.json` (trust it with `/hooks`) |
-| Cursor | `AGENTS.md` | `.agents/skills/` | `.cursor/hooks.json` |
-| Gemini CLI | `.gemini/settings.json` → `AGENTS.md` | `.agents/skills/` | `.gemini/settings.json` (approve on first run) |
 
 There is no MCP layer yet because the project uses no MCP servers. If you add one, follow the gist's pattern: a canonical `.agents/mcp/servers.json` and a sync script that generates each agent's file.
 
@@ -52,11 +49,8 @@ scripts/setup-agents.sh   # sets core.hooksPath, links skills, runs the fast che
 scripts/check.sh full     # confirm SDK, simulator and baselines work on this machine
 ```
 
-Then, per tool:
+Then:
 
-- **Codex:** trust the project and review hooks with `/hooks`.
-- **Gemini CLI:** approve the project hook when prompted.
-- **Cursor:** hooks reload automatically. Check them in Settings → Hooks.
 - **VS Code Copilot:** make sure `chat.useAgentsMdFile` is enabled (the default).
 
 ## Daily workflow
@@ -79,5 +73,5 @@ Then, per tool:
 ## Suggested next steps
 
 1. Fix the 5 baselined test errors (`abs` symbol missing in `PriceChartTest`, null colour in `WidgetSettingsTest`), then shrink the baseline.
-3. Add a `release-check` skill that walks through `RELEASE_READINESS.md` when you approach Store submission.
-4. Optionally add a `Stop` hook that reminds the agent to run `scripts/check.sh` if `.mc` files changed. It's left out for now to keep the setup simple and portable.
+2. Add a `release-check` skill that walks through `RELEASE_READINESS.md` when you approach Store submission.
+3. Optionally add a `Stop` hook that reminds the agent to run `scripts/check.sh` if `.mc` files changed. It's left out for now to keep the setup simple and portable.

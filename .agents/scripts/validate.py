@@ -5,7 +5,7 @@ Usage: python3 .agents/scripts/validate.py
 
 Checks instruction entry points, skills (agentskills.io rules), Claude skill
 symlinks, per-agent hook adapters, relative Markdown links, and runs the
-guard hook against sample payloads from every supported agent.
+guard hook against sample payloads from both supported agents.
 """
 import json
 import re
@@ -24,9 +24,6 @@ LINK_RE = re.compile(r"\[[^\]]*\]\(([^)\s]+)\)")
 ADAPTERS = {
     ".claude/settings.json": "claude",
     ".github/hooks/guard.json": "copilot",
-    ".cursor/hooks.json": "cursor",
-    ".gemini/settings.json": "gemini",
-    ".codex/hooks.json": "codex",
 }
 
 errors, warnings = [], []
@@ -120,14 +117,6 @@ def check_adapters():
             continue
         if GUARD not in text or f"--agent {agent}" not in text:
             errors.append(f"{rel}: must call {GUARD} --agent {agent}")
-    gemini = ROOT / ".gemini/settings.json"
-    if gemini.is_file():
-        try:
-            names = json.loads(gemini.read_text())["context"]["fileName"]
-            if "AGENTS.md" not in (names if isinstance(names, list) else [names]):
-                raise KeyError
-        except (KeyError, TypeError, ValueError):
-            errors.append(".gemini/settings.json: context.fileName must include AGENTS.md")
 
 
 GUARD_CASES = [
@@ -143,16 +132,12 @@ GUARD_CASES = [
     ("copilot", {"tool_name": "replace_string_in_file", "tool_input": {"filePath": "bin/x.prg"}}, True),
     ("copilot", {"toolName": "view", "toolArgs": json.dumps({"path": "developer_key.der"})}, True),
     ("copilot", {"tool_name": "read_file", "tool_input": {"filePath": "gen/resources/x.mc"}}, False),
-    ("cursor", {"file_path": str(ROOT / "developer_key.der"), "content": "..."}, True),
-    ("cursor", {"tool_name": "Write", "tool_input": {"file_path": "resources/fonts/PoppinsSmall.fnt"}}, True),
-    ("cursor", {"tool_name": "Write", "tool_input": {"file_path": "resources/strings/strings.xml"}}, False),
-    ("gemini", {"tool_name": "run_shell_command", "tool_input": {"command": "cp .env /tmp"}}, True),
-    ("gemini", {"tool_name": "write_file", "tool_input": {"file_path": "mir/source/x.mir"}}, True),
-    ("codex", {"tool_name": "apply_patch", "tool_input": {
+    ("copilot", {"tool_name": "apply_patch", "tool_input": {
         "command": "*** Begin Patch\n*** Update File: bin/TibberWidget.prg\n*** End Patch"}}, True),
-    ("codex", {"tool_name": "apply_patch", "tool_input": {
+    ("copilot", {"tool_name": "apply_patch", "tool_input": {
         "command": "*** Begin Patch\n*** Update File: source/app/App.mc\n+bin/\n*** End Patch"}}, False),
-    ("codex", {"tool_name": "Bash", "tool_input": {"command": "echo hi"}}, False),
+    ("copilot", {"tool_name": "run_in_terminal", "tool_input": {"command": "cp .env /tmp"}}, True),
+    ("copilot", {"tool_name": "run_in_terminal", "tool_input": {"command": "echo hi"}}, False),
     ("claude", "not-a-dict", False),
 ]
 

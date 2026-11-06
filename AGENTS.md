@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Garmin Connect IQ widget (Monkey C) that shows Tibber electricity prices with optional Swedish network fees and energy tax. Single source of truth for every coding agent (Copilot, Claude Code, Codex, Cursor, Gemini CLI). Agent config lives in [.agents/](.agents/AGENTS.md); human guide: [.agents/README.md](.agents/README.md).
+Garmin Connect IQ widget (Monkey C) that shows Tibber electricity prices with optional Swedish network fees and energy tax. Single source of truth for Copilot and Claude Code. Agent config lives in [.agents/](.agents/AGENTS.md); human guide: [.agents/README.md](.agents/README.md).
 
 ## Verify with the harness, not ad-hoc commands
 

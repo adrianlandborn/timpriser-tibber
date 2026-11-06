@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """Shared PreToolUse guard for every coding agent in this repo.
 
-Usage: python3 .agents/hooks/guard.py --agent <claude|copilot|cursor|gemini|codex>
+Usage: python3 .agents/hooks/guard.py --agent <claude|copilot>
 
 Reads the hook payload (JSON) on stdin and blocks:
   - any read/write/shell access to signing keys and local secrets
   - writes to generated build output and generated font assets
   - `git ... --no-verify` (bypasses the pre-commit gate)
 
-Contract shared by all supported agents: exit 0 + JSON = allow,
+Contract shared by both supported agents: exit 0 + JSON = allow,
 exit 2 + reason on stderr (and JSON) = deny. Never crash: an internal error
 allows the call, because some agents fail closed on hook errors.
 """
@@ -94,7 +94,6 @@ def evaluate(payload):
     paths, commands, texts = [], [], []
     collect(tool_input, paths, commands, texts)
     collect(payload.get("attachments") or [], paths, [], [])
-    # Cursor beforeReadFile / beforeShellExecution put fields at top level.
     for key in ("file_path", "filePath"):
         if isinstance(payload.get(key), str):
             paths.append(payload[key])
@@ -127,15 +126,7 @@ def evaluate(payload):
     return None
 
 
-def allow_output(agent):
-    return {"permission": "allow"} if agent == "cursor" else {}
-
-
 def deny_output(agent, reason):
-    if agent == "cursor":
-        return {"permission": "deny", "user_message": reason, "agent_message": reason}
-    if agent == "gemini":
-        return {"decision": "deny", "reason": reason}
     if agent == "copilot":
         return {"permissionDecision": "deny", "permissionDecisionReason": reason,
                 "hookSpecificOutput": {"hookEventName": "PreToolUse", "permissionDecision": "deny",
@@ -156,7 +147,7 @@ def main():
     except Exception:  # noqa: BLE001 - must never break the agent loop
         verdict = None
     if verdict is None:
-        print(json.dumps(allow_output(agent)))
+        print(json.dumps({}))
         return 0
     kind, message = verdict
     reason = f"[repo guard] {message} {FIX_HINTS[kind]}"

@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 # Mirror .agents/skills/<name> into agent-native skill dirs as relative symlinks.
-# Only Claude Code needs this today: Copilot, Codex, Cursor and Gemini CLI read
-# .agents/skills/ natively. Add a directory to TARGETS if a new agent needs it.
+# Only Claude Code needs this: Copilot reads .agents/skills/ natively.
 #
 # Usage: .agents/scripts/link-skills.sh [--check]
 #   --check  exit 1 if links are missing or stale, without changing anything.

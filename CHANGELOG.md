@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.1 (unrelesed)
+
+- No changes
+
 ## 1.1.0 - 2026-11-05
 
 - Support for about 50 more devices, including Forerunner 245/255/745/945/955/965/970, Fenix 5 Plus and Fenix E, Descent, Enduro 3, Marq, Venu 2/4/Sq 2/X1, Vivoactive 3 Music, Instinct 3 AMOLED/Crossover AMOLED, and Approach S50/S70.
