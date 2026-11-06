@@ -19,10 +19,10 @@ Always use these scripts. They locate the SDK/Java/signing key, keep full logs i
 
 ## Repository map
 
-- `source/app/` lifecycle · `screens/` views · `delegates/` input · `network/` GraphQL client + `PriceCache` (pricing math) · `charts/` · `components/` · `theme/Theme.mc` shared colors · `config/` secrets (template only) · `tests/` `(:test)` unit tests
+- `source/app/` lifecycle · `screens/` views · `delegates/` input · `settings/` phone-settings sync · `network/` GraphQL client + `PriceCache` (pricing math) · `charts/` · `components/` · `theme/Theme.mc` shared colors · `secrets/` (top-level: local key + token class; template only) · `tests/` `(:test)` unit tests
 - `resources/` strings, bitmaps, fonts (standard); `resources-large/` overrides for the large-font profile (`fenix847mm`, see `monkey.jungle`)
-- `manifest.xml` products/permissions · `monkey.jungle` build config · `tools/` font generator
-- `experiments/` is excluded from builds; do not edit or reference it from `source/`
+- `source/mock/` dev-only mock data · `release/config/` token-less stubs used by `monkey-release.jungle` (new `source/` subfolders must be added to its explicit list)
+- `manifest.xml` products/permissions · `monkey.jungle` build config · `tools/` font generator · `scripts/` harness (`./monkeyInstall` at the root wraps `scripts/install.sh`) · `docs/` guides, release notes, store assets
 - Ignore generated output: `bin/`, `gen/`, `mir/`, `internal-mir/`, `external-mir/`, `.cache/`, `*.prg`. Don't read or search them.
 
 ## Conventions
@@ -37,7 +37,7 @@ Always use these scripts. They locate the SDK/Java/signing key, keep full logs i
 
 ## Guardrails (enforced by hooks in every agent)
 
-- Never read, print, create, or commit `developer_key.*`, `source/config/Secrets.mc`, or `.env*`. Ask the human. The template `Secrets.mc.example` is fine.
+- Never read, print, create, or commit `developer_key.*`, `secrets/Secrets.mc`, or `.env*`. Ask the human. The template `Secrets.mc.example` is fine.
 - Never hand-edit generated output or `resources*/fonts/Poppins*.fnt|png` (regenerate with `python3 tools/build_poppins_price_font.py [--profile large]`).
 - Never use `git commit --no-verify`. The pre-commit hook runs `scripts/check.sh fast --staged`.
 - Don't commit or push unless asked.

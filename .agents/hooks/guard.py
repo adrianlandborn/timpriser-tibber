@@ -22,7 +22,7 @@ ROOT = Path(__file__).resolve().parents[2]
 
 SECRET_PATH = re.compile(
     r"(^|/)(developer_key\.(pem|der)|[^/]*\.(pem|key|p12|pfx)|\.env(\.(?!example$)[^/]+)?)$"
-    r"|^source/config/Secrets\.mc$"
+    r"|^secrets/(?!README\.md$|Secrets\.mc\.example$)"
 )
 SECRET_IN_COMMAND = re.compile(
     r"developer_key\.(pem|der)|[^\s'\"]*\.(pem|p12|pfx)\b|Secrets\.mc(?!\.example)\b"

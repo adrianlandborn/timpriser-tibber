@@ -36,7 +36,7 @@ if ! "$CIQ_HOME/bin/monkeyc" $build_flags -r -f monkey-release.jungle -o "$out" 
 fi
 
 # Leak check: the value is read here and never printed.
-token="$(sed -n 's/.*return "\(.\{1,\}\)";.*/\1/p' "$REPO_ROOT/source/config/Secrets.mc" | head -1)"
+token="$(sed -n 's/.*return "\(.\{1,\}\)";.*/\1/p' "$REPO_ROOT/secrets/Secrets.mc" | head -1)"
 if [ -n "$token" ]; then
     unpacked="$(mktemp -d)"
     trap 'rm -rf "$unpacked"' EXIT

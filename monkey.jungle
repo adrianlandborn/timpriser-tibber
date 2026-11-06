@@ -1,7 +1,7 @@
 project.manifest = manifest.xml
 
-# Source code
-base.sourcePath = source
+# Source code (secrets/ holds the local, git-ignored token class)
+base.sourcePath = source;secrets
 
 # Resources
 base.resourcePath = resources

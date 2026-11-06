@@ -33,7 +33,7 @@ The harness lives in `scripts/` and is the only supported way to compile and tes
 | --- | --- |
 | `Unable to locate a Java Runtime` | Harness checks `JAVA_HOME` and Homebrew `openjdk@17`; otherwise ask the human to `brew install openjdk@17`. |
 | `Connect IQ SDK not found` | SDK path comes from `~/Library/Application Support/Garmin/ConnectIQ/current-sdk.cfg`; set `CIQ_HOME` to override. |
-| `Signing key not found` / `Secrets.mc missing` | Human-only setup (README "Configure local credentials"). Stop and ask. |
+| `Signing key not found` / `secrets/Secrets.mc missing` | Human-only setup (README "Configure local credentials"). Stop and ask. |
 | `no results parsed (simulator problem?)` | Simulator not ready or hung. Ask the human to restart it, or retry once. Do not loop. |
 | `Invalid device id` warning | Product listed in `manifest.xml` but unknown to the SDK; see the `add-device-target` skill. |
 | `Symbol Not Found` at runtime in tests | API missing on that device or a non-static call; check API level and `has` guards. |

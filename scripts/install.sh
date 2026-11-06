@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+# Compile TibberWidget for a device and launch it in the Connect IQ simulator.
+#
+# Usage: ./monkeyInstall <device>     e.g. ./monkeyInstall fenix7xpro
+#        ./monkeyInstall              list devices supported by manifest.xml
+#
+# The device must be listed in manifest.xml (read on every run) and its
+# device pack must be installed in the SDK Manager.
+
+source "$(dirname "$0")/lib.sh"
+cd "$REPO_ROOT"
+
+supported=$(sed -n 's/.*<iq:product id="\([^"]*\)".*/\1/p' manifest.xml)
+[ -n "$supported" ] || die "No <iq:product> entries found in manifest.xml."
+
+device="${1:-}"
+if [ -z "$device" ] || [ "$device" = "-h" ] || [ "$device" = "--help" ]; then
+    echo "Usage: ./monkeyInstall <device>"
+    echo "Supported devices (manifest.xml):"
+    echo "$supported" | sed 's/^/  /'
+    [ -n "$device" ] && exit 0 || exit 1
+fi
+
+if ! echo "$supported" | grep -qx "$device"; then
+    echo "ERROR: '$device' is not in manifest.xml. Supported devices:" >&2
+    echo "$supported" | sed 's/^/  /' >&2
+    exit 1
+fi
+
+setup_toolchain
+devices_dir="$HOME/Library/Application Support/Garmin/ConnectIQ/Devices"
+[ -d "$devices_dir/$device" ] || die "Device pack for '$device' is not installed. Install it with the Connect IQ SDK Manager."
+
+prg="bin/TibberWidget-$device.prg"
+mkdir -p bin
+rm -f "$prg"
+
+echo "Compiling $device..."
+"$CIQ_HOME/bin/monkeyc" -f monkey.jungle -o "$prg" -y "$SIGNING_KEY" -d "$device"
+[ -s "$prg" ] || die "Compilation produced no package."
+stat -f "Compiled: %Sm %N" "$prg"
+
+ensure_simulator
+# The simulator's App Settings Editor only sees settings pushed with monkeydo -a; monkeyc writes
+# the file next to the .prg. Extra arguments (for example -n or another -a) are passed through.
+settings="bin/TibberWidget-$device-settings.json"
+extra=()
+if [ -s "$settings" ]; then
+    extra=(-a "$settings:GARMIN/Settings/TibberWidget-$device-settings.json")
+fi
+
+echo "Launching $prg on $device..."
+exec "$CIQ_HOME/bin/monkeydo" "$prg" "$device" ${extra[@]+"${extra[@]}"} "${@:2}"

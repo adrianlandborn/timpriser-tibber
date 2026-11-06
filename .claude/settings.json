@@ -23,7 +23,8 @@
     ],
     "deny": [
       "Read(./developer_key.*)",
-      "Read(./source/config/Secrets.mc)",
+      "Read(./secrets/Secrets.mc)",
+      "Read(./secrets/developer_key.*)",
       "Read(./.env)",
       "Read(./.env.*)",
       "Read(./gen/**)",

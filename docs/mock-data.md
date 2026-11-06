@@ -38,7 +38,7 @@ Pick one:
   application settings editor (menu `File → Edit Persistent Storage → Edit Application.Properties`; the exact
   menu name differs slightly between SDK versions) and set `tibberToken` to e.g. `mock-no`.
   Then restart the app (or choose the menu entry that applies the settings).
-- **Local `source/config/Secrets.mc` (git-ignored):** make `getApiToken()` return `"mock-no"`. An app
+- **Local `secrets/Secrets.mc` (git-ignored):** make `getApiToken()` return `"mock-no"`. An app
   setting that is non-empty takes precedence over this file, so leave the setting empty.
 
 Do not commit the token change; `Secrets.mc` is ignored by git.
@@ -68,7 +68,7 @@ check `vivoactive4` and `fenix847mm` too, since German labels are the longest). 
   app Storage is cleared **once** (this also resets the price type, fee settings and interval), so mock
   prices are never shown as real ones.
 - The mock is development-only. The store build (`monkey-release.jungle`, `scripts/release.sh`) replaces
-  `source/mock/TibberMock.mc` with the stub `release/config/ReleaseMock.mc`, which never activates, so a
+  `source/mock/Mock.mc` with the stub `release/config/ReleaseMock.mc`, which never activates, so a
   `mock-…` token on a shipped app is just sent to Tibber and rejected.
-- Code: `source/mock/TibberMock.mc` (scenarios and data), hook in `source/network/ApiClient.mc`
+- Code: `source/mock/Mock.mc` (scenarios and data), hook in `source/network/ApiClient.mc`
   (`makeRequest`, `onMockResponse`). Unit tests: `source/tests/CurrencyTest.mc` (`testMock…`).

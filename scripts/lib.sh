@@ -52,10 +52,10 @@ resolve_java() {
 }
 
 resolve_key() {
-    SIGNING_KEY="${CIQ_SIGNING_KEY:-$REPO_ROOT/developer_key.der}"
+    SIGNING_KEY="${CIQ_SIGNING_KEY:-$REPO_ROOT/secrets/developer_key.der}"
     [ -f "$SIGNING_KEY" ] || die "Signing key not found at $SIGNING_KEY (see README: Configure local credentials)."
-    [ -f "$REPO_ROOT/source/config/Secrets.mc" ] \
-        || die "source/config/Secrets.mc missing. Copy it from Secrets.mc.example (human step; agents must not create it)."
+    [ -f "$REPO_ROOT/secrets/Secrets.mc" ] \
+        || die "secrets/Secrets.mc missing. Copy it from Secrets.mc.example (human step; agents must not create it)."
 }
 
 setup_toolchain() {

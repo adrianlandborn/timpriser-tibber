@@ -35,7 +35,7 @@ If a step fails, `manifest.xml` and `CHANGELOG.md` are restored. Nothing is push
 - Install the `.prg`/`.iq` on at least one real watch (and FR55 or the simulator for the smallest profile). Check cold start, glance, graph, refresh, and the "enter token" prompt on a clean install with no token set.
 - Enter a valid token via Garmin Connect settings; verify prices and a wrong-token error message.
 - Also exercise whatever is new in this release (see the changelog entry).
-- Review the open items in `RELEASE_READINESS.md`.
+- Review the open items in `RELEASE_READINESS.md` (in this folder).
 
 ## 3. Upload (manual)
 

@@ -39,15 +39,15 @@ The application minimum API version is 3.2.0 for compatibility with retained old
 
 ## Configure local credentials
 
-Signing keys and local credentials are not stored in Git. Keep `developer_key.der` in the project root as a local file; `.gitignore` excludes it.
+Signing keys and local credentials are not stored in Git. Keep `developer_key.der` in `secrets/` as a local file; `.gitignore` excludes it.
 
 Create a local secrets source from the template if one is not already present:
 
 ```sh
-cp source/config/Secrets.mc.example source/config/Secrets.mc
+cp secrets/Secrets.mc.example secrets/Secrets.mc
 ```
 
-Set your token as the return value of `TibberSecrets.getApiToken()` in `source/config/Secrets.mc`. That local file is ignored. Never put a real token in the template or commit it. The app sends authenticated HTTPS POST requests to Tibber and requests current price data when opened; refresh is available from the watch controls.
+Set your token as the return value of `TibberSecrets.getApiToken()` in `secrets/Secrets.mc`. That local file is ignored. Never put a real token in the template or commit it. The app sends authenticated HTTPS POST requests to Tibber and requests current price data when opened; refresh is available from the watch controls.
 
 ### Tibber token for users
 
@@ -62,7 +62,7 @@ Store users create a personal token at [developer.tibber.com](https://developer.
 From the project root, compile a target with the installed SDK's Monkey C compiler:
 
 ```sh
-monkeyc -f monkey.jungle -o /tmp/TibberWidget.prg -y developer_key.der -d fenix7xpro
+monkeyc -f monkey.jungle -o /tmp/TibberWidget.prg -y secrets/developer_key.der -d fenix7xpro
 ```
 
 Replace `fenix7xpro` with a supported product ID below. If `monkeyc` is not on `PATH`, invoke it by its full path under the installed SDK's `bin/` directory. The Garmin Monkey C extension can also build the project and launch it in the Connect IQ simulator. Keep build output outside the repository or in ignored generated-output directories.
@@ -81,7 +81,7 @@ To build and run manually instead, start the simulator with `connectiq`, then ru
 
 ```sh
 rm -f bin/TibberWidget-fenix7xpro.prg &&
-monkeyc -f monkey.jungle -o bin/TibberWidget-fenix7xpro.prg -y developer_key.der -d fenix7xpro &&
+monkeyc -f monkey.jungle -o bin/TibberWidget-fenix7xpro.prg -y secrets/developer_key.der -d fenix7xpro &&
 test -s bin/TibberWidget-fenix7xpro.prg &&
 stat -f 'Compiled: %Sm %N' bin/TibberWidget-fenix7xpro.prg &&
 monkeydo bin/TibberWidget-fenix7xpro.prg fenix7xpro
@@ -159,7 +159,7 @@ The saved synthetic reference cases below use a base total of 200 ore/kWh, a fix
 With the Connect IQ simulator running, build and execute all tests from the project root:
 
 ```sh
-monkeyc -f monkey.jungle -o /tmp/TibberWidget-tests.prg -y developer_key.der -d fenix7xpro -t
+monkeyc -f monkey.jungle -o /tmp/TibberWidget-tests.prg -y secrets/developer_key.der -d fenix7xpro -t
 monkeydo /tmp/TibberWidget-tests.prg fenix7xpro -t
 ```
 
@@ -193,10 +193,14 @@ Price charts reserve space for measured Y-axis labels and footer font heights. T
 - `source/delegates/`: input handlers for the widget, graph, settings, and fee-detail screens
 - `source/network/`: Tibber GraphQL requests and price caching
 - `source/charts/` and `source/components/`: graph renderer and reusable UI components
-- `source/config/`: local secrets source and token-free template
+- `secrets/`: local (git-ignored) signing key and token class, plus the token-free template
 - `source/theme/` and `source/tests/`: shared theme and simulator tests
-- `experiments/`: standalone test apps and archived legacy views/delegates excluded from production builds
+- `source/settings/`: phone (Garmin Connect) settings sync
+- `source/mock/`: development-only mock data (see `docs/mock-data.md`)
 - `resources/`: application strings, bitmap assets, and bundled fonts
+- `release/config/`: token-less stubs used by the store build (`monkey-release.jungle`)
+- `scripts/`: build, test, check, and release tooling (`./monkeyInstall` in the root wraps `scripts/install.sh`)
+- `docs/`: guides, release notes, feature ideas, and store assets
 
 ## Disclaimer
 

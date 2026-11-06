@@ -20,13 +20,13 @@ ROOT = Path(__file__).resolve().parent.parent
 
 FORBIDDEN_PATH = re.compile(
     r"(^|/)(developer_key\.(pem|der)|[^/]*\.(pem|key|p12|pfx)|\.env(\.(?!example$)[^/]+)?)$"
-    r"|^source/config/Secrets\.mc$"
+    r"|^secrets/(?!README\.md$|Secrets\.mc\.example$)"
     r"|(^|/)[^/]*\.prg(\.debug\.xml)?$"
     r"|^(bin|gen|mir|internal-mir|external-mir|\.cache)/"
 )
 PRIVATE_KEY = re.compile(r"-----BEGIN [A-Z ]*PRIVATE KEY-----")
 TOKEN_LITERAL = re.compile(r"\"[A-Za-z0-9_\-.]{40,}\"")
-TOKEN_SCAN_EXEMPT = {"source/config/Secrets.mc.example"}
+TOKEN_SCAN_EXEMPT = {"secrets/Secrets.mc.example"}
 
 
 def git(*args):

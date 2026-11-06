@@ -10,7 +10,10 @@ developer_key.der
 *.key
 *.p12
 *.pfx
-source/config/Secrets.mc
+# Everything in secrets/ is local except its README and the token-free template
+/secrets/*
+!/secrets/README.md
+!/secrets/Secrets.mc.example
 
 # Connect IQ generated build output
 /TibberWidget.prg
