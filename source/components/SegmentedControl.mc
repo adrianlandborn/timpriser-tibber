@@ -1,7 +1,6 @@
 import Toybox.Graphics;
 
 class TibberSegmentedControl {
-    private const SIDE_INSET = Theme.SPACE_SIDE_INSET;
     private const TRACK_INSET = 2;
     private const SEGMENT_GAP = 2;
 

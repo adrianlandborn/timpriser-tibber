@@ -67,7 +67,6 @@ class TibberGlanceView extends WatchUi.GlanceView {
         var metadataLine = "";
         var priceLine = str(Rez.Strings.OpenTibber);
         var selectedPriceFont = null;
-        var rowSpacing = 2;
         var priceType = Storage.getValue("tibber_price_type");
         if (!(priceType instanceof String) || !((priceType as String).equals("TOTAL") || (priceType as String).equals("SPOT"))) {
             priceType = "TOTAL";
@@ -144,7 +143,7 @@ class TibberGlanceView extends WatchUi.GlanceView {
     }
 
     /** First font in the list (largest first) that fits; the last one if none does. */
-    private function fitFont(dc, text, fontList, availableWidth, availableHeight) {
+    private function fitFont(dc as Graphics.Dc, text, fontList, availableWidth, availableHeight) {
         var fonts = fontList as Array;
         for (var i = 0; i < fonts.size() - 1; i++) {
             var font = fonts[i] as Graphics.FontType;

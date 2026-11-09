@@ -1,4 +1,3 @@
-WARNING: vivoactive4: The launcher icon (80x80) isn't compatible with the specified launcher icon size of the device 'vivoactive4' (35x35). The image will be scaled to the target size.
 WARNING: vivoactive4: resources-deu/strings/strings.xml: String resource 'OpenTibber' specifies the 'glance' resource scope, but app type 'widget' does not support glances on device 'vivoactive4'.
 WARNING: vivoactive4: resources-dut/strings/strings.xml: String resource 'OpenTibber' specifies the 'glance' resource scope, but app type 'widget' does not support glances on device 'vivoactive4'.
 WARNING: vivoactive4: resources-eng/strings/strings.xml: String resource 'OpenTibber' specifies the 'glance' resource scope, but app type 'widget' does not support glances on device 'vivoactive4'.
@@ -10,72 +9,9 @@ WARNING: vivoactive4: resources/resources.xml: Font resource 'PoppinsSmall' spec
 WARNING: vivoactive4: resources/resources.xml: Font resource 'PoppinsTiny' specifies the 'glance' resource scope, but app type 'widget' does not support glances on device 'vivoactive4'.
 WARNING: vivoactive4: resources/strings/strings.xml: String resource 'OpenTibber' specifies the 'glance' resource scope, but app type 'widget' does not support glances on device 'vivoactive4'.
 WARNING: vivoactive4: source/app/App.mc: Glance applications are not supported for app type 'widget' on device 'vivoactive4' with minimum API Level 3.3.1. The (:glance) annotation will be ignored.
-WARNING: vivoactive4: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
-WARNING: vivoactive4: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
-WARNING: vivoactive4: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
-WARNING: vivoactive4: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
-WARNING: vivoactive4: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
-WARNING: vivoactive4: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
-WARNING: vivoactive4: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
-WARNING: vivoactive4: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
-WARNING: vivoactive4: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
-WARNING: vivoactive4: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
-WARNING: vivoactive4: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
-WARNING: vivoactive4: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
-WARNING: vivoactive4: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
-WARNING: vivoactive4: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
-WARNING: vivoactive4: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
-WARNING: vivoactive4: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
-WARNING: vivoactive4: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
-WARNING: vivoactive4: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
-WARNING: vivoactive4: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
-WARNING: vivoactive4: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
-WARNING: vivoactive4: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
-WARNING: vivoactive4: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
-WARNING: vivoactive4: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
-WARNING: vivoactive4: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
-WARNING: vivoactive4: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
-WARNING: vivoactive4: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
-WARNING: vivoactive4: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
-WARNING: vivoactive4: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
-WARNING: vivoactive4: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
-WARNING: vivoactive4: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
-WARNING: vivoactive4: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
-WARNING: vivoactive4: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
-WARNING: vivoactive4: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
-WARNING: vivoactive4: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
-WARNING: vivoactive4: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
-WARNING: vivoactive4: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
-WARNING: vivoactive4: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
-WARNING: vivoactive4: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
-WARNING: vivoactive4: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
-WARNING: vivoactive4: source/charts/PriceChart.mc: Cannot determine if container access is using container type.
 WARNING: vivoactive4: source/components/HourLevelBar.mc: Glance applications are not supported for app type 'widget' on device 'vivoactive4' with minimum API Level 3.3.1. The (:glance) annotation will be ignored.
-WARNING: vivoactive4: source/components/SegmentedControl.mc: Member variable 'SIDE_INSET' is not used.
-WARNING: vivoactive4: source/network/ApiClient.mc: '$.Toybox.Communications.makeJsonRequest' is deprecated.
-WARNING: vivoactive4: source/network/ApiClient.mc: Cannot determine if container access is using container type.
 WARNING: vivoactive4: source/network/Currency.mc: Glance applications are not supported for app type 'widget' on device 'vivoactive4' with minimum API Level 3.3.1. The (:glance) annotation will be ignored.
 WARNING: vivoactive4: source/network/PriceCache.mc: Glance applications are not supported for app type 'widget' on device 'vivoactive4' with minimum API Level 3.3.1. The (:glance) annotation will be ignored.
-WARNING: vivoactive4: source/screens/GlanceView.mc: Cannot determine if container access is using container type.
 WARNING: vivoactive4: source/screens/GlanceView.mc: Glance applications are not supported for app type 'widget' on device 'vivoactive4' with minimum API Level 3.3.1. The (:glance) annotation will be ignored.
-WARNING: vivoactive4: source/screens/GlanceView.mc: Local variable 'rowSpacing' is not used.
-WARNING: vivoactive4: source/screens/PriceGraphView.mc: Cannot determine if container access is using container type.
-WARNING: vivoactive4: source/screens/PriceGraphView.mc: Cannot determine if container access is using container type.
-WARNING: vivoactive4: source/screens/PriceGraphView.mc: Cannot determine if container access is using container type.
-WARNING: vivoactive4: source/screens/PriceGraphView.mc: Cannot determine if container assignment is using container type.
-WARNING: vivoactive4: source/screens/PriceGraphView.mc: Cannot determine if container assignment is using container type.
-WARNING: vivoactive4: source/screens/WidgetView.mc: Cannot determine if container access is using container type.
-WARNING: vivoactive4: source/screens/WidgetView.mc: Cannot determine if container access is using container type.
-WARNING: vivoactive4: source/screens/WidgetView.mc: Cannot determine if container access is using container type.
-WARNING: vivoactive4: source/screens/WidgetView.mc: Cannot determine if container access is using container type.
-WARNING: vivoactive4: source/screens/WidgetView.mc: Cannot determine if container access is using container type.
-WARNING: vivoactive4: source/screens/WidgetView.mc: Cannot determine if container access is using container type.
-WARNING: vivoactive4: source/screens/WidgetView.mc: Cannot determine if container access is using container type.
-WARNING: vivoactive4: source/screens/WidgetView.mc: Cannot determine if container access is using container type.
-WARNING: vivoactive4: source/screens/WidgetView.mc: Cannot determine if container access is using container type.
-WARNING: vivoactive4: source/screens/WidgetView.mc: Cannot determine if container access is using container type.
-WARNING: vivoactive4: source/screens/WidgetView.mc: Cannot determine if container access is using container type.
-WARNING: vivoactive4: source/screens/WidgetView.mc: Cannot determine if container assignment is using container type.
-WARNING: vivoactive4: source/screens/WidgetView.mc: Cannot determine if container assignment is using container type.
 WARNING: vivoactive4: source/settings/PhoneSettings.mc: Glance applications are not supported for app type 'widget' on device 'vivoactive4' with minimum API Level 3.3.1. The (:glance) annotation will be ignored.
 WARNING: vivoactive4: source/theme/Theme.mc: Glance applications are not supported for app type 'widget' on device 'vivoactive4' with minimum API Level 3.3.1. The (:glance) annotation will be ignored.

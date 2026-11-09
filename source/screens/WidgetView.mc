@@ -167,7 +167,7 @@ class TibberWidgetView extends WatchUi.View {
     }
 
     /** Spacing above a row: optional 5th element of the row, otherwise the default. */
-    function getRowSpacing(textRows, rowIndex, defaultSpacing) {
+    function getRowSpacing(textRows as Array<Array>, rowIndex, defaultSpacing) {
         if (rowIndex >= textRows.size()) {
             return 0;
         }
@@ -176,7 +176,7 @@ class TibberWidgetView extends WatchUi.View {
     }
 
     /** Measure and vertically center a stack of text/font rows and optional logo. */
-    function drawTextStack(dc, width, height, textRows, logoResource) {
+    function drawTextStack(dc as Graphics.Dc, width, height, textRows as Array<Array>, logoResource) {
         var availableTextWidth = width - 16;
         var defaultRowSpacing = 3;
         var logoSpacing = 8;

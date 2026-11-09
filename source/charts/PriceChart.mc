@@ -80,7 +80,7 @@ class TibberPriceChart {
      * @param chartTitle Page title shown above the plot.
      * @param statusNote Optional availability note shown below the title.
      */
-    function draw(deviceContext, priceIntervals, chartSpanMinutes, intervalDurationMinutes, currency, chartTitle, statusNote) {
+    function draw(deviceContext, priceIntervals as Array<Array>?, chartSpanMinutes, intervalDurationMinutes, currency, chartTitle, statusNote) {
         if (priceIntervals == null || priceIntervals.size() == 0) {
             return;
         }
@@ -89,14 +89,14 @@ class TibberPriceChart {
         var layout = calculateLayout(deviceContext, scale[:ticks], statusNote);
         var graphPoints = projectIntervals(priceIntervals, chartSpanMinutes, layout, scale);
 
-        drawHeader(deviceContext, layout, chartTitle, statusNote);
-        drawAxes(deviceContext, layout, scale, chartSpanMinutes);
+        drawHeader(deviceContext, layout as Dictionary, chartTitle, statusNote);
+        drawAxes(deviceContext, layout as Dictionary, scale as Dictionary, chartSpanMinutes);
 
         var averageY = layout[:bottom] - (scale[:average] - scale[:minimum]) * layout[:height] / scale[:range];
         drawAverageLine(deviceContext, layout[:left], layout[:right], averageY);
         deviceContext.setPenWidth(SERIES_LINE_WIDTH);
         drawStepSeries(deviceContext, graphPoints, layout[:right]);
-        drawCurrentMarker(deviceContext, graphPoints, layout, chartSpanMinutes, intervalDurationMinutes, currency);
+        drawCurrentMarker(deviceContext, graphPoints as Array<Array>, layout as Dictionary, chartSpanMinutes, intervalDurationMinutes, currency);
     }
 
     /**
@@ -106,7 +106,7 @@ class TibberPriceChart {
      * @return Dictionary with :minimum, :range, :average, and :ticks;
      *         each tick is [numeric value, formatted label].
      */
-    private function calculatePriceScale(priceIntervals) {
+    private function calculatePriceScale(priceIntervals as Array<Array>) as Dictionary {
         var minimumPrice = priceIntervals[0][1];
         var maximumPrice = minimumPrice;
         var priceTotal = priceIntervals[0][1];
@@ -164,7 +164,7 @@ class TibberPriceChart {
      * @return Pixel geometry keyed by :centerX, :titleY, :noteY, :left,
      *         :right, :top, :bottom, :width, and :height.
      */
-    private function calculateLayout(deviceContext, ticks, statusNote) {
+    private function calculateLayout(deviceContext, ticks as Array<Array>, statusNote) as Dictionary {
         var diameter = getDisplayDiameter(deviceContext);
         var centerX = deviceContext.getWidth() / 2;
         var centerY = deviceContext.getHeight() / 2;
@@ -209,7 +209,7 @@ class TibberPriceChart {
      * @param chartTitle Title text above the plot.
      * @param statusNote Secondary text, or null to omit it.
      */
-    private function drawHeader(deviceContext, layout, chartTitle, statusNote) {
+    private function drawHeader(deviceContext, layout as Dictionary, chartTitle, statusNote) {
         deviceContext.setColor(Theme.TEXT_PRIMARY, Theme.BACKGROUND);
         deviceContext.drawText(layout[:centerX], layout[:titleY], _poppinsSmallFont, chartTitle, Graphics.TEXT_JUSTIFY_CENTER);
         if (statusNote != null) {
@@ -226,7 +226,7 @@ class TibberPriceChart {
      * @param scale Price minimum and range from calculatePriceScale().
      * @return [x, y, minute, price, level] arrays; missing levels become zero.
      */
-    private function projectIntervals(priceIntervals, chartSpanMinutes, layout, scale) {
+    private function projectIntervals(priceIntervals as Array<Array>, chartSpanMinutes, layout as Dictionary, scale as Dictionary) as Array<Array> {
         var graphPoints = [];
         for (var intervalIndex = 0; intervalIndex < priceIntervals.size(); intervalIndex++) {
             var priceInterval = priceIntervals[intervalIndex];
@@ -264,7 +264,7 @@ class TibberPriceChart {
      * @param graphPoints Ordered projected points from projectIntervals().
      * @param plotRight Right endpoint of the final step in pixels.
      */
-    private function drawStepSeries(deviceContext, graphPoints, plotRight) {
+    private function drawStepSeries(deviceContext, graphPoints as Array<Array>, plotRight) {
         for (var pointIndex = 0; pointIndex < graphPoints.size(); pointIndex++) {
             var currentPoint = graphPoints[pointIndex];
             deviceContext.setColor(currentPoint[POINT_LEVEL] > 0 ? _levelColors.getColorForCode(currentPoint[POINT_LEVEL]) : Theme.CHART_DEFAULT_LINE, Theme.BACKGROUND);
@@ -293,7 +293,7 @@ class TibberPriceChart {
      * @param intervalDurationMinutes Interval length; null skips marker and footer.
      * @param currency Footer currency code; null suppresses only the footer.
      */
-    private function drawCurrentMarker(deviceContext, graphPoints, layout, chartSpanMinutes, intervalDurationMinutes, currency) {
+    private function drawCurrentMarker(deviceContext, graphPoints as Array<Array>, layout as Dictionary, chartSpanMinutes, intervalDurationMinutes, currency) {
         var localTime = Time.Gregorian.info(Time.now(), Time.FORMAT_SHORT);
         var currentMinuteOfDay = localTime.hour * MINUTES_PER_HOUR + localTime.min;
         if (currentMinuteOfDay >= chartSpanMinutes) {
@@ -322,7 +322,7 @@ class TibberPriceChart {
         deviceContext.fillCircle(markerX, markerY, MARKER_RADIUS);
         deviceContext.setColor(Theme.CHART_MARKER_OUTLINE, Theme.BACKGROUND);
         deviceContext.drawCircle(markerX, markerY, MARKER_RADIUS);
-        drawCurrentIntervalFooter(deviceContext, activeGraphPoint, intervalDurationMinutes, currency, layout[:bottom]);
+        drawCurrentIntervalFooter(deviceContext, activeGraphPoint as Array, intervalDurationMinutes, currency, layout[:bottom]);
     }
 
     /**
@@ -333,7 +333,7 @@ class TibberPriceChart {
      * @param currency Currency code; SEK/NOK/EUR display as minor unit, null omits the footer.
      * @param plotBottom Plot baseline Y coordinate, before X-axis labels.
      */
-    private function drawCurrentIntervalFooter(deviceContext, activeGraphPoint, intervalDurationMinutes, currency, plotBottom) {
+    private function drawCurrentIntervalFooter(deviceContext, activeGraphPoint as Array, intervalDurationMinutes, currency, plotBottom) {
         var formattedPrice = activeGraphPoint[POINT_PRICE].format("%.0f");
         if (formattedPrice == null || currency == null) {
             return;
@@ -384,7 +384,7 @@ class TibberPriceChart {
      * @param plotBottom Plot baseline Y coordinate.
      * @return Dictionary with vertical text centers :priceY and :timeY.
      */
-    private function calculateFooterLayout(deviceContext, priceFont, plotBottom) {
+    private function calculateFooterLayout(deviceContext, priceFont, plotBottom) as Dictionary {
         var priceHeight = deviceContext.getFontHeight(priceFont);
         var unitHeight = deviceContext.getFontHeight(_poppinsTinyFont);
         var priceRowHeight = priceHeight > unitHeight ? priceHeight : unitHeight;
@@ -417,12 +417,12 @@ class TibberPriceChart {
      * @param scale Price scale including formatted Y ticks.
      * @param chartSpanMinutes Duration used to position hour labels.
      */
-    private function drawAxes(deviceContext, layout, scale, chartSpanMinutes) {
+    private function drawAxes(deviceContext, layout as Dictionary, scale as Dictionary, chartSpanMinutes) {
         deviceContext.setColor(Theme.CHART_AXIS, Theme.BACKGROUND);
         deviceContext.drawLine(layout[:left], layout[:top], layout[:left], layout[:bottom]);
         deviceContext.drawLine(layout[:left], layout[:bottom], layout[:right], layout[:bottom]);
-        drawYAxisLabels(deviceContext, layout, scale);
-        drawXAxisLabels(deviceContext, layout, chartSpanMinutes);
+        drawYAxisLabels(deviceContext, layout as Dictionary, scale as Dictionary);
+        drawXAxisLabels(deviceContext, layout as Dictionary, chartSpanMinutes);
     }
 
     /**
@@ -431,8 +431,8 @@ class TibberPriceChart {
      * @param layout Plot geometry from calculateLayout().
      * @param scale Price minimum, range, and formatted ticks.
      */
-    private function drawYAxisLabels(deviceContext, layout, scale) {
-        var ticks = scale[:ticks];
+    private function drawYAxisLabels(deviceContext, layout as Dictionary, scale as Dictionary) {
+        var ticks = scale[:ticks] as Array<Array>;
         for (var index = 0; index < ticks.size(); index++) {
             var tickY = layout[:bottom] - (ticks[index][0] - scale[:minimum]) * layout[:height] / scale[:range];
             deviceContext.drawText(layout[:left] - Y_LABEL_GAP, tickY, _poppinsTinyFont, ticks[index][1], Graphics.TEXT_JUSTIFY_RIGHT | Graphics.TEXT_JUSTIFY_VCENTER);
@@ -445,7 +445,7 @@ class TibberPriceChart {
      * @param layout Plot geometry from calculateLayout().
      * @param chartSpanMinutes Positive time range; spans over one day use seven labels.
      */
-    private function drawXAxisLabels(deviceContext, layout, chartSpanMinutes) {
+    private function drawXAxisLabels(deviceContext, layout as Dictionary, chartSpanMinutes) {
         var hourLabelOffsets;
         var hourLabels;
         if (chartSpanMinutes > MINUTES_PER_DAY) {

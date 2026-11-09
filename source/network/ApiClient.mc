@@ -143,8 +143,9 @@ class TibberApiClient {
 
         var requestOptions = {
             :method => Communications.HTTP_REQUEST_METHOD_POST,
+            :responseType => Communications.HTTP_RESPONSE_CONTENT_TYPE_JSON,
             :headers => {
-            "Authorization" => "Bearer " + accessToken,
+                "Authorization" => "Bearer " + accessToken,
                 "Content-Type" => Communications.REQUEST_CONTENT_TYPE_JSON,
                 "Accept" => "application/json",
                 "User-Agent" => "Garmin Connect IQ/9.3.0 TibberWidget/1.0.0"
@@ -152,7 +153,7 @@ class TibberApiClient {
         };
 
         try {
-            Communications.makeJsonRequest(
+            Communications.makeWebRequest(
                 TIBBER_API_URL,
                 graphQlRequest,
                 requestOptions,
@@ -405,7 +406,7 @@ class TibberApiClient {
     }
 
     /** Append validated price records using a local-day offset for graph placement. */
-    private function appendPriceIntervals(priceIntervals, sourcePrices, priceResolution, dayOffset, currency) as Void {
+    private function appendPriceIntervals(priceIntervals, sourcePrices as Array, priceResolution, dayOffset, currency) as Void {
         for (var priceIndex = 0; priceIndex < sourcePrices.size(); priceIndex++) {
             var priceEntry = sourcePrices[priceIndex];
             if (priceEntry instanceof Dictionary) {

@@ -172,7 +172,7 @@ class TibberPriceGraphView extends WatchUi.View {
         return _selectedPage;
     }
 
-    private function buildHourlySpotAverages(sourceIntervals, hourlySpotTotals, hourlySpotCounts) {
+    private function buildHourlySpotAverages(sourceIntervals as Array, hourlySpotTotals as Array, hourlySpotCounts as Array) {
         for (var intervalIndex = 0; intervalIndex < sourceIntervals.size(); intervalIndex++) {
             var interval = sourceIntervals[intervalIndex];
             if (!(interval instanceof Array) || (interval as Array).size() < 3) {
