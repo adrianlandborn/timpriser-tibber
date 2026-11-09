@@ -20,7 +20,7 @@ Always use these scripts. They locate the SDK/Java/signing key, keep full logs i
 ## Repository map
 
 - `source/app/` lifecycle · `screens/` views · `delegates/` input · `settings/` phone-settings sync · `network/` GraphQL client + `PriceCache` (pricing math) · `charts/` · `components/` · `theme/Theme.mc` shared colors · `secrets/` (top-level: local key + token class; template only) · `tests/` `(:test)` unit tests
-- `resources/` strings, bitmaps, fonts (standard); `resources-large/` overrides for the large-font profile (`fenix847mm`, see `monkey.jungle`)
+- `resources/` strings, bitmaps, fonts (standard); `resources-large/` overrides for the large-font profile (`fenix847mm`, see `monkey.jungle`); `resources-icons/<W>x<H>/` generated per-device launcher icons (never hand-edit; regenerate with `python3 tools/build_launcher_icons.py`, which also rewrites the generated block in both jungles)
 - `source/mock/` dev-only mock data · `release/config/` token-less stubs used by `monkey-release.jungle` (new `source/` subfolders must be added to its explicit list)
 - `manifest.xml` products/permissions · `monkey.jungle` build config · `tools/` font generator · `scripts/` harness (`./monkeyInstall` at the root wraps `scripts/install.sh`) · `docs/` guides, release notes, store assets
 - Ignore generated output: `bin/`, `gen/`, `mir/`, `internal-mir/`, `external-mir/`, `.cache/`, `*.prg`. Don't read or search them.

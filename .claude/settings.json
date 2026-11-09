@@ -19,7 +19,9 @@
       "Read(//Users/adrian.landborn/Library/Application Support/Garmin/ConnectIQ/Sdks/**)",
       "Bash(pkill -f *monkey*)",
       "Bash(pkill -f *MonkeyDo*)",
-      "Bash(screencapture -x *)"
+      "Bash(screencapture -x *)",
+      "Bash(git checkout *)",
+      "Bash(python3 -c ' *)"
     ],
     "deny": [
       "Read(./developer_key.*)",

@@ -2,7 +2,7 @@
 
 ## 1.0.1 (unrelesed)
 
-- No changes
+- Launcher icon is now sized for each device, so it is sharper and uses less memory on smaller devices.
 
 ## 1.1.0 - 2026-11-05
 

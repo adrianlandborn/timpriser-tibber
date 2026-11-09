@@ -10,8 +10,8 @@ description: "Add, remove or validate supported Garmin products. Use when: editi
 0. Check [docs/device-tiers.md](../../../docs/device-tiers.md) for the device's tier and test-device plan.
 1. Confirm the product ID exists in the installed SDK: `ls "$HOME/Library/Application Support/Garmin/ConnectIQ/Devices" | grep -x <id>`. If it doesn't, the device pack is missing (human installs via SDK Manager) or the ID is wrong.
 2. Check the device supports the app's minimum API version (3.2.0, from `minSdkVersion` in `manifest.xml`) and widgets/glances: grep `Devices/<id>/compiler.json` for `connectIQVersion` and the `appTypes` block (which includes per-type memory limits). Don't read the whole file.
-3. Add `<iq:product id="..."/>` to `manifest.xml`, keeping the list alphabetical.
-4. If the device needs the large-font profile, add `<id>.resourcePath = $(base.resourcePath);resources-large` to `monkey.jungle`, and only after visual validation.
+3. Add `<iq:product id="..."/>` to `manifest.xml`, keeping the list alphabetical, then run `python3 tools/build_launcher_icons.py`: it generates the launcher icon for the device's size and adds its `resourcePath` line to both jungles (devices left out fall back to the 80x80 master and trigger a launcher icon warning).
+4. If the device needs the large-font profile, add `resources-large` to its entry in `EXTRA` in `tools/build_launcher_icons.py` and rerun it (the generated jungle lines must keep the large folder), and only after visual validation.
 5. `scripts/build.sh <id>`. For a first build of a new device, run `scripts/build.sh --update-baseline <id>`, then review the baseline file before committing. Look especially for glance memory and launcher icon warnings.
 6. Update the README "Supported products" list and the tier table in [docs/device-tiers.md](../../../docs/device-tiers.md).
 7. Add the new (or removed) devices to the unreleased section of [CHANGELOG.md](../../../CHANGELOG.md), one line per batch, with the marketing name and the product ids.
