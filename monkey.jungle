@@ -31,6 +31,7 @@ descentmk2s.resourcePath = $(base.resourcePath);resources-icons/40x40-p64
 enduro3.resourcePath = $(base.resourcePath);resources-icons/40x40-p64
 fenix5plus.resourcePath = $(base.resourcePath);resources-icons/40x40-p64
 fenix5splus.resourcePath = $(base.resourcePath);resources-icons/40x40-p64
+fenix5x.resourcePath = $(base.resourcePath);resources-icons/40x40-p64
 fenix5xplus.resourcePath = $(base.resourcePath);resources-icons/40x40-p64
 fenix6pro.resourcePath = $(base.resourcePath);resources-icons/40x40-p64
 fenix6spro.resourcePath = $(base.resourcePath);resources-icons/40x40-p64

@@ -1,0 +1,17 @@
+WARNING: fenix5x: resources-deu/strings/strings.xml: String resource 'OpenTibber' specifies the 'glance' resource scope, but app type 'widget' does not support glances on device 'fenix5x'.
+WARNING: fenix5x: resources-dut/strings/strings.xml: String resource 'OpenTibber' specifies the 'glance' resource scope, but app type 'widget' does not support glances on device 'fenix5x'.
+WARNING: fenix5x: resources-eng/strings/strings.xml: String resource 'OpenTibber' specifies the 'glance' resource scope, but app type 'widget' does not support glances on device 'fenix5x'.
+WARNING: fenix5x: resources-nob/strings/strings.xml: String resource 'OpenTibber' specifies the 'glance' resource scope, but app type 'widget' does not support glances on device 'fenix5x'.
+WARNING: fenix5x: resources/resources.xml: Font resource 'PoppinsLarge' specifies the 'glance' resource scope, but app type 'widget' does not support glances on device 'fenix5x'.
+WARNING: fenix5x: resources/resources.xml: Font resource 'PoppinsMedium' specifies the 'glance' resource scope, but app type 'widget' does not support glances on device 'fenix5x'.
+WARNING: fenix5x: resources/resources.xml: Font resource 'PoppinsMicro' specifies the 'glance' resource scope, but app type 'widget' does not support glances on device 'fenix5x'.
+WARNING: fenix5x: resources/resources.xml: Font resource 'PoppinsSmall' specifies the 'glance' resource scope, but app type 'widget' does not support glances on device 'fenix5x'.
+WARNING: fenix5x: resources/resources.xml: Font resource 'PoppinsTiny' specifies the 'glance' resource scope, but app type 'widget' does not support glances on device 'fenix5x'.
+WARNING: fenix5x: resources/strings/strings.xml: String resource 'OpenTibber' specifies the 'glance' resource scope, but app type 'widget' does not support glances on device 'fenix5x'.
+WARNING: fenix5x: source/app/App.mc: Glance applications are not supported for app type 'widget' on device 'fenix5x' with minimum API Level 3.1.6. The (:glance) annotation will be ignored.
+WARNING: fenix5x: source/components/HourLevelBar.mc: Glance applications are not supported for app type 'widget' on device 'fenix5x' with minimum API Level 3.1.6. The (:glance) annotation will be ignored.
+WARNING: fenix5x: source/network/Currency.mc: Glance applications are not supported for app type 'widget' on device 'fenix5x' with minimum API Level 3.1.6. The (:glance) annotation will be ignored.
+WARNING: fenix5x: source/network/PriceCache.mc: Glance applications are not supported for app type 'widget' on device 'fenix5x' with minimum API Level 3.1.6. The (:glance) annotation will be ignored.
+WARNING: fenix5x: source/screens/GlanceView.mc: Glance applications are not supported for app type 'widget' on device 'fenix5x' with minimum API Level 3.1.6. The (:glance) annotation will be ignored.
+WARNING: fenix5x: source/settings/PhoneSettings.mc: Glance applications are not supported for app type 'widget' on device 'fenix5x' with minimum API Level 3.1.6. The (:glance) annotation will be ignored.
+WARNING: fenix5x: source/theme/Theme.mc: Glance applications are not supported for app type 'widget' on device 'fenix5x' with minimum API Level 3.1.6. The (:glance) annotation will be ignored.

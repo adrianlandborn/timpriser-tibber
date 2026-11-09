@@ -28,6 +28,8 @@ START/STOP refreshes prices, MENU opens settings, and BACK returns from graph or
 
 On older touch-only devices (vivoactive 4, venu), where a tap carries no position and vertical swipes exit the widget, a tap scrolls through the screens: main screen, quarter-hour graph, hourly graph, then back to the main screen. Tap no longer refreshes there; the price refreshes when the main screen is shown.
 
+On older devices without glance support (Fenix 5X, Fenix 5 Plus and similar), the system keeps UP/DOWN on the main screen for its widget loop and leaves the app, so START opens the quarter-hour graph from the main screen instead. Inside the graphs and settings, UP/DOWN work as described above and START refreshes (touch-only devices excepted, see above). The price refreshes when the main screen is shown.
+
 ## Requirements
 
 - Garmin Connect IQ SDK 9.3.0 or newer, with device packs for the selected target
@@ -35,7 +37,7 @@ On older touch-only devices (vivoactive 4, venu), where a tap carries no positio
 - A local Garmin developer signing key (`developer_key.der`) for compilation
 - A Tibber API access token with permission to read home data
 
-The application minimum API version is 3.2.0 for compatibility with retained older devices. Fenix 7 products have a higher device API baseline.
+The application minimum API version is 3.1.6 for compatibility with retained older devices. Fenix 7 products have a higher device API baseline.
 
 ## Configure local credentials
 
@@ -99,7 +101,7 @@ Devices are grouped into tiers by available memory, and support is rolled out fr
 - Descent: `descentg2`, `descentmk2`, `descentmk2s`, `descentmk343mm`, `descentmk351mm`
 - Enduro: `enduro3`
 - Epix: `epix2pro51mm`
-- Fenix 5: `fenix5plus`, `fenix5splus`, `fenix5xplus`
+- Fenix 5: `fenix5x`, `fenix5plus`, `fenix5splus`, `fenix5xplus`
 - Fenix 6: `fenix6pro`, `fenix6spro`, `fenix6xpro`
 - Fenix 7: `fenix7`, `fenix7pro`, `fenix7pronowifi`, `fenix7s`, `fenix7spro`, `fenix7x`, `fenix7xpro`, `fenix7xpronowifi`
 - Fenix 8: `fenix843mm`, `fenix847mm`, `fenix8pro47mm`, `fenix8solar47mm`, `fenix8solar51mm`

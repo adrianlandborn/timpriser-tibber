@@ -10,9 +10,9 @@ class TibberWidgetDelegate extends WatchUi.BehaviorDelegate {
         _widgetView = widgetView;
     }
 
-    /** Refresh the current price when START/SELECT is pressed; on older touch devices a tap scrolls to the next screen. */
+    /** Refresh the current price when START/SELECT is pressed; on devices without glance support (UP/DOWN belong to the system here) and on touch-only devices it opens the next screen instead. */
     function onSelect() {
-        if (TibberTouchScroll.isEnabled()) {
+        if (TibberTouchScroll.startOpensGraphs()) {
             return onNextPage();
         }
         if (_widgetView != null && _widgetView has :refreshPriceData) {

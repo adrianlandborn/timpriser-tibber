@@ -21,7 +21,9 @@
       "Bash(pkill -f *MonkeyDo*)",
       "Bash(screencapture -x *)",
       "Bash(git checkout *)",
-      "Bash(python3 -c ' *)"
+      "Bash(python3 -c ' *)",
+      "Bash(git reset *)",
+      "Bash(git commit -q -m ' *)"
     ],
     "deny": [
       "Read(./developer_key.*)",

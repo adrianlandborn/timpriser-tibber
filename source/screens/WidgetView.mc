@@ -17,6 +17,7 @@ class TibberWidgetView extends WatchUi.View {
     var _poppinsMediumFont;
     var _poppinsLargeFont;
     var _poppinsPriceFont;
+    var _useSystemFonts;
     var _widgetLogo;
     var _hourBar;
 
@@ -30,13 +31,15 @@ class TibberWidgetView extends WatchUi.View {
         _priceApiClient = new TibberApiClient();
         _priceCache = new TibberPriceCache();
         loadStoredSettings();
-        _poppinsTinyFont = WatchUi.loadResource(Rez.Fonts.PoppinsTiny) as WatchUi.FontResource;
-        _poppinsSmallFont = WatchUi.loadResource(Rez.Fonts.PoppinsSmall) as WatchUi.FontResource;
+        _useSystemFonts = TibberFonts.useSystemFonts();
+        System.println("Tibber widget: using " + TibberFonts.describe());
+        _poppinsTinyFont = _useSystemFonts ? Graphics.FONT_XTINY : WatchUi.loadResource(Rez.Fonts.PoppinsTiny) as WatchUi.FontResource;
+        _poppinsSmallFont = _useSystemFonts ? Graphics.FONT_TINY : WatchUi.loadResource(Rez.Fonts.PoppinsSmall) as WatchUi.FontResource;
         // Medium and Large are loaded on first use (getMediumFont/getLargeFont): loading
         // every font up front runs out of memory on small devices such as fr55.
         _poppinsMediumFont = null;
         _poppinsLargeFont = null;
-        _poppinsPriceFont = WatchUi.loadResource(Rez.Fonts.PoppinsPrice) as WatchUi.FontResource;
+        _poppinsPriceFont = _useSystemFonts ? Graphics.FONT_LARGE : WatchUi.loadResource(Rez.Fonts.PoppinsPrice) as WatchUi.FontResource;
         _widgetLogo = loadWidgetLogo();
     }
 
@@ -304,14 +307,14 @@ class TibberWidgetView extends WatchUi.View {
 
     function getLargeFont() {
         if (_poppinsLargeFont == null) {
-            _poppinsLargeFont = WatchUi.loadResource(Rez.Fonts.PoppinsLarge) as WatchUi.FontResource;
+            _poppinsLargeFont = _useSystemFonts ? Graphics.FONT_MEDIUM : WatchUi.loadResource(Rez.Fonts.PoppinsLarge) as WatchUi.FontResource;
         }
         return _poppinsLargeFont;
     }
 
     function getMediumFont() {
         if (_poppinsMediumFont == null) {
-            _poppinsMediumFont = WatchUi.loadResource(Rez.Fonts.PoppinsMedium) as WatchUi.FontResource;
+            _poppinsMediumFont = _useSystemFonts ? Graphics.FONT_SMALL : WatchUi.loadResource(Rez.Fonts.PoppinsMedium) as WatchUi.FontResource;
         }
         return _poppinsMediumFont;
     }
