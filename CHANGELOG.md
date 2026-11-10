@@ -4,6 +4,7 @@
 
 - Launcher icon is now sized for each device, so it is sharper and uses less memory on smaller devices.
 - Support for Fenix 5X (`fenix5x`).
+- The price graph is roomier on small-screen watches (240 px and below): the title shows only "15 MIN" or "1 HOUR", the "tomorrow missing" note is hidden, and there are fewer axis labels, no time range under the price and less padding, so the graph is larger.
 - Watches without glances (Fenix 5X, Fenix 5 Plus series, Forerunner 645 Music, Vivoactive 3/4, Venu and similar) now start on a compact price screen. Press START (or tap) to open the full widget, where UP/DOWN move between the price and the graphs. BACK returns to the compact screen. The Fenix 5 series and Forerunner 645 Music use the watch's built-in fonts, so text displays correctly.
 
 ## 1.1.0 - 2026-11-05

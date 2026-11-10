@@ -60,14 +60,20 @@ class TibberPriceGraphView extends WatchUi.View {
         } else if (_priceIntervals == null || _priceIntervals.size() == 0) {
             drawCenteredText(deviceContext, displayWidth, displayHeight, str(Rez.Strings.PricesMissing));
         } else {
-            _chart.draw(deviceContext, _priceIntervals, _chartSpanMinutes, _intervalDurationMinutes, _currency, getPageTitle(), getPageNote());
+            var isCompact = TibberScreenTier.forDc(deviceContext) == TibberScreenTier.LOW;
+            _chart.draw(deviceContext, _priceIntervals, _chartSpanMinutes, _intervalDurationMinutes, _currency, getPageTitle(isCompact), isCompact ? null : getPageNote());
         }
     }
 
-    /** Return the display title for the selected graph page. */
-    function getPageTitle() {
+    /**
+     * Return the display title for the selected graph page.
+     * @param compact True on small screens: show only the resolution ("15 MIN" / "1 HOUR").
+     */
+    function getPageTitle(compact) {
         var title;
-        if (_selectedPage == 0) {
+        if (compact) {
+            title = str(_selectedPage == 0 ? Rez.Strings.GraphTitleShortQuarterHour : Rez.Strings.GraphTitleShortHourly);
+        } else if (_selectedPage == 0) {
             title = str(Rez.Strings.GraphTitleQuarterHour);
         } else if (_hasTomorrowPrices) {
             title = str(Rez.Strings.GraphTitleTwoDayHourly);

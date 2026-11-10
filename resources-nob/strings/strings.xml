@@ -22,6 +22,8 @@
     <string id="GraphTitleQuarterHour">I DAG | 15 MIN</string>
     <string id="GraphTitleTwoDayHourly">2 DAGER | TIME</string>
     <string id="GraphTitleTodayHourly">I DAG | TIME</string>
+    <string id="GraphTitleShortQuarterHour">15 MIN</string>
+    <string id="GraphTitleShortHourly">1 TIME</string>
     <string id="TomorrowMissing">Morgen mangler</string>
     <string id="SettingsTitle">OPPSETT</string>
     <string id="TaxesAndFees">Avg. &amp; gebyr</string>

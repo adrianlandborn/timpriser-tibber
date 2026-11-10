@@ -22,6 +22,8 @@
     <string id="GraphTitleQuarterHour">TODAY | 15 MIN</string>
     <string id="GraphTitleTwoDayHourly">2 DAYS | HOURLY</string>
     <string id="GraphTitleTodayHourly">TODAY | HOURLY</string>
+    <string id="GraphTitleShortQuarterHour">15 MIN</string>
+    <string id="GraphTitleShortHourly">1 HOUR</string>
     <string id="TomorrowMissing">Tomorrow missing</string>
     <string id="SettingsTitle">SETTINGS</string>
     <string id="TaxesAndFees">Taxes &amp; fees</string>

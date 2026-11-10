@@ -60,6 +60,10 @@ Manual simulator launches (`./monkeyInstall <device>`), reported by the maintain
 
 The automated smoke tests (`source/tests/StartupTest.mc`) pass on every device except those where the simulator hung, but they do not reproduce device memory limits or the glance process, so they do not replace the manual launches.
 
+## Screen-size classes (layout)
+
+`TibberScreenTier` (`source/theme/ScreenTier.mc`) classifies by the shorter display side: **LOW** < 250 px (218/240 MIP: fenix 5 Plus/5X, fenix 6S, fenix 7S, Marq, fr245/745/945, vivoactive 3/4S), **MID** 250-300 px (260/280 MIP: fenix 6/7/7X, fr255/955, vivoactive 4), **HIGH** > 300 px (320-466 AMOLED). LOW charts drop the note and the TODAY/2 DAYS title prefix, use fewer axis labels, less bottom padding and no footer time range.
+
 ## Device-specific behavior
 
 ### Connect IQ 3.x touch devices (`venu`, `vivoactive4`, `vivoactive4s`, `vivoactive3m`, `venusqm`, `legacyherocaptainmarvel`, `legacyherofirstavenger`, `legacysagadarthvader`, `legacysagarey`)

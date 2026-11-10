@@ -22,6 +22,8 @@
     <string id="GraphTitleQuarterHour">IDAG | 15 MIN</string>
     <string id="GraphTitleTwoDayHourly">2 DAGAR | TIMPRIS</string>
     <string id="GraphTitleTodayHourly">IDAG | TIMPRIS</string>
+    <string id="GraphTitleShortQuarterHour">15 MIN</string>
+    <string id="GraphTitleShortHourly">1 TIME</string>
     <string id="TomorrowMissing">Imorgon saknas</string>
     <string id="SettingsTitle">INSTÄLLNINGAR</string>
     <string id="TaxesAndFees">Skatter &amp; avgifter</string>

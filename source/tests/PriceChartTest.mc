@@ -28,7 +28,7 @@ class PriceChartTestDc {
 
 (:test)
 function testPriceChartLayoutBaseline(logger) {
-    var sizes = [240, 480];
+    var sizes = [280, 480];
     var fonts = [[12, 16, 24], [16, 22, 32]];
     for (var index = 0; index < sizes.size(); index++) {
         var size = sizes[index];
@@ -125,8 +125,9 @@ function testPriceChartFooterFontFallback(logger) {
         var chart = new TibberPriceChart(0, 1, 2);
         chart.draw(dc, [[0, 12345678.0]], 1440, 15, units[index], "Price", null);
         var count = dc.texts.size();
-        if (dc.texts[count - 3][2] != expectedFonts[index] ||
-            !dc.texts[count - 2][3].equals(units[index])) {
+        // 240 px is a LOW screen: the footer is price and unit only, no time row.
+        if (dc.texts[count - 2][2] != expectedFonts[index] ||
+            !dc.texts[count - 1][3].equals(units[index])) {
             logger.debug("Footer font fallback or non-SEK unit changed");
             return false;
         }
@@ -136,4 +137,54 @@ function testPriceChartFooterFontFallback(logger) {
     noCurrencyChart.draw(noCurrencyDc, [[0, 300.0]], 1440, 15, null, "Price", null);
     return noCurrencyDc.circles.size() == 1 &&
         noCurrencyDc.texts[noCurrencyDc.texts.size() - 1][3].equals("18");
+}
+
+(:test)
+function testScreenTierBoundaries(logger) {
+    return TibberScreenTier.forSize(218, 218) == TibberScreenTier.LOW &&
+        TibberScreenTier.forSize(240, 240) == TibberScreenTier.LOW &&
+        TibberScreenTier.forSize(260, 260) == TibberScreenTier.MID &&
+        TibberScreenTier.forSize(280, 280) == TibberScreenTier.MID &&
+        TibberScreenTier.forSize(320, 360) == TibberScreenTier.HIGH &&
+        TibberScreenTier.forSize(454, 454) == TibberScreenTier.HIGH;
+}
+
+(:test)
+function testPriceChartLowTierCompactLayout(logger) {
+    var fonts = [12, 16, 24];
+    var lowDc = new PriceChartTestDc(240, fonts);
+    var lowChart = new TibberPriceChart(0, 1, 2);
+    lowChart.draw(lowDc, [[0, 200.0], [720, 600.0], [1380, 300.0]], 2880, 60, "SEK", "1 TIMME", "Imorgon saknas");
+    var midDc = new PriceChartTestDc(280, fonts);
+    var midChart = new TibberPriceChart(0, 1, 2);
+    midChart.draw(midDc, [[0, 200.0], [720, 600.0], [1380, 300.0]], 2880, 60, "SEK", "1 TIMME", null);
+
+    var noteDrawn = false;
+    var xLabels = 0;
+    for (var index = 0; index < lowDc.texts.size(); index++) {
+        var text = lowDc.texts[index][3];
+        if (text.equals("Imorgon saknas")) {
+            noteDrawn = true;
+        }
+        if (text.equals("12") || text.equals("00") || text.equals("06") || text.equals("18")) {
+            xLabels++;
+        }
+    }
+    if (noteDrawn || xLabels != 3) {
+        logger.debug("LOW tier must drop the note and show only 12/00/12 on two days");
+        return false;
+    }
+    // The footer shows only the price and unit: no HH:mm-HH:mm range.
+    var lowLast = lowDc.texts[lowDc.texts.size() - 1][3];
+    if (lowLast.find("-") != null || !lowLast.equals("öre")) {
+        logger.debug("LOW tier must drop the footer time range");
+        return false;
+    }
+    // Fewer Y labels than the MID layout for the same series.
+    if (lowDc.texts.size() >= midDc.texts.size()) {
+        return false;
+    }
+    // Plot must be taller than the baseline fraction would give.
+    var lowHeight = lowDc.lines[1][1] - lowDc.lines[0][1];
+    return lowHeight > 240 * 0.58 - 25 - 8 - 0.01;
 }

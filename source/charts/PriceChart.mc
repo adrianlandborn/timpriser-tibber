@@ -39,6 +39,16 @@ class TibberPriceChart {
     private const FOOTER_ROW_GAP = 2;
     private const FOOTER_CLEARANCE = 12;
 
+    // LOW screens (< 250 px): trade labels and padding for plot area.
+    private const LOW_HALF_HEIGHT_RATIO = 0.31;
+    private const LOW_PLOT_TOP_INSET = 4;
+    private const LOW_PLOT_BOTTOM_INSET = 12;
+    private const LOW_TITLE_GAP = 2;
+    private const LOW_TARGET_TICK_INTERVALS = 2;
+    private const LOW_MAX_Y_TICKS = 4;
+    private const LOW_FOOTER_BOTTOM_RATIO = 0.05;
+    private const LOW_FOOTER_CLEARANCE = 4;
+
     // Intervals are [minute, price, optional level]; projected points retain
     // that data after their [x, y] coordinates to avoid per-point dictionaries.
     private const POINT_X = 0;
@@ -52,6 +62,12 @@ class TibberPriceChart {
     private var _poppinsMediumFont;
     private var _levelColors;
     private var _priceCache;
+    // Set at the start of each draw() from the screen size class.
+    private var _compact = false;
+    private var _targetTicks = TARGET_TICK_INTERVALS;
+    private var _maxTicks = MAX_Y_TICKS;
+    private var _footerBottomRatio = FOOTER_BOTTOM_RATIO;
+    private var _footerClearance = FOOTER_CLEARANCE;
 
     /**
      * Use font resources supplied by the parent graph view.
@@ -85,6 +101,7 @@ class TibberPriceChart {
             return;
         }
 
+        applyScreenTier(deviceContext);
         var scale = calculatePriceScale(priceIntervals);
         var layout = calculateLayout(deviceContext, scale[:ticks], statusNote);
         var graphPoints = projectIntervals(priceIntervals, chartSpanMinutes, layout, scale);
@@ -97,6 +114,15 @@ class TibberPriceChart {
         deviceContext.setPenWidth(SERIES_LINE_WIDTH);
         drawStepSeries(deviceContext, graphPoints, layout[:right]);
         drawCurrentMarker(deviceContext, graphPoints as Array<Array>, layout as Dictionary, chartSpanMinutes, intervalDurationMinutes, currency);
+    }
+
+    /** Pick per-size-class tick counts and padding for this draw. */
+    private function applyScreenTier(deviceContext) {
+        _compact = TibberScreenTier.forDc(deviceContext) == TibberScreenTier.LOW;
+        _targetTicks = _compact ? LOW_TARGET_TICK_INTERVALS : TARGET_TICK_INTERVALS;
+        _maxTicks = _compact ? LOW_MAX_Y_TICKS : MAX_Y_TICKS;
+        _footerBottomRatio = _compact ? LOW_FOOTER_BOTTOM_RATIO : FOOTER_BOTTOM_RATIO;
+        _footerClearance = _compact ? LOW_FOOTER_CLEARANCE : FOOTER_CLEARANCE;
     }
 
     /**
@@ -121,7 +147,7 @@ class TibberPriceChart {
             }
         }
 
-        var yAxisTickStep = getNiceTickStep((maximumPrice - minimumPrice) / TARGET_TICK_INTERVALS);
+        var yAxisTickStep = getNiceTickStep((maximumPrice - minimumPrice) / _targetTicks);
         var yAxisMinimum = Math.floor(minimumPrice / yAxisTickStep) * yAxisTickStep;
         var yAxisMaximum = Math.ceil(maximumPrice / yAxisTickStep) * yAxisTickStep;
         if (yAxisMaximum <= yAxisMinimum) {
@@ -133,7 +159,7 @@ class TibberPriceChart {
         var ticks = [];
         var tickValue = yAxisMinimum;
         // Include the upper tick despite floating-point accumulation errors.
-        while (tickValue <= yAxisMaximum + yAxisTickStep * TICK_TOLERANCE && ticks.size() < MAX_Y_TICKS) {
+        while (tickValue <= yAxisMaximum + yAxisTickStep * TICK_TOLERANCE && ticks.size() < _maxTicks) {
             ticks.add([tickValue, tickValue.format(labelFormat)]);
             tickValue += yAxisTickStep;
         }
@@ -169,7 +195,7 @@ class TibberPriceChart {
         var centerX = deviceContext.getWidth() / 2;
         var centerY = deviceContext.getHeight() / 2;
         var safeHalfWidth = diameter * HALF_WIDTH_RATIO;
-        var safeHalfHeight = diameter * HALF_HEIGHT_RATIO;
+        var safeHalfHeight = diameter * (_compact ? LOW_HALF_HEIGHT_RATIO : HALF_HEIGHT_RATIO);
         var widestLabel = 0;
         for (var index = 0; index < ticks.size(); index++) {
             var labelWidth = deviceContext.getTextWidthInPixels(ticks[index][1], _poppinsTinyFont);
@@ -179,19 +205,29 @@ class TibberPriceChart {
         }
         var plotLeft = centerX - safeHalfWidth + widestLabel + Y_LABEL_RESERVE;
         var plotRight = centerX + safeHalfWidth - PLOT_RIGHT_INSET;
-        var plotTop = centerY - safeHalfHeight + (statusNote == null ? PLOT_TOP_INSET : PLOT_TOP_WITH_NOTE_INSET);
-        var plotBottom = centerY + safeHalfHeight - PLOT_BOTTOM_INSET;
+        var plotTop = centerY - safeHalfHeight;
+        if (_compact) {
+            // No status note on LOW screens; the plot starts right below the title.
+            plotTop += LOW_PLOT_TOP_INSET;
+        } else {
+            plotTop += statusNote == null ? PLOT_TOP_INSET : PLOT_TOP_WITH_NOTE_INSET;
+        }
+        var plotBottom = centerY + safeHalfHeight - (_compact ? LOW_PLOT_BOTTOM_INSET : PLOT_BOTTOM_INSET);
         // Reserve the largest footer font even if a long price later falls
         // back to a smaller one, keeping the plot stable between intervals.
         var footerSpace = deviceContext.getFontHeight(_poppinsMediumFont)
-            + deviceContext.getFontHeight(_poppinsTinyFont) * 2
-            + FOOTER_CLEARANCE + diameter * FOOTER_BOTTOM_RATIO;
+            + (_compact ? 0 : deviceContext.getFontHeight(_poppinsTinyFont))
+            + _footerClearance + diameter * _footerBottomRatio;
         if (plotBottom > deviceContext.getHeight() - footerSpace) {
             plotBottom = deviceContext.getHeight() - footerSpace;
         }
+        // LOW titles sit directly above the plot, sized from the font height.
+        var titleY = _compact
+            ? plotTop - deviceContext.getFontHeight(_poppinsSmallFont) - LOW_TITLE_GAP
+            : centerY - safeHalfHeight - TITLE_OFFSET;
         return {
             :centerX => centerX,
-            :titleY => centerY - safeHalfHeight - TITLE_OFFSET,
+            :titleY => titleY,
             :noteY => centerY - safeHalfHeight - STATUS_NOTE_OFFSET,
             :left => plotLeft,
             :right => plotRight,
@@ -212,7 +248,7 @@ class TibberPriceChart {
     private function drawHeader(deviceContext, layout as Dictionary, chartTitle, statusNote) {
         deviceContext.setColor(Theme.TEXT_PRIMARY, Theme.BACKGROUND);
         deviceContext.drawText(layout[:centerX], layout[:titleY], _poppinsSmallFont, chartTitle, Graphics.TEXT_JUSTIFY_CENTER);
-        if (statusNote != null) {
+        if (statusNote != null && !_compact) {
             deviceContext.setColor(Theme.TEXT_SECONDARY, Theme.BACKGROUND);
             deviceContext.drawText(layout[:centerX], layout[:noteY], _poppinsTinyFont, statusNote, Graphics.TEXT_JUSTIFY_CENTER);
         }
@@ -353,7 +389,9 @@ class TibberPriceChart {
         var priceTop = footer[:priceY] - deviceContext.getFontHeight(priceFont) / 2;
         var unitY = priceTop + Graphics.getFontAscent(priceFont) - Graphics.getFontAscent(unitFont) + deviceContext.getFontHeight(unitFont) / 2;
         deviceContext.drawText(footerStartX + priceWidth + FOOTER_UNIT_GAP, unitY, unitFont, priceUnit, Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
-        deviceContext.drawText(deviceContext.getWidth() / 2, footer[:timeY], _poppinsTinyFont, formatIntervalRange(activeGraphPoint[POINT_MINUTE], intervalDurationMinutes), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+        if (!_compact) {
+            deviceContext.drawText(deviceContext.getWidth() / 2, footer[:timeY], _poppinsTinyFont, formatIntervalRange(activeGraphPoint[POINT_MINUTE], intervalDurationMinutes), Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+        }
     }
 
     /**
@@ -388,11 +426,12 @@ class TibberPriceChart {
         var priceHeight = deviceContext.getFontHeight(priceFont);
         var unitHeight = deviceContext.getFontHeight(_poppinsTinyFont);
         var priceRowHeight = priceHeight > unitHeight ? priceHeight : unitHeight;
-        var timeHeight = deviceContext.getFontHeight(_poppinsTinyFont);
-        var footerHeight = priceRowHeight + FOOTER_ROW_GAP + timeHeight;
+        // LOW screens drop the time-range row and show only the price.
+        var timeHeight = _compact ? 0 : deviceContext.getFontHeight(_poppinsTinyFont);
+        var footerHeight = _compact ? priceRowHeight : priceRowHeight + FOOTER_ROW_GAP + timeHeight;
         // Center the whole block after the X labels, not just its price row.
-        var footerTop = plotBottom + X_LABEL_GAP + timeHeight;
-        var footerBottom = deviceContext.getHeight() - getDisplayDiameter(deviceContext) * FOOTER_BOTTOM_RATIO;
+        var footerTop = plotBottom + X_LABEL_GAP + unitHeight;
+        var footerBottom = deviceContext.getHeight() - getDisplayDiameter(deviceContext) * _footerBottomRatio;
         var footerStartY = footerTop + (footerBottom - footerTop - footerHeight) / 2;
         return {
             :priceY => footerStartY + priceRowHeight / 2,
@@ -448,7 +487,11 @@ class TibberPriceChart {
     private function drawXAxisLabels(deviceContext, layout as Dictionary, chartSpanMinutes) {
         var hourLabelOffsets;
         var hourLabels;
-        if (chartSpanMinutes > MINUTES_PER_DAY) {
+        if (chartSpanMinutes > MINUTES_PER_DAY && _compact) {
+            // Two days on a small screen: only noon and midnight fit legibly.
+            hourLabelOffsets = [12, 24, 36];
+            hourLabels = ["12", "00", "12"];
+        } else if (chartSpanMinutes > MINUTES_PER_DAY) {
             hourLabelOffsets = [6, 12, 18, 24, 30, 36, 42];
             hourLabels = ["06", "12", "18", "00", "06", "12", "18"];
         } else {

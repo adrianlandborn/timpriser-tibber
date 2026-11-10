@@ -22,6 +22,8 @@
     <string id="GraphTitleQuarterHour">HEUTE | 15 MIN</string>
     <string id="GraphTitleTwoDayHourly">2 TAGE | STD</string>
     <string id="GraphTitleTodayHourly">HEUTE | STD</string>
+    <string id="GraphTitleShortQuarterHour">15 MIN</string>
+    <string id="GraphTitleShortHourly">1 STD</string>
     <string id="TomorrowMissing">Morgen fehlt</string>
     <string id="SettingsTitle">EINST.</string>
     <string id="TaxesAndFees">Steuer/Geb.</string>
