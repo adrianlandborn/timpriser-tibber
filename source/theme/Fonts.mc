@@ -1,16 +1,22 @@
 import Toybox.Graphics;
 import Toybox.Lang;
 import Toybox.System;
+import Toybox.WatchUi;
 
 /**
- * Devices on Connect IQ API 3.1 or older (fenix 5X) draw the custom Poppins bitmap fonts as
- * garbled glyphs once more than the first screen is shown, so they use the built-in system
- * fonts instead. Layout is derived from font heights, so it adapts to either set.
+ * Devices on Connect IQ API 3.1 or older (fenix 5X) and the other button devices without glance
+ * support (fenix 5 Plus family, Forerunner 645 Music) draw the custom Poppins bitmap fonts badly,
+ * so they use the built-in system fonts instead. Layout is derived from font heights, so it adapts
+ * to either set.
  */
 module TibberFonts {
-    /** True when the device's Connect IQ API is older than 3.2 and system fonts must be used. */
+    /** True on pre-glance button devices or when the Connect IQ API is older than 3.2. */
     function useSystemFonts() as Boolean {
-        var version = System.getDeviceSettings().monkeyVersion;
+        var settings = System.getDeviceSettings();
+        if (!(WatchUi has :GlanceView) && !settings.isTouchScreen) {
+            return true;
+        }
+        var version = settings.monkeyVersion;
         if (version == null || version.size() < 2) {
             return false;
         }

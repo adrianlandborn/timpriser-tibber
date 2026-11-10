@@ -20,19 +20,24 @@ class TibberWidgetView extends WatchUi.View {
     var _useSystemFonts;
     var _widgetLogo;
     var _hourBar;
+    /** Lite start screen (devices without glance support): cached price only, no API client, no status line. */
+    var _isLite;
 
-    /** Initialize the price screen and its API client. */
-    function initialize() {
+    /** Initialize the price screen; the full screen also creates its API client. */
+    function initialize(isLite) {
         View.initialize();
+        _isLite = isLite;
         _hourBar = new TibberHourLevelBar();
         _currentPriceData = null;
         _isPriceLoading = false;
         _priceErrorMessage = null;
-        _priceApiClient = new TibberApiClient();
+        _priceApiClient = isLite ? null : new TibberApiClient();
         _priceCache = new TibberPriceCache();
         loadStoredSettings();
         _useSystemFonts = TibberFonts.useSystemFonts();
-        System.println("Tibber widget: using " + TibberFonts.describe());
+        if (!isLite) {
+            System.println("Tibber widget: using " + TibberFonts.describe());
+        }
         _poppinsTinyFont = _useSystemFonts ? Graphics.FONT_XTINY : WatchUi.loadResource(Rez.Fonts.PoppinsTiny) as WatchUi.FontResource;
         _poppinsSmallFont = _useSystemFonts ? Graphics.FONT_TINY : WatchUi.loadResource(Rez.Fonts.PoppinsSmall) as WatchUi.FontResource;
         // Medium and Large are loaded on first use (getMediumFont/getLargeFont): loading
@@ -69,6 +74,10 @@ class TibberWidgetView extends WatchUi.View {
 
     /** Pick up values changed from the phone and refetch with them. */
     function reloadSettings() {
+        if (_isLite) {
+            onShow();
+            return;
+        }
         loadStoredSettings();
         _currentPriceData = null;
         _priceErrorMessage = null;
@@ -79,9 +88,20 @@ class TibberWidgetView extends WatchUi.View {
     function onLayout(dc) {
     }
 
-    /** Refresh current price data when the main screen becomes visible. */
+    /** Refresh current price data when the main screen becomes visible; the lite screen reads the cache only. */
     function onShow() {
+        if (_isLite) {
+            loadStoredSettings();
+            var cached = _priceCache.getCurrentPrice(_currentPriceResolution);
+            _currentPriceData = cached instanceof Dictionary ? cached : null;
+            WatchUi.requestUpdate();
+            return;
+        }
         fetchPriceData(false);
+    }
+
+    function isLite() {
+        return _isLite;
     }
 
     /** Release or reset view state when the main screen is hidden. */
@@ -144,6 +164,10 @@ class TibberWidgetView extends WatchUi.View {
                 if (_hourBar.isValid(hourLevels)) {
                     priceRows.add([null, null, null, hourLevels]);
                 }
+                if (_isLite) {
+                    drawTextStack(dc, width, height, priceRows, _widgetLogo);
+                    return;
+                }
                 var tradingTaxesIncluded = _currentPriceType.equals("TOTAL");
                 var statusText;
                 if (TibberCurrency.feesSupported(currency)) {
@@ -164,7 +188,7 @@ class TibberWidgetView extends WatchUi.View {
             }
         } else {
             drawTextStack(dc, width, height, [
-                [str(Rez.Strings.Loading), _poppinsTinyFont]
+                _isLite ? [str(Rez.Strings.OpenTibber), _poppinsSmallFont] : [str(Rez.Strings.Loading), _poppinsTinyFont]
             ], _widgetLogo);
         }
     }
@@ -278,6 +302,9 @@ class TibberWidgetView extends WatchUi.View {
 
     /** Request the current price using the selected main-screen resolution. */
     function fetchPriceData(forceRefresh) {
+        if (_priceApiClient == null) {
+            return;
+        }
         _isPriceLoading = true;
         WatchUi.requestUpdate();
 

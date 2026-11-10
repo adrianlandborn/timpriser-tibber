@@ -9,7 +9,7 @@ import Toybox.WatchUi;
 
 (:test)
 function testWidgetViewStartup(logger) {
-    var view = new TibberWidgetView();
+    var view = new TibberWidgetView(false);
     return view != null && view.getPriceFont() != null;
 }
 
@@ -28,6 +28,13 @@ function testGlanceViewStartup(logger) {
 function testWidgetViewAllFontsLoaded(logger) {
     // Worst case for the main screens: the graph and settings screens need the
     // Medium and Large fonts on top of everything loaded at startup.
-    var view = new TibberWidgetView();
+    var view = new TibberWidgetView(false);
     return view.getMediumFont() != null && view.getLargeFont() != null;
+}
+
+(:test)
+function testLiteWidgetViewStartup(logger) {
+    // Lite start screen on devices without glance support: cached price only, no API client.
+    var view = new TibberWidgetView(true);
+    return view.isLite() && view.getPriceFont() != null && view._priceApiClient == null;
 }

@@ -3,8 +3,8 @@
 ## 1.0.1 (unrelesed)
 
 - Launcher icon is now sized for each device, so it is sharper and uses less memory on smaller devices.
-- Support for Fenix 5X (`fenix5x`), which uses the watch's built-in fonts.
-- Devices without glance support (Fenix 5X, Fenix 5 Plus, Forerunner 645 Music, Vivoactive 3/4, Venu and similar): the system uses UP/DOWN on the main screen, so START opens the graphs from there. UP/DOWN still work inside the graphs and settings.
+- Support for Fenix 5X (`fenix5x`).
+- Watches without glances (Fenix 5X, Fenix 5 Plus series, Forerunner 645 Music, Vivoactive 3/4, Venu and similar) now start on a compact price screen. Press START (or tap) to open the full widget, where UP/DOWN move between the price and the graphs. BACK returns to the compact screen. The Fenix 5 series and Forerunner 645 Music use the watch's built-in fonts, so text displays correctly.
 
 ## 1.1.0 - 2026-11-05
 

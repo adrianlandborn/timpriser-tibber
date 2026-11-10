@@ -1,3 +1,4 @@
+import Toybox.Application;
 import Toybox.WatchUi;
 import Toybox.Lang;
 
@@ -10,9 +11,9 @@ class TibberWidgetDelegate extends WatchUi.BehaviorDelegate {
         _widgetView = widgetView;
     }
 
-    /** Refresh the current price when START/SELECT is pressed; on devices without glance support (UP/DOWN belong to the system here) and on touch-only devices it opens the next screen instead. */
+    /** Refresh the current price when START/SELECT is pressed; on older touch-only devices a tap opens the next screen instead. */
     function onSelect() {
-        if (TibberTouchScroll.startOpensGraphs()) {
+        if (TibberTouchScroll.isEnabled()) {
             return onNextPage();
         }
         if (_widgetView != null && _widgetView has :refreshPriceData) {
@@ -48,13 +49,11 @@ class TibberWidgetDelegate extends WatchUi.BehaviorDelegate {
         return true;
     }
 
-    /** Keep ENTER mapped to refresh on devices that report key events directly. */
+    /** Route ENTER through onSelect on devices that report key events directly. */
     function onKey(keyEvent) {
         var pressedKey = keyEvent.getKey();
         if (pressedKey == WatchUi.KEY_ENTER) {
-            if (_widgetView != null && _widgetView has :refreshPriceData) {
-                _widgetView.refreshPriceData();
-            }
+            onSelect();
             return true;
         }
         return false;
@@ -68,8 +67,13 @@ class TibberWidgetDelegate extends WatchUi.BehaviorDelegate {
         return true;
     }
 
-    /** Allow the system to close the widget from its base view. */
+    /** Return to the lite start screen when the widget was opened from it; otherwise let the system close the widget. */
     function onBack() {
+        var app = Application.getApp() as TibberApp;
+        if (app.isWidgetPushed()) {
+            app.closeWidget();
+            return true;
+        }
         return false;
     }
 }

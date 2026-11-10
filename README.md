@@ -28,7 +28,7 @@ START/STOP refreshes prices, MENU opens settings, and BACK returns from graph or
 
 On older touch-only devices (vivoactive 4, venu), where a tap carries no position and vertical swipes exit the widget, a tap scrolls through the screens: main screen, quarter-hour graph, hourly graph, then back to the main screen. Tap no longer refreshes there; the price refreshes when the main screen is shown.
 
-On older devices without glance support (Fenix 5X, Fenix 5 Plus and similar), the system keeps UP/DOWN on the main screen for its widget loop and leaves the app, so START opens the quarter-hour graph from the main screen instead. Inside the graphs and settings, UP/DOWN work as described above and START refreshes (touch-only devices excepted, see above). The price refreshes when the main screen is shown.
+On older devices without glance support (Fenix 5X, Fenix 5 Plus series, Forerunner 645 Music, Vivoactive 3/4, Venu and similar), the system keeps UP/DOWN on the widget's first screen for scrolling through the widget loop. There the widget starts on a compact screen that shows the last saved price, price type, interval and hour bar (or "Open Tibber" before the first load). START (a tap on touch-only devices) opens the full widget, where the controls above apply. BACK returns to the compact screen. The Fenix 5 series and Forerunner 645 Music use the watch's built-in fonts.
 
 ## Requirements
 

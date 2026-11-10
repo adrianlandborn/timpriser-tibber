@@ -5,6 +5,8 @@ import Toybox.WatchUi;
 (:glance)
 class TibberApp extends Application.AppBase {
     private var _priceView;
+    /** Lite start screen; only set on devices without glance support. */
+    private var _liteView;
 
     /** Initialize the base Connect IQ application. */
     function initialize() {
@@ -19,13 +21,40 @@ class TibberApp extends Application.AppBase {
     function onStop(state as Dictionary?) as Void {
     }
 
-    /** Create the initial price view and its input delegate. */
+    /**
+     * Create the initial view and its input delegate. Without glance support the system keeps
+     * UP/DOWN on the root view for its widget loop, so the root is a lite price screen and START
+     * opens the full widget as a pushed view, where UP/DOWN reach the app.
+     */
     function getInitialView() {
         TibberPhoneSettings.apply();
-        var priceView = new TibberWidgetView();
+        if (!(WatchUi has :GlanceView)) {
+            var liteView = new TibberWidgetView(true);
+            _liteView = liteView;
+            return [liteView, new TibberLiteDelegate()];
+        }
+        var priceView = new TibberWidgetView(false);
         _priceView = priceView;
         var inputDelegate = new TibberWidgetDelegate(priceView);
         return [priceView, inputDelegate];
+    }
+
+    /** True when the full widget is pushed above the lite start screen. */
+    function isWidgetPushed() {
+        return _liteView != null;
+    }
+
+    /** Push the full widget above the lite start screen. */
+    function openWidget() as Void {
+        var priceView = new TibberWidgetView(false);
+        _priceView = priceView;
+        WatchUi.pushView(priceView, new TibberWidgetDelegate(priceView), WatchUi.SLIDE_UP);
+    }
+
+    /** Leave the full widget for the lite start screen and release it. */
+    function closeWidget() as Void {
+        _priceView = null;
+        WatchUi.popView(WatchUi.SLIDE_DOWN);
     }
 
     /** Apply phone settings and refetch prices when the user edits settings in Garmin Connect. */
@@ -33,6 +62,9 @@ class TibberApp extends Application.AppBase {
         TibberPhoneSettings.apply();
         if (_priceView != null) {
             _priceView.reloadSettings();
+        }
+        if (_liteView != null) {
+            _liteView.reloadSettings();
         }
         WatchUi.requestUpdate();
     }
