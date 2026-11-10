@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.0.1 (unrelesed)
+## 1.2.0 (unreleased)
 
 - Launcher icon is now sized for each device, so it is sharper and uses less memory on smaller devices.
 - Support for Fenix 5X (`fenix5x`).
