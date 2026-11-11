@@ -212,6 +212,8 @@ The app and its price calculations are provided "as is," without warranty. API d
 
 ## Data and privacy
 
+The user-facing privacy policy (English and Swedish) is in [docs/PRIVACY.md](docs/PRIVACY.md). The notes below are for developers.
+
 The access token is sent to Tibber's GraphQL endpoint over HTTPS. A token in the local secrets source is included in builds compiled from that source, so do not share a build containing your personal token. Use a personal access token only for your own account; a distributed app should use Tibber's OAuth flow rather than embedding a personal token. Follow Tibber's API terms and applicable privacy requirements.
 
 ## License

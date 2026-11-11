@@ -25,9 +25,8 @@ Tibber distinguishes personal access tokens from distributed apps, which should 
 
 ## Open Items
 
-- [ ] **Privacy notice and support contact:** Garmin expects developers to provide their own privacy notice. The README "Data and privacy" section is developer-oriented. Publish a user-facing page (data read, token stored in Connect IQ settings on device/phone, cached prices on the watch, no backend, how to revoke the token) and link it with a support contact from the store listing.
+- [x] **Privacy notice and support contact:** User-facing policy (English and Swedish) is in [PRIVACY.md](PRIVACY.md) with the support contact. Link it from the store listing: `https://github.com/adrianlandborn/timpriser-tibber/blob/main/docs/PRIVACY.md`.
 - [ ] **Asset rights:** confirm the license/permission for `resources/lightning.svg` and the derived launcher/store artwork, and keep proof.
-- [ ] **FR55 / small-device retest:** FR55 had historical daily-price failures; verify cold start, graph, glance and memory on FR55, Fenix 7S and Vivoactive 4.
 - [ ] **Clean-install test:** install via the normal Connect IQ path with a non-developer Tibber account and verify onboarding, wrong/empty token and revoked-token messages.
 - [ ] **Edge cases:** no homes, multiple homes, no active subscription, unavailable tomorrow prices, midnight and DST boundaries, offline and rate-limit behavior.
 - [ ] **Tibber policy:** ask Tibber whether the personal-token model is acceptable for a distributed app (see above).
