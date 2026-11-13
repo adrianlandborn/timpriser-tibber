@@ -11,7 +11,7 @@ cd "$REPO_ROOT"
 version="${1:-}"
 echo "$version" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$' || die "Usage: $0 <major.minor.patch> [--no-asset]"
 tag="v$version"
-asset=".cache/ciq/TibberWidget-$version.iq"
+asset="dist/TibberWidget-$version.iq"
 
 command -v gh >/dev/null || die "GitHub CLI (gh) not found."
 git rev-parse -q --verify "refs/tags/$tag" >/dev/null || die "Tag $tag does not exist; run scripts/release-prepare.sh first."

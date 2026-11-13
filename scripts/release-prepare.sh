@@ -64,6 +64,6 @@ git tag -a "$tag" -m "Release $version"
 
 trap - EXIT
 echo
-echo "OK   $tag prepared. Package: .cache/ciq/TibberWidget-$version.iq"
+echo "OK   $tag prepared. Package: dist/TibberWidget-$version.iq"
 echo "Next: smoke-test on a device, upload to the store, then 'git push origin main $tag'."
 echo "      (full steps in docs/RELEASING.md)"

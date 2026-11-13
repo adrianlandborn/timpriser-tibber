@@ -28,6 +28,8 @@ developer_key.der
 *.prg.debug.xml
 # Agent harness output and machine-local agent config
 /.cache/
+# Versioned store packages (.iq) from scripts/release.sh
+/dist/
 .agents/skills-local/*
 !.agents/skills-local/.gitkeep
 .claude/skills/local-*

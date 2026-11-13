@@ -20,7 +20,7 @@ This requires a clean `main` and a version greater than the last `vX.Y.Z` tag, t
 1. runs `scripts/check.sh full` (lint, 3-device build, simulator tests);
 2. bumps `version` in `manifest.xml`;
 3. prepends a `CHANGELOG.md` entry from commit subjects since the last tag and pauses so you can edit it;
-4. runs `scripts/release.sh` (token-less `.iq` build plus leak check, writes `.cache/ciq/TibberWidget-<version>.iq`);
+4. runs `scripts/release.sh` (token-less `.iq` build plus leak check, writes `dist/TibberWidget-<version>.iq`);
 5. commits `Release <version>` and creates an annotated tag `v<version>`.
 
 **At the pause in step 3 of the script**, open `CHANGELOG.md` and:
@@ -39,7 +39,7 @@ If a step fails, `manifest.xml` and `CHANGELOG.md` are restored. Nothing is push
 
 ## 3. Upload (manual)
 
-1. In the [Connect IQ developer dashboard](https://apps.garmin.com/developer/) open the app, choose **Upload a New Version**, and upload `.cache/ciq/TibberWidget-<version>.iq`.
+1. In the [Connect IQ developer dashboard](https://apps.garmin.com/developer/) open the app, choose **Upload a New Version**, and upload `dist/TibberWidget-<version>.iq`.
 2. Paste the `CHANGELOG.md` entry for this version as the release notes; update the description and screenshots (`docs/store/`) only if they changed.
 3. Submit for review.
 
@@ -57,6 +57,6 @@ Push only after the upload is submitted, so the tag matches what was shipped. If
 scripts/release-publish.sh <version>
 ```
 
-Creates a GitHub Release for the pushed tag. The notes are the version's `CHANGELOG.md` section, and the `.cache/ciq/TibberWidget-<version>.iq` is attached as a permanent record of exactly what was shipped (the `.cache/` copy is overwritten or lost over time). The `.iq` is token-less and leak-checked in step 1, but if the repository is public the attachment is downloadable by anyone; pass `--no-asset` to publish notes only.
+Creates a GitHub Release for the pushed tag. The notes are the version's `CHANGELOG.md` section, and the `dist/TibberWidget-<version>.iq` is attached as a permanent record of exactly what was shipped (`dist/` is not tracked by git). The `.iq` is token-less and leak-checked in step 1, but if the repository is public the attachment is downloadable by anyone; pass `--no-asset` to publish notes only.
 
 Requires the GitHub CLI (`gh`) to be authenticated. The script refuses to run if the tag is missing locally or not yet pushed, or if the changelog has no section for the version.
