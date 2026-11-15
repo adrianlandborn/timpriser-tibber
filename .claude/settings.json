@@ -23,7 +23,9 @@
       "Bash(git checkout *)",
       "Bash(python3 -c ' *)",
       "Bash(git reset *)",
-      "Bash(git commit -q -m ' *)"
+      "Bash(git commit -q -m ' *)",
+      "Bash(git commit -q -m 'Write versioned release packages to dist/ *)",
+      "Bash(git push *)"
     ],
     "deny": [
       "Read(./developer_key.*)",

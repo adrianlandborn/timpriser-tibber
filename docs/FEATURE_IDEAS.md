@@ -20,6 +20,19 @@ Keep the current price as the primary element. Treat the following as optional s
 4. **Live Home Power** — Show current watts, consumption since midnight, today's peak, and optionally solar export. GraphQL `liveMeasurement` exposes these fields for Pulse/Watty homes. High effort: the live stream needs a phone or backend bridge in this Garmin architecture. Mark readings with their age and handle missing fields.
 5. **Connected Devices Overview** — Display available EV charging/battery, home battery, solar inverter, or heating-device state. Tibber's newer Data API exposes paired devices and capabilities. High effort: requires a separate OAuth2 client, the right scopes, supported paired devices, and defensive handling of varying device capabilities. Keep an initial implementation read-only; the Data API does not expose Tibber's proprietary optimization schedules.
 
+## Graph Interaction (touch)
+
+Status: idea, not scheduled. Origin: a user review asking to scrub the price graph and to choose the start screen. Analysed 2026-11-15; no code written.
+
+1. **Scrub the graph** — Drag horizontally on the quarter-hour or hourly graph to move the marker and read price and interval from the existing footer. No new data or API calls: `_priceIntervals` is already in memory. Low-to-medium effort (about 100 lines plus tests).
+   - Code touchpoints: `PriceChart.draw`/`drawCurrentMarker` take an optional selected minute (null = now); `PriceGraphView` holds the scrub state and a reset timer; `PriceGraphDelegate` gets a guarded `onDrag`. `onDrag` is API 3.3.0, above the 3.2.0 minimum, so guard with `WatchUi has :DragEvent` and type the parameter loosely.
+   - UX: use relative dragging with snapping to the nearest interval. A finger covers about 40 px, and the quarter-hour chart has only about 1.7 px per interval on 240 px screens and about 3.5 px on 454 px screens (hourly chart: 3.4–7 px per hour), so tapping an absolute position is not precise enough. Make the scrubbed state obvious: accent-colored interval, a faint "now" dot and a hairline cursor.
+   - Reset: timeout (about 8 s), tap or START, first BACK, page change and `onShow`. Clamp at both ends.
+   - Gesture conflicts to verify on a real watch: a horizontal drag may end as swipeRight (BACK near the left edge) or, with a slight vertical wobble, as a page change. Swallow swipes shortly after a drag.
+   - Device gating by capability, not size: `isTouchScreen && WatchUi has :DragEvent && !TibberTouchScroll.isEnabled()`. 53 of the 79 listed products have touch, including MIP touch devices (Fenix 7, Fenix 8/9 Solar, Enduro 3, Forerunner 955). Button-only devices are unaffected. Limiting it to 51 mm or AMOLED watches would exclude the Fenix 7 users who asked.
+2. **Scrub on the main screen** (alternative, higher cost) — Drag over the flat hour-level bar to change the large price. The bar is 6 px high and holds 24 level codes, not prices, so this needs the daily cache on the main screen (memory risk on small devices) and one shared fee and tax calculation (today duplicated in `PriceGraphView.onPricesReceived` and `TibberPriceCache.getDisplayPrice`; follow the pricing-change rules). Tap on the main screen already refreshes the price, which conflicts with tap-to-reset. Build the graph version first.
+3. **Start-screen choice** — A phone setting to open directly on the quarter-hour or hourly graph. Open the graph after the first `onShow`, not in `getInitialView`, otherwise BACK from a root graph exits the app. Confirm with the reviewer that this is what they meant.
+
 ## Inspiration and Sources
 
 - [Tibber GraphQL API reference](https://developer.tibber.com/docs/reference) — Price, consumption, production, price range, and live-measurement schema.
@@ -46,3 +59,4 @@ Keep the current price as the primary element. Treat the following as optional s
 3. Build the cheapest continuous-run planner.
 4. Add a compact consumption summary.
 5. Consider live power and connected-device screens only after resolving the bridge, authentication, and compatibility requirements.
+6. Touch scrubbing in the graphs and a start-screen choice: decide after the items above.
