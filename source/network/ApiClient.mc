@@ -124,6 +124,10 @@ class TibberApiClient {
             responseCallback.invoke(loadString(Rez.Strings.ErrorTokenMissing));
             return;
         }
+        if (!TibberMock.isMockToken(accessToken) && !TibberTokenStore.looksValid(accessToken)) {
+            responseCallback.invoke(loadString(Rez.Strings.ErrorTokenFormat));
+            return;
+        }
 
         _responseCallback = responseCallback;
         _requestType = requestKind;
@@ -221,13 +225,15 @@ class TibberApiClient {
                 parsedResult = loadString(Rez.Strings.ErrorInvalidResponse);
             }
         } else {
-            parsedResult = loadString(Rez.Strings.ErrorHttpPrefix) + responseCode.toString();
+            parsedResult = loadString(Rez.Strings.ErrorServer);
             if (responseCode == 401) {
                 parsedResult = loadString(Rez.Strings.ErrorTokenRejected);
             } else if (responseCode == 403) {
                 parsedResult = loadString(Rez.Strings.ErrorAccessDenied);
             } else if (responseCode == 429) {
                 parsedResult = loadString(Rez.Strings.ErrorRateLimited);
+            } else if (responseCode == -104) {
+                parsedResult = loadString(Rez.Strings.ErrorNoPhone);
             } else if (responseCode < 0) {
                 parsedResult = loadString(Rez.Strings.ErrorNoConnection);
             }
@@ -236,15 +242,19 @@ class TibberApiClient {
         pendingCallback.invoke(parsedResult);
     }
 
-    /** Extract a safe user-facing message from a GraphQL errors array. */
+    /** Map a GraphQL errors array to a short user-facing message (auth errors get the token message). */
     private function getGraphQlError(responseData as Dictionary) {
         var graphQlErrors = responseData.get("errors");
         if (graphQlErrors instanceof Array && (graphQlErrors as Array).size() > 0) {
             var firstError = (graphQlErrors as Array)[0];
             if (firstError instanceof Dictionary) {
+                var details = (firstError as Dictionary).get("extensions");
+                var code = details instanceof Dictionary ? (details as Dictionary).get("code") : null;
                 var message = (firstError as Dictionary).get("message");
-                if (message instanceof String) {
-                    return loadString(Rez.Strings.ErrorRequestFailed);
+                var text = (code instanceof String ? code as String : "") + " " + (message instanceof String ? message as String : "");
+                text = text.toLower();
+                if (text.find("unauth") != null || text.find("token") != null) {
+                    return loadString(Rez.Strings.ErrorTokenRejected);
                 }
             }
             return loadString(Rez.Strings.ErrorRequestFailed);

@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Shorter, clearer error messages that say what to fix, such as a missing or invalid Tibber token, no phone connection or Tibber being unavailable.
+- The compact screen on watches without glances shows "Token missing" until a token is entered, and the glance shows "Open the app" when there is no price yet.
+- A token that is obviously mistyped (too short or containing spaces) is reported before contacting Tibber.
+
 ## 1.2.0 - 2026-11-11
 
 - Launcher icon is now sized for each device, so it is sharper and uses less memory on smaller devices.

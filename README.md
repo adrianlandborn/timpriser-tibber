@@ -53,7 +53,7 @@ Set your token as the return value of `TibberSecrets.getApiToken()` in `secrets/
 
 ### Tibber token for users
 
-Store users create a personal token at [developer.tibber.com](https://developer.tibber.com) and paste it into the app's **Tibber API token** setting in the Garmin Connect app (the watch shows "Enter Tibber token in app settings" until one is set). Changing the setting refreshes prices. The app uses the settings token first and falls back to the local `Secrets.mc` token described above, which is for development only.
+Store users create a personal token at [developer.tibber.com](https://developer.tibber.com) and paste it into the app's **Tibber API token** setting in the Garmin Connect app (the watch shows "Enter token in app settings" until one is set, and "Token looks wrong. Copy again" if it is too short or contains spaces). Changing the setting refreshes prices. The app uses the settings token first and falls back to the local `Secrets.mc` token described above, which is for development only.
 
 ### Store release build
 

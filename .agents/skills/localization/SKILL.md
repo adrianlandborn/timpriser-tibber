@@ -18,7 +18,7 @@ Swedish is the default (`resources/strings/strings.xml`); English lives in `reso
 
 ## Rules for translators
 
-- Keep IDs, `&amp;`, leading/trailing spaces (e.g. `StatusSeparator`, `ErrorHttpPrefix`) and units (`öre`, `kWh`, `%`) unchanged.
+- Keep IDs, `&amp;`, leading/trailing spaces (e.g. `StatusSeparator`) and units (`öre`, `kWh`, `%`) unchanged.
 - Match the original's length or shorter: small displays (`vivoactive4`) clip long text.
 - Keep Tibber and Swedish grid/tax terms accurate (nätavgift = grid fee, energiskatt = energy tax).
 - Poppins bitmap fonts only cover the characters already used; check `tools/build_poppins_price_font.py` before adding new glyphs (e.g. other accents).

@@ -6,7 +6,7 @@
     <string id="LoadingPrices">Prijzen laden...</string>
     <string id="AppSubtitle">Tibber stroomprijs</string>
     <string id="ErrorTitle">Fout</string>
-    <string id="ErrorUnknown">Fout onbekend</string>
+    <string id="ErrorUnknown">Er ging iets mis. Opnieuw</string>
     <string id="SpotPrice">Spotprijs</string>
     <string id="TotalPrice">Totaalprijs</string>
     <string id="TaxesIncluded">Met heffing</string>
@@ -15,7 +15,7 @@
     <string id="NetworkExcluded">Net excl.</string>
     <string id="StatusSeparator"> | </string>
     <string id="PriceDataMissing">Prijsdata ontbr.</string>
-    <string id="OpenTibber" scope="glance">Open Tibber</string>
+    <string id="OpenTibber" scope="glance">Open de app</string>
     <string id="PricesMissing">Geen prijzen</string>
     <string id="InvalidPriceData">Ongeldige data</string>
     <string id="CouldNotReadPrices">Prijzen niet lezen</string>
@@ -42,7 +42,7 @@
     <string id="VariableFeeCaption2">incl. btw</string>
     <string id="ErrorInvalidResolution">Ongeldige resolutie</string>
     <string id="ErrorRequestInProgress">Een Tibber-verzoek is al bezig</string>
-    <string id="ErrorTokenMissing">Voer Tibber-token in instell.</string>
+    <string id="ErrorTokenMissing">Voer token in bij instellingen</string>
     <string id="SettingTokenTitle">Tibber API-token</string>
     <string id="SettingPriceTypeTitle">Getoonde prijs</string>
     <string id="SettingIntervalTitle">Prijsinterval</string>
@@ -50,23 +50,26 @@
     <string id="SettingFixedFeeTitle">Vaste netkosten, öre/kWh (alleen Zweden)</string>
     <string id="SettingVariableFeeTitle">Variabele netkosten, % (alleen Zweden)</string>
     <string id="SettingEnergyTaxTitle">Energiebelasting, öre/kWh (alleen Zweden)</string>
-    <string id="ErrorRequestStart">Kan verzoek niet starten</string>
-    <string id="ErrorInvalidResponse">Tibber gaf ongeldig antwoord</string>
-    <string id="ErrorHttpPrefix">Tibber HTTP-fout </string>
-    <string id="ErrorTokenRejected">Tibber weigerde API-token</string>
-    <string id="ErrorAccessDenied">Toegang geweigerd. Controleer rechten.</string>
-    <string id="ErrorRateLimited">Tibber-limiet bereikt. Probeer later.</string>
-    <string id="ErrorNoConnection">Tibber onbereikbaar. Controleer horloge.</string>
-    <string id="ErrorRequestFailed">Verzoek mislukt</string>
-    <string id="ErrorNoData">Geen gegevens</string>
-    <string id="ErrorInvalidFormat">Ongeldig formaat</string>
+    <string id="ErrorRequestStart">Er ging iets mis. Opnieuw</string>
+    <string id="ErrorInvalidResponse">Er ging iets mis. Opnieuw</string>
+    <string id="ErrorTokenFormat">Token lijkt fout. Kopieer opnieuw</string>
+    <string id="ErrorNoPhone">Geen telefoonverbinding</string>
+    <string id="ErrorServer">Tibber niet beschikbaar. Later</string>
+    <string id="GlanceTokenMissing">Token ontbreekt</string>
+    <string id="ErrorTokenRejected">Ongeldig token. Controleer het</string>
+    <string id="ErrorAccessDenied">Token mist rechten</string>
+    <string id="ErrorRateLimited">Te veel verzoeken. Wacht</string>
+    <string id="ErrorNoConnection">Tibber onbereikbaar</string>
+    <string id="ErrorRequestFailed">Er ging iets mis. Opnieuw</string>
+    <string id="ErrorNoData">Er ging iets mis. Opnieuw</string>
+    <string id="ErrorInvalidFormat">Er ging iets mis. Opnieuw</string>
     <string id="ErrorNoHome">Geen Tibber-woning</string>
-    <string id="ErrorInvalidHome">Ongeldige woning</string>
-    <string id="ErrorNoSubscription">Geen actief stroomcontract</string>
+    <string id="ErrorInvalidHome">Er ging iets mis. Opnieuw</string>
+    <string id="ErrorNoSubscription">Geen actief contract</string>
     <string id="ErrorPriceDataMissing">Prijsdata ontbr.</string>
     <string id="ErrorCurrentPriceMissing">Huidige prijs mist</string>
-    <string id="ErrorInvalidPriceFields">Ongeldige velden</string>
-    <string id="ErrorInvalidPriceResponse">Ongeldig prijsantwoord van Tibber</string>
+    <string id="ErrorInvalidPriceFields">Er ging iets mis. Opnieuw</string>
+    <string id="ErrorInvalidPriceResponse">Er ging iets mis. Opnieuw</string>
     <string id="ErrorTodayPricesMissing">Prijzen vandaag mist</string>
-    <string id="ErrorDailyPrices">Dagprijzen niet lezen</string>
+    <string id="ErrorDailyPrices">Er ging iets mis. Opnieuw</string>
 </strings>

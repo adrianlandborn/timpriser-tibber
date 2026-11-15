@@ -188,7 +188,7 @@ class TibberWidgetView extends WatchUi.View {
             }
         } else {
             drawTextStack(dc, width, height, [
-                _isLite ? [str(Rez.Strings.OpenTibber), _poppinsSmallFont] : [str(Rez.Strings.Loading), _poppinsTinyFont]
+                _isLite ? [str(TibberTokenStore.getApiToken().length() == 0 ? Rez.Strings.GlanceTokenMissing : Rez.Strings.OpenTibber), _poppinsSmallFont] : [str(Rez.Strings.Loading), _poppinsTinyFont]
             ], _widgetLogo);
         }
     }

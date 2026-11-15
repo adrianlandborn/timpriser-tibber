@@ -6,7 +6,7 @@
     <string id="LoadingPrices">Laster priser...</string>
     <string id="AppSubtitle">Tibber strømpris</string>
     <string id="ErrorTitle">Feil</string>
-    <string id="ErrorUnknown">Ukjent feil</string>
+    <string id="ErrorUnknown">Noe gikk galt. Prøv igjen</string>
     <string id="SpotPrice">Spotpris</string>
     <string id="TotalPrice">Totalpris</string>
     <string id="TaxesIncluded">Inkl. avgift</string>
@@ -15,7 +15,7 @@
     <string id="NetworkExcluded">Nett eks.</string>
     <string id="StatusSeparator"> | </string>
     <string id="PriceDataMissing">Mangler prisdata</string>
-    <string id="OpenTibber" scope="glance">Åpne Tibber</string>
+    <string id="OpenTibber" scope="glance">Åpne appen</string>
     <string id="PricesMissing">Mangler priser</string>
     <string id="InvalidPriceData">Ugyldige prisdata</string>
     <string id="CouldNotReadPrices">Kan ikke lese priser</string>
@@ -42,7 +42,7 @@
     <string id="VariableFeeCaption2">inkl. mva</string>
     <string id="ErrorInvalidResolution">Ugyldig prisoppløsning</string>
     <string id="ErrorRequestInProgress">Tibber-forespørsel pågår allerede</string>
-    <string id="ErrorTokenMissing">Angi Tibber-token i appinnst.</string>
+    <string id="ErrorTokenMissing">Angi token i appinnstillinger</string>
     <string id="SettingTokenTitle">Tibber API-token</string>
     <string id="SettingPriceTypeTitle">Vist pris</string>
     <string id="SettingIntervalTitle">Prisintervall</string>
@@ -50,23 +50,26 @@
     <string id="SettingFixedFeeTitle">Fast nettleie, öre/kWh (kun Sverige)</string>
     <string id="SettingVariableFeeTitle">Variabel nettleie, % (kun Sverige)</string>
     <string id="SettingEnergyTaxTitle">Energiavgift, öre/kWh (kun Sverige)</string>
-    <string id="ErrorRequestStart">Kunne ikke starte forespørsel</string>
-    <string id="ErrorInvalidResponse">Tibber ga ugyldig svar</string>
-    <string id="ErrorHttpPrefix">Tibber HTTP-feil </string>
-    <string id="ErrorTokenRejected">Tibber avviste API-tokenet</string>
-    <string id="ErrorAccessDenied">Tilgang nektet. Sjekk tokenets rettigheter.</string>
-    <string id="ErrorRateLimited">Tibber-grense nådd. Prøv igjen senere.</string>
-    <string id="ErrorNoConnection">Kan ikke nå Tibber. Sjekk klokkeforbindelsen.</string>
-    <string id="ErrorRequestFailed">Forespørsel feilet</string>
-    <string id="ErrorNoData">Ingen data</string>
-    <string id="ErrorInvalidFormat">Ugyldig svarformat</string>
+    <string id="ErrorRequestStart">Noe gikk galt. Prøv igjen</string>
+    <string id="ErrorInvalidResponse">Noe gikk galt. Prøv igjen</string>
+    <string id="ErrorTokenFormat">Token ser feil ut. Kopier på nytt</string>
+    <string id="ErrorNoPhone">Ingen telefonforbindelse</string>
+    <string id="ErrorServer">Tibber utilgjengelig. Prøv senere</string>
+    <string id="GlanceTokenMissing">Token mangler</string>
+    <string id="ErrorTokenRejected">Ugyldig token. Sjekk den</string>
+    <string id="ErrorAccessDenied">Token mangler tilgang</string>
+    <string id="ErrorRateLimited">For mange kall. Vent litt</string>
+    <string id="ErrorNoConnection">Får ikke kontakt med Tibber</string>
+    <string id="ErrorRequestFailed">Noe gikk galt. Prøv igjen</string>
+    <string id="ErrorNoData">Noe gikk galt. Prøv igjen</string>
+    <string id="ErrorInvalidFormat">Noe gikk galt. Prøv igjen</string>
     <string id="ErrorNoHome">Ingen Tibber-bolig</string>
-    <string id="ErrorInvalidHome">Ugyldig boligdata</string>
-    <string id="ErrorNoSubscription">Fant ingen aktiv strømavtale</string>
+    <string id="ErrorInvalidHome">Noe gikk galt. Prøv igjen</string>
+    <string id="ErrorNoSubscription">Ingen aktiv avtale</string>
     <string id="ErrorPriceDataMissing">Mangler prisdata</string>
     <string id="ErrorCurrentPriceMissing">Aktuell pris mangler</string>
-    <string id="ErrorInvalidPriceFields">Ugyldige prisfelt</string>
-    <string id="ErrorInvalidPriceResponse">Ugyldig prissvar fra Tibber</string>
+    <string id="ErrorInvalidPriceFields">Noe gikk galt. Prøv igjen</string>
+    <string id="ErrorInvalidPriceResponse">Noe gikk galt. Prøv igjen</string>
     <string id="ErrorTodayPricesMissing">Dagens priser mangler</string>
-    <string id="ErrorDailyPrices">Kunne ikke lese dagspriser</string>
+    <string id="ErrorDailyPrices">Noe gikk galt. Prøv igjen</string>
 </strings>

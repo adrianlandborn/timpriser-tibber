@@ -19,6 +19,19 @@ class TibberTokenStore {
         return text.substring(start, end) as String;
     }
 
+    /** Cheap sanity check: long enough and no whitespace inside (typical copy/paste mistakes). */
+    static function looksValid(token as String) as Boolean {
+        if (token.length() < 16) {
+            return false;
+        }
+        for (var i = 0; i < token.length(); i++) {
+            if (isBlank(token.substring(i, i + 1))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     /** App-settings token first, then the local development fallback. */
     static function getApiToken() as String {
         var token = "";

@@ -6,7 +6,7 @@
     <string id="LoadingPrices">Preise laden...</string>
     <string id="AppSubtitle">Tibber Strompreis</string>
     <string id="ErrorTitle">Fehler</string>
-    <string id="ErrorUnknown">Unbek. Fehler</string>
+    <string id="ErrorUnknown">Etwas ging schief. Erneut</string>
     <string id="SpotPrice">Spotpreis</string>
     <string id="TotalPrice">Gesamtpreis</string>
     <string id="TaxesIncluded">Inkl. Steuer</string>
@@ -15,7 +15,7 @@
     <string id="NetworkExcluded">Netz exkl.</string>
     <string id="StatusSeparator"> | </string>
     <string id="PriceDataMissing">Preisdaten fehlen</string>
-    <string id="OpenTibber" scope="glance">Öffnen</string>
+    <string id="OpenTibber" scope="glance">App öffnen</string>
     <string id="PricesMissing">Preise fehlen</string>
     <string id="InvalidPriceData">Ungültige Daten</string>
     <string id="CouldNotReadPrices">Preise nicht lesbar</string>
@@ -42,7 +42,7 @@
     <string id="VariableFeeCaption2">inkl. MwSt.</string>
     <string id="ErrorInvalidResolution">Ungültige Auflösung</string>
     <string id="ErrorRequestInProgress">Eine Tibber-Anfrage läuft bereits</string>
-    <string id="ErrorTokenMissing">Tibber-Token in App eingeben</string>
+    <string id="ErrorTokenMissing">Token in App-Einstellungen eingeben</string>
     <string id="SettingTokenTitle">Tibber API-Token</string>
     <string id="SettingPriceTypeTitle">Angezeigter Preis</string>
     <string id="SettingIntervalTitle">Preisintervall</string>
@@ -50,23 +50,26 @@
     <string id="SettingFixedFeeTitle">Festes Netzentgelt, öre/kWh (nur Schweden)</string>
     <string id="SettingVariableFeeTitle">Variables Netzentgelt, % (nur Schweden)</string>
     <string id="SettingEnergyTaxTitle">Energiesteuer, öre/kWh (nur Schweden)</string>
-    <string id="ErrorRequestStart">Anfrage konnte nicht starten</string>
-    <string id="ErrorInvalidResponse">Tibber sendete ungültige Antwort</string>
-    <string id="ErrorHttpPrefix">Tibber HTTP: </string>
-    <string id="ErrorTokenRejected">Tibber lehnte API-Token ab</string>
-    <string id="ErrorAccessDenied">Zugriff verweigert. Token-Rechte prüfen.</string>
-    <string id="ErrorRateLimited">Tibber-Limit erreicht. Später erneut.</string>
-    <string id="ErrorNoConnection">Tibber nicht erreichbar. Uhrverbindung prüfen.</string>
-    <string id="ErrorRequestFailed">Anfrage fehlgeschl.</string>
-    <string id="ErrorNoData">Keine Daten</string>
-    <string id="ErrorInvalidFormat">Ungültiges Format</string>
+    <string id="ErrorRequestStart">Etwas ging schief. Erneut</string>
+    <string id="ErrorInvalidResponse">Etwas ging schief. Erneut</string>
+    <string id="ErrorTokenFormat">Token sieht falsch aus. Neu kopieren</string>
+    <string id="ErrorNoPhone">Keine Handyverbindung</string>
+    <string id="ErrorServer">Tibber nicht verfügbar. Später</string>
+    <string id="GlanceTokenMissing">Token fehlt</string>
+    <string id="ErrorTokenRejected">Ungültiger Token. Prüfen</string>
+    <string id="ErrorAccessDenied">Token ohne Berechtigung</string>
+    <string id="ErrorRateLimited">Zu viele Anfragen. Warten</string>
+    <string id="ErrorNoConnection">Tibber nicht erreichbar</string>
+    <string id="ErrorRequestFailed">Etwas ging schief. Erneut</string>
+    <string id="ErrorNoData">Etwas ging schief. Erneut</string>
+    <string id="ErrorInvalidFormat">Etwas ging schief. Erneut</string>
     <string id="ErrorNoHome">Kein Tibber-Haus</string>
-    <string id="ErrorInvalidHome">Ungült. Hausdaten</string>
-    <string id="ErrorNoSubscription">Kein aktiver Stromvertrag</string>
+    <string id="ErrorInvalidHome">Etwas ging schief. Erneut</string>
+    <string id="ErrorNoSubscription">Kein aktiver Vertrag</string>
     <string id="ErrorPriceDataMissing">Preisdaten fehlen</string>
     <string id="ErrorCurrentPriceMissing">Aktueller Preis fehlt</string>
-    <string id="ErrorInvalidPriceFields">Ungült. Preisfelder</string>
-    <string id="ErrorInvalidPriceResponse">Ungültige Preisantwort von Tibber</string>
+    <string id="ErrorInvalidPriceFields">Etwas ging schief. Erneut</string>
+    <string id="ErrorInvalidPriceResponse">Etwas ging schief. Erneut</string>
     <string id="ErrorTodayPricesMissing">Heutige Preise fehlen</string>
-    <string id="ErrorDailyPrices">Tagespreise nicht lesbar</string>
+    <string id="ErrorDailyPrices">Etwas ging schief. Erneut</string>
 </strings>

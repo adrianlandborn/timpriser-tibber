@@ -6,7 +6,7 @@
     <string id="LoadingPrices">Laddar priser...</string>
     <string id="AppSubtitle">Tibber elpris</string>
     <string id="ErrorTitle">Fel</string>
-    <string id="ErrorUnknown">Okänt fel</string>
+    <string id="ErrorUnknown">Något gick fel. Försök igen</string>
     <string id="SpotPrice">Spotpris</string>
     <string id="TotalPrice">Totalpris</string>
     <string id="TaxesIncluded">Skatter inkl.</string>
@@ -15,7 +15,7 @@
     <string id="NetworkExcluded">Nät exkl.</string>
     <string id="StatusSeparator"> | </string>
     <string id="PriceDataMissing">Prisdata saknas</string>
-    <string id="OpenTibber" scope="glance">Öppna Tibber</string>
+    <string id="OpenTibber" scope="glance">Öppna appen</string>
     <string id="PricesMissing">Priser saknas</string>
     <string id="InvalidPriceData">Ogiltiga prisdata</string>
     <string id="CouldNotReadPrices">Kunde inte läsa priser</string>
@@ -42,7 +42,7 @@
     <string id="VariableFeeCaption2">inklusive moms</string>
     <string id="ErrorInvalidResolution">Ogiltig prisupplösning</string>
     <string id="ErrorRequestInProgress">En Tibber-förfrågan pågår redan</string>
-    <string id="ErrorTokenMissing">Ange Tibber-token i appinställningarna</string>
+    <string id="ErrorTokenMissing">Fyll i token i appens inställningar</string>
     <string id="SettingTokenTitle">Tibber API-token</string>
     <string id="SettingPriceTypeTitle">Visat pris</string>
     <string id="SettingIntervalTitle">Prisintervall</string>
@@ -50,23 +50,26 @@
     <string id="SettingFixedFeeTitle">Fast nätavgift, öre/kWh (endast Sverige)</string>
     <string id="SettingVariableFeeTitle">Rörlig nätavgift, % (endast Sverige)</string>
     <string id="SettingEnergyTaxTitle">Energiskatt, öre/kWh (endast Sverige)</string>
-    <string id="ErrorRequestStart">Kunde inte starta Tibber-förfrågan</string>
-    <string id="ErrorInvalidResponse">Tibber returnerade ett ogiltigt svar</string>
-    <string id="ErrorHttpPrefix">Tibber HTTP-fel </string>
-    <string id="ErrorTokenRejected">Tibber avvisade API-token</string>
-    <string id="ErrorAccessDenied">Åtkomst nekad. Kontrollera tokenens behörighet.</string>
-    <string id="ErrorRateLimited">Tibbers anropsgräns nåddes. Försök senare.</string>
-    <string id="ErrorNoConnection">Ingen kontakt med Tibber. Kontrollera klockans anslutning.</string>
-    <string id="ErrorRequestFailed">Tibber-förfrågan misslyckades</string>
-    <string id="ErrorNoData">Ingen data hämtades</string>
-    <string id="ErrorInvalidFormat">Ogiltigt svarsformat</string>
+    <string id="ErrorRequestStart">Något gick fel. Försök igen</string>
+    <string id="ErrorInvalidResponse">Något gick fel. Försök igen</string>
+    <string id="ErrorTokenFormat">Token ser fel ut. Kopiera igen</string>
+    <string id="ErrorNoPhone">Ingen telefonanslutning</string>
+    <string id="ErrorServer">Tibber otillgängligt. Försök senare</string>
+    <string id="GlanceTokenMissing">Token saknas</string>
+    <string id="ErrorTokenRejected">Ogiltig token. Kontrollera den</string>
+    <string id="ErrorAccessDenied">Token saknar behörighet</string>
+    <string id="ErrorRateLimited">För många anrop. Vänta lite</string>
+    <string id="ErrorNoConnection">Ingen kontakt med Tibber</string>
+    <string id="ErrorRequestFailed">Något gick fel. Försök igen</string>
+    <string id="ErrorNoData">Något gick fel. Försök igen</string>
+    <string id="ErrorInvalidFormat">Något gick fel. Försök igen</string>
     <string id="ErrorNoHome">Inget Tibber-hem hittades</string>
-    <string id="ErrorInvalidHome">Ogiltiga hemuppgifter</string>
-    <string id="ErrorNoSubscription">Inget aktivt elavtal hittades</string>
+    <string id="ErrorInvalidHome">Något gick fel. Försök igen</string>
+    <string id="ErrorNoSubscription">Inget aktivt elavtal</string>
     <string id="ErrorPriceDataMissing">Prisdata saknas</string>
     <string id="ErrorCurrentPriceMissing">Aktuellt pris saknas</string>
-    <string id="ErrorInvalidPriceFields">Ogiltiga prisuppgifter</string>
-    <string id="ErrorInvalidPriceResponse">Ogiltigt prissvar från Tibber</string>
+    <string id="ErrorInvalidPriceFields">Något gick fel. Försök igen</string>
+    <string id="ErrorInvalidPriceResponse">Något gick fel. Försök igen</string>
     <string id="ErrorTodayPricesMissing">Dagens priser saknas</string>
-    <string id="ErrorDailyPrices">Kunde inte läsa dagspriser</string>
+    <string id="ErrorDailyPrices">Något gick fel. Försök igen</string>
 </strings>

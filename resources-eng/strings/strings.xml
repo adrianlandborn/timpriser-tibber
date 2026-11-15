@@ -6,7 +6,7 @@
     <string id="LoadingPrices">Loading prices...</string>
     <string id="AppSubtitle">Tibber power price</string>
     <string id="ErrorTitle">Error</string>
-    <string id="ErrorUnknown">Unknown error</string>
+    <string id="ErrorUnknown">Something went wrong. Retry</string>
     <string id="SpotPrice">Spot price</string>
     <string id="TotalPrice">Total price</string>
     <string id="TaxesIncluded">Taxes incl.</string>
@@ -15,7 +15,7 @@
     <string id="NetworkExcluded">Grid excl.</string>
     <string id="StatusSeparator"> | </string>
     <string id="PriceDataMissing">Price data missing</string>
-    <string id="OpenTibber" scope="glance">Open Tibber</string>
+    <string id="OpenTibber" scope="glance">Open the app</string>
     <string id="PricesMissing">Prices missing</string>
     <string id="InvalidPriceData">Invalid price data</string>
     <string id="CouldNotReadPrices">Could not read prices</string>
@@ -42,7 +42,7 @@
     <string id="VariableFeeCaption2">including VAT</string>
     <string id="ErrorInvalidResolution">Invalid price resolution</string>
     <string id="ErrorRequestInProgress">A Tibber request is already in progress</string>
-    <string id="ErrorTokenMissing">Enter Tibber token in app settings</string>
+    <string id="ErrorTokenMissing">Enter token in app settings</string>
     <string id="SettingTokenTitle">Tibber API token</string>
     <string id="SettingPriceTypeTitle">Price shown</string>
     <string id="SettingIntervalTitle">Price interval</string>
@@ -50,23 +50,26 @@
     <string id="SettingFixedFeeTitle">Fixed grid fee, öre/kWh (Sweden only)</string>
     <string id="SettingVariableFeeTitle">Variable grid fee, % (Sweden only)</string>
     <string id="SettingEnergyTaxTitle">Energy tax, öre/kWh (Sweden only)</string>
-    <string id="ErrorRequestStart">Could not start Tibber request</string>
-    <string id="ErrorInvalidResponse">Tibber returned an invalid response</string>
-    <string id="ErrorHttpPrefix">Tibber HTTP error </string>
-    <string id="ErrorTokenRejected">Tibber rejected the API token</string>
-    <string id="ErrorAccessDenied">Access denied. Check the token's permissions.</string>
-    <string id="ErrorRateLimited">Tibber rate limit reached. Try again later.</string>
-    <string id="ErrorNoConnection">Cannot reach Tibber. Check the watch connection.</string>
-    <string id="ErrorRequestFailed">Tibber request failed</string>
-    <string id="ErrorNoData">No data received</string>
-    <string id="ErrorInvalidFormat">Invalid response format</string>
+    <string id="ErrorRequestStart">Something went wrong. Retry</string>
+    <string id="ErrorInvalidResponse">Something went wrong. Retry</string>
+    <string id="ErrorTokenFormat">Token looks wrong. Copy again</string>
+    <string id="ErrorNoPhone">No phone connection</string>
+    <string id="ErrorServer">Tibber unavailable. Try later</string>
+    <string id="GlanceTokenMissing">Token missing</string>
+    <string id="ErrorTokenRejected">Invalid token. Check it</string>
+    <string id="ErrorAccessDenied">Token lacks permission</string>
+    <string id="ErrorRateLimited">Too many requests. Wait</string>
+    <string id="ErrorNoConnection">Cannot reach Tibber</string>
+    <string id="ErrorRequestFailed">Something went wrong. Retry</string>
+    <string id="ErrorNoData">Something went wrong. Retry</string>
+    <string id="ErrorInvalidFormat">Something went wrong. Retry</string>
     <string id="ErrorNoHome">No Tibber home found</string>
-    <string id="ErrorInvalidHome">Invalid home data</string>
-    <string id="ErrorNoSubscription">No active power contract found</string>
+    <string id="ErrorInvalidHome">Something went wrong. Retry</string>
+    <string id="ErrorNoSubscription">No active contract</string>
     <string id="ErrorPriceDataMissing">Price data missing</string>
     <string id="ErrorCurrentPriceMissing">Current price missing</string>
-    <string id="ErrorInvalidPriceFields">Invalid price fields</string>
-    <string id="ErrorInvalidPriceResponse">Invalid price response from Tibber</string>
+    <string id="ErrorInvalidPriceFields">Something went wrong. Retry</string>
+    <string id="ErrorInvalidPriceResponse">Something went wrong. Retry</string>
     <string id="ErrorTodayPricesMissing">Today's prices missing</string>
-    <string id="ErrorDailyPrices">Could not read daily prices</string>
+    <string id="ErrorDailyPrices">Something went wrong. Retry</string>
 </strings>
