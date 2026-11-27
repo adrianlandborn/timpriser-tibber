@@ -1,6 +1,8 @@
 import Toybox.Graphics;
 import Toybox.Lang;
 import Toybox.System;
+import Toybox.Time;
+import Toybox.Background;
 import Toybox.WatchUi;
 import Toybox.Application.Storage;
 
@@ -11,6 +13,12 @@ class TibberGlanceView extends WatchUi.GlanceView {
     var _hourBar;
     var _microFont;
     var _priceFonts;
+    /** True after this glance requested a background fetch; onUpdate then re-reads the cache until data arrives. */
+    var _fetching = false;
+
+    /** Minimum seconds between background fetch attempts. */
+    (:bgFetch)
+    private const RETRY_SECONDS = 900;
 
     /** Free glance heap (bytes) required before the Poppins bitmap fonts are loaded; below it system fonts are used. */
     private const POPPINS_MIN_FREE_BYTES = 40000;
@@ -41,22 +49,62 @@ class TibberGlanceView extends WatchUi.GlanceView {
     }
 
     function onShow() {
+        loadPrice();
+        if (_priceData == null) {
+            requestBackgroundFetch();
+        }
+        WatchUi.requestUpdate();
+    }
+
+    /** Read today's price from the shared cache (also filled by the background fetch). */
+    private function loadPrice() {
         var priceResolution = Storage.getValue("tibber_price_resolution");
         if (!(priceResolution instanceof String) ||
             (!(priceResolution as String).equals("HOURLY") && !(priceResolution as String).equals("QUARTER_HOURLY"))) {
             priceResolution = "QUARTER_HOURLY";
         }
-
         var currentPriceData = _priceCache.getCurrentPrice(priceResolution);
-        if (currentPriceData instanceof Dictionary) {
-            _priceData = currentPriceData;
-        } else {
-            _priceData = null;
+        _priceData = currentPriceData instanceof Dictionary ? currentPriceData : null;
+    }
+
+    /** Tier B (32 KB glance): no background fetch, so its code stays out of the glance heap. */
+    (:noBgFetch)
+    private function requestBackgroundFetch() {
+    }
+
+    /**
+     * Ask for a single background fetch (never a recurring schedule). At most one attempt per
+     * RETRY_SECONDS so a bad token or no connection does not trigger a request on every show.
+     */
+    (:bgFetch)
+    private function requestBackgroundFetch() {
+        if (!(Toybox has :Background)) {
+            return;
         }
-        WatchUi.requestUpdate();
+        try {
+            var lastTry = Storage.getValue("tibber_bg_try");
+            var now = Time.now().value();
+            if (lastTry instanceof Number && now - (lastTry as Number) < RETRY_SECONDS && now >= (lastTry as Number)) {
+                return;
+            }
+            if (Background.getTemporalEventRegisteredTime() != null) {
+                return;
+            }
+            Storage.setValue("tibber_bg_try", now);
+            _fetching = true;
+            Background.registerForTemporalEvent(Time.now());
+        } catch (e) {
+            _fetching = false;
+        }
     }
 
     function onUpdate(dc) {
+        if (_fetching && _priceData == null) {
+            loadPrice();
+            if (_priceData != null) {
+                _fetching = false;
+            }
+        }
         var width = dc.getWidth();
         var height = dc.getHeight();
         dc.setColor(Theme.TEXT_PRIMARY, Theme.BACKGROUND);

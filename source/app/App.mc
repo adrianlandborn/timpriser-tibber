@@ -2,7 +2,7 @@ import Toybox.Application;
 import Toybox.Lang;
 import Toybox.WatchUi;
 
-(:glance)
+(:glance :background)
 class TibberApp extends Application.AppBase {
     private var _priceView;
     /** Lite start screen; only set on devices without glance support. */
@@ -66,6 +66,18 @@ class TibberApp extends Application.AppBase {
         if (_liteView != null) {
             _liteView.reloadSettings();
         }
+        WatchUi.requestUpdate();
+    }
+
+    /** Background service used for the one-shot price fetch requested by the glance. */
+    (:bgFetch)
+    function getServiceDelegate() {
+        return [new TibberBackgroundDelegate()];
+    }
+
+    /** The background fetch has stored prices (or given up): redraw so the glance re-reads the cache. */
+    (:bgFetch)
+    function onBackgroundData(data) as Void {
         WatchUi.requestUpdate();
     }
 

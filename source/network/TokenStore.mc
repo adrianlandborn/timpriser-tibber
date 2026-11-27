@@ -1,7 +1,12 @@
 import Toybox.Application;
+import Toybox.Application.Storage;
 import Toybox.Lang;
 
+(:background)
 class TibberTokenStore {
+    /** Storage copy of the local development token (TibberSecrets) for the background fetch. */
+    private static const DEV_TOKEN_KEY = "tibber_dev_token";
+
     /** Trim a raw settings value; return "" unless it is a non-blank String. */
     static function normalize(value) as String {
         if (!(value instanceof String)) {
@@ -32,18 +37,55 @@ class TibberTokenStore {
         return true;
     }
 
-    /** App-settings token first, then the local development fallback. */
-    static function getApiToken() as String {
-        var token = "";
+    /** Token from the app settings only. Safe in background scope (no TibberSecrets access). */
+    static function getSettingsToken() as String {
         try {
-            token = normalize(Application.Properties.getValue("tibberToken"));
+            return normalize(Application.Properties.getValue("tibberToken"));
         } catch (e) {
-            token = "";
+            return "";
         }
+    }
+
+    /**
+     * Token for the background fetch: the app setting, else the development token that the
+     * foreground mirrored into Storage (TibberSecrets itself is not reachable in background scope).
+     */
+    static function getBackgroundToken() as String {
+        var token = getSettingsToken();
         if (token.length() == 0) {
-            token = normalize(TibberSecrets.getApiToken());
+            token = normalize(Storage.getValue(DEV_TOKEN_KEY));
         }
         return token;
+    }
+
+    /** App-settings token first, then the local development fallback. Foreground only. */
+    static function getApiToken() as String {
+        var token = getSettingsToken();
+        var devToken = "";
+        if (token.length() == 0) {
+            devToken = normalize(TibberSecrets.getApiToken());
+            token = devToken;
+        }
+        mirrorDevToken(devToken);
+        return token;
+    }
+
+    /**
+     * Keep the Storage copy of the development token in sync for the background fetch. Store builds
+     * return "" from TibberSecrets, so there the copy is never written (and any stale one is removed).
+     */
+    private static function mirrorDevToken(devToken as String) as Void {
+        try {
+            var stored = Storage.getValue(DEV_TOKEN_KEY);
+            if (devToken.length() == 0) {
+                if (stored != null) {
+                    Storage.deleteValue(DEV_TOKEN_KEY);
+                }
+            } else if (!(stored instanceof String) || !(stored as String).equals(devToken)) {
+                Storage.setValue(DEV_TOKEN_KEY, devToken);
+            }
+        } catch (e) {
+        }
     }
 
     private static function isBlank(character) as Boolean {

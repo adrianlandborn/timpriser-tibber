@@ -2,7 +2,7 @@ import Toybox.Application.Storage;
 import Toybox.Lang;
 import Toybox.Time;
 
-(:glance)
+(:glance :background)
 class TibberPriceCache {
     private const STANDARD_ENERGY_TAX_ORE = 45.0;
     private const STANDARD_FIXED_FEE_ORE = 20.0;
