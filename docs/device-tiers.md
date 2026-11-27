@@ -91,6 +91,8 @@ The simulator may differ from a real watch. Confirm on hardware when possible.
 - Missing a glance dependency is not a compile error. It fails at runtime with `Symbol Not Found` or an `Illegal Access` error for `Rez`. Test the glance on a device after touching those classes.
 - The glance loads the Poppins bitmap fonts only when at least 40000 bytes of glance heap are free (`POPPINS_MIN_FREE_BYTES` in `GlanceView.mc`); otherwise it uses system fonts. Measured free heap in the glance on 2026-11-04: `fenix7xpro` 44696 (Poppins, confirmed), `fenix6pro` 8416 (system fonts, confirmed). Re-measure before lowering the threshold.
 - `WidgetView` loads the Medium and Large fonts on first use, not at startup.
+- Glance-triggered background fetch (`TibberBackgroundDelegate`, annotation `bgFetch`): Tier B is built without it (`<device>.excludeAnnotations = bgFetch` in `monkey.jungle` and `monkey-release.jungle`; other devices exclude the `noBgFetch` stub). With it, the `fenix6pro` glance had 2120 bytes free at `onShow` and ran out of memory in `PriceCache.readDailyPrices`; without it, 6024 bytes (2026-11-27). Add new Tier B devices to both lists.
+- Background process heap measured on `fenix847mm` (2026-11-27): about 45 KB free at `onTemporalEvent`, about 30.7 KB after the reduced today-only response (96 quarter-hours). The full per-interval payload (`startsAt`, `currency`) failed with `-403` (out of memory), so the background query asks only for `total energy level` and takes the currency from `current`.
 - Tier B's placeholder glance is meant to be done at build time (for example `fenix6pro.excludeAnnotations = glanceFull` in `monkey.jungle`), so the price code is not loaded at all. A runtime check would still load that code.
 
 ## Regenerating the memory table

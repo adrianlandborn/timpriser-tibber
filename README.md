@@ -22,6 +22,14 @@ To try Norwegian, German or Dutch contracts without an account, use the built-in
 
 Prices are shown in the minor unit of the currency Tibber returns: SEK as öre, NOK as øre, EUR as cent. The unit and the fee logic depend only on that API currency; the watch language only selects UI text (a Swedish contract on a German watch still shows öre). Grid fees and energy tax (Swedish tariff model) are only available for SEK; for NOK/EUR the widget shows Tibber's own spot or total price and labels it "as per Tibber" without adding fees.
 
+## Glance
+
+The glance shows the current price from the app's saved prices. When there are no prices for today (for example after midnight), showing the glance requests one background fetch of today's prices; the glance updates when they arrive. There is no recurring schedule, so a watch where the glance is never shown never fetches. Attempts are at most one per 15 minutes, and the fetch is skipped without a token. On DST change days the fetch gives up and the glance shows "Open the app" until the app is opened.
+
+The background fetch uses the token from the app settings. During development, a token that only exists in the local `secrets/Secrets.mc` is copied to `Storage` (`tibber_dev_token`) the first time the app uses it, because that class is not available in the background process; open the app once after clearing the app data.
+
+Tier B devices (Fenix 6 Pro series, Forerunner 245 Music/745/945, Descent Mk2, MARQ first generation) have a 32 KB glance and are built without the background fetch (`excludeAnnotations = bgFetch` in both jungle files); their glance shows "Open the app" until the app is opened.
+
 ## Controls
 
 START/STOP refreshes prices, MENU opens settings, and BACK returns from graph or settings screens. From the main screen, UP opens the hourly graph and DOWN opens the quarter-hour graph. Within the graph, UP moves from hourly to quarter-hour prices and then back to the main screen; DOWN moves from quarter-hour to hourly prices and then back to the main screen. The hourly graph includes tomorrow's prices when they are available.

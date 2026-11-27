@@ -5,6 +5,7 @@
 - Shorter, clearer error messages that say what to fix, such as a missing or invalid Tibber token, no phone connection or Tibber being unavailable.
 - The compact screen on watches without glances shows "Token missing" until a token is entered, and the glance shows "Open the app" when there is no price yet.
 - A token that is obviously mistyped (too short or containing spaces) is reported before contacting Tibber.
+- The glance now fetches today's prices by itself when it has none, so you no longer need to open the app first each day. It only fetches when the glance is shown and prices are missing, never on a schedule. Not available on Fenix 6 Pro, Forerunner 245 Music/745/945, Descent Mk2 and MARQ (first generation), where the glance has too little memory; there it still shows "Open the app".
 
 ## 1.2.0 - 2026-11-11
 
